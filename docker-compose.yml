@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+    node:
+        container_name: findbase
+        user: node
+        build:
+            context: ./
+            dockerfile: ./docker/node/Dockerfile
+        command: npm run dev
+        volumes:
+            - ./:/home/node/web
+            - /home/node/web/node_modules
+        network_mode: host
