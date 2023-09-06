@@ -24,6 +24,7 @@
         "@trpc/next": "^10.18.0",
         "@trpc/react-query": "^10.18.0",
         "@trpc/server": "^10.18.0",
+        "axios": "^1.5.0",
         "classnames": "^2.3.2",
         "eslint-plugin-simple-import-sort": "^10.0.0",
         "mantine-datatable": "^2.4.16",
