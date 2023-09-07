@@ -38,12 +38,16 @@ export const getInitialData = async (
         }
     );
 
-    const match = /window\["APP_INITIALIZATION_STATE"\] = (.*);/gm.exec(
-        res.data
-    );
+    const raw = res.data
+        .split(";window.APP_INITIALIZATION_STATE=")
+        .at(1)
+        ?.split(";window.APP_FLAGS")
+        .at(0)
+        ?.replace("\\", "");
 
-    const json: unknown = match && match[1] ? JSON.parse(match[1]) : null;
-    const data = getArray(json, [3, 2], "") as string;
+    const json: unknown = raw ? JSON.parse(raw) : null;
+    const pb = getArray(json, [3, 2], "") as string;
+    const data = pb.substring(5);
 
     return {
         data,
