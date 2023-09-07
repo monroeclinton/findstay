@@ -32,7 +32,7 @@ export const getInitialData = async (
     longitutde: number
 ): Promise<IInitialData> => {
     const res: AxiosResponse<string> = await axios.get(
-        `https://www.google.com/maps/@${latitude},${longitutde},16z?entry=ttu`,
+        `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
         {
             headers,
         }
