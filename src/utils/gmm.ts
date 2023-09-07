@@ -7,7 +7,8 @@ export interface IInitialData {
 const headers = {
     "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
-    "Content-Type": "application/json",
+    "Content-Type":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
 };
 
 const getArray = (
