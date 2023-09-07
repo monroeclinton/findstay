@@ -1,7 +1,7 @@
 import axios, { type AxiosResponse } from "axios";
 
 export interface IInitialData {
-    data: string;
+    [index: number]: unknown;
 }
 
 const headers = {
