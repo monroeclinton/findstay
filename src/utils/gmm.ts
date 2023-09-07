@@ -45,11 +45,10 @@ export const getInitialData = async (
         .at(0)
         ?.replace("\\", "");
 
-    const json: unknown = raw ? JSON.parse(raw) : null;
-    const pb = getArray(json, [3, 2], "") as string;
-    const data = pb.substring(5);
+    const rawJson: unknown = raw ? JSON.parse(raw) : null;
+    const pb = getArray(rawJson, [3, 2], "") as string;
+    const dataString = pb.substring(5);
+    const data = JSON.parse(dataString) as IInitialData;
 
-    return {
-        data,
-    };
+    return data;
 };
