@@ -17,11 +17,7 @@ const getArray = (
     fallback: unknown = null
 ): unknown => {
     for (const i of indices) {
-        if (
-            Array.isArray(json) &&
-            json?.indexOf(i) !== -1 &&
-            Array.isArray(json[i])
-        ) {
+        if (Array.isArray(json) && json.indexOf(i) !== 1) {
             json = json[i];
         } else {
             return fallback;
