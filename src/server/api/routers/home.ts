@@ -65,6 +65,7 @@ export const homeRouter = createTRPCRouter({
 
         for (const home of homes) {
             records.push({
+                id: home.listing.id,
                 name: home.listing.name,
                 ratings: home.listing.avgRatingA11yLabel,
                 supermarket: closestSupermarket(home.listing.coordinate),
