@@ -107,7 +107,7 @@ export const parseBuffer = (data: unknown): ISearchData | null => {
 export const getInitialData = async (
     latitude: number,
     longitutde: number
-): Promise<IInitialData> => {
+): Promise<ISearchData | null> => {
     const res: AxiosResponse<string> = await axios.get(
         `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
         {
