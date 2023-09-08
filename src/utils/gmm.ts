@@ -40,6 +40,15 @@ const getArray = (
     return json;
 };
 
+const getLink = (
+    latitude: number,
+    longitude: number,
+    hex: string,
+    uri: string
+): string => {
+    return `https://www.google.com/maps/place/@${latitude},${longitude},15z/data=!4m6!3m5!1s${hex}!8m2!3d${latitude}!4d${longitude}!16s${uri}`;
+};
+
 export const getInitialData = async (
     latitude: number,
     longitutde: number
