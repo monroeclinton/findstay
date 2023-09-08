@@ -125,7 +125,7 @@ export const getInitialData = async (
     const rawJson: unknown = raw ? JSON.parse(raw) : null;
     const pb = getArray(rawJson, [3, 2], "") as string;
     const dataString = pb.substring(5);
-    const data = JSON.parse(dataString) as IInitialData;
+    const data = JSON.parse(dataString) as ISearchData;
 
-    return data;
+    return parseBuffer(data);
 };
