@@ -1,7 +1,20 @@
 import axios, { type AxiosResponse } from "axios";
 
-export interface IInitialData {
-    [index: number]: unknown;
+export interface ISearchLocation {
+    name: string;
+    type: string;
+    reviews: number;
+    stars: number;
+    link: string;
+    coordinates: {
+        latitude: number;
+        longitutde: number;
+    };
+}
+
+export interface ISearchData {
+    search: string;
+    results: Array<ISearchLocation>;
 }
 
 const headers = {
