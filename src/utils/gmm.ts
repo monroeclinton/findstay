@@ -5,6 +5,8 @@ export interface ISearchLocation {
     type: string;
     reviews: number;
     stars: number;
+    hex: string;
+    uri: string;
     link: string;
     coordinates: {
         latitude: number;
