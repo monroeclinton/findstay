@@ -1,8 +1,19 @@
 version: "3"
 
 services:
+    database-findbase:
+        container_name: database-findbase
+        image: postgres:${POSTGRES_VERSION:-14}-alpine
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB:-findbase}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+            POSTGRES_USER: ${POSTGRES_USER:-findbase}
+        ports:
+            - "5432:5432"
+        volumes:
+            - db-findbase:/var/lib/postgresql/data:rw
     node:
-        container_name: findbase
+        container_name: node-findbase
         user: node
         build:
             context: ./
@@ -11,4 +22,13 @@ services:
         volumes:
             - ./:/home/node/web
             - /home/node/web/node_modules
-        network_mode: host
+        ports:
+            - "3000:3000"
+        environment:
+            - DATABASE_URL=postgres://${POSTGRES_USER:-findbase}:${POSTGRES_PASSWORD:-password}@database-findbase/${POSTGRES_DB:-findbase}
+        depends_on:
+            - database-findbase
+
+volumes:
+    # postgres data
+    db-findbase:
