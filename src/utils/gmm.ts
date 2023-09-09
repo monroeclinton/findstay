@@ -14,11 +14,6 @@ export interface ISearchLocation {
     };
 }
 
-export interface ISearchData {
-    search: string;
-    results: Array<ISearchLocation>;
-}
-
 const headers = {
     "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
@@ -51,7 +46,7 @@ const getLink = (
     return `https://www.google.com/maps/place/@${latitude},${longitude},15z/data=!4m6!3m5!1s${hex}!8m2!3d${latitude}!4d${longitude}!16s${uri}`;
 };
 
-export const parseBuffer = (data: unknown): ISearchData | null => {
+export const parseBuffer = (data: unknown): Array<ISearchLocation> | null => {
     const search = getArray(data, [0, 0]);
     if (!search) return null;
 
@@ -87,6 +82,8 @@ export const parseBuffer = (data: unknown): ISearchData | null => {
             type: type as string,
             reviews: reviews as number,
             stars: stars as number,
+            hex: hex as string,
+            uri: uri as string,
             link: getLink(
                 latitude as number,
                 longitude as number,
@@ -100,16 +97,13 @@ export const parseBuffer = (data: unknown): ISearchData | null => {
         });
     }
 
-    return {
-        search: search as string,
-        results,
-    };
+    return results;
 };
 
-export const getInitialData = async (
+export const syncSuperMarkets = async (
     latitude: number,
     longitutde: number
-): Promise<ISearchData | null> => {
+) => {
     const res: AxiosResponse<string> = await axios.get(
         `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
         {
