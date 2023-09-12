@@ -95,7 +95,7 @@ export const syncSuperMarkets = async (
             name: name as string,
             type: type as string,
             reviews: reviews as number,
-            stars: stars as number,
+            stars: new Prisma.Decimal(stars as number),
             hex: hex as string,
             uri: uri as string,
             link: getLink(
@@ -104,24 +104,33 @@ export const syncSuperMarkets = async (
                 hex as string,
                 uri as string
             ),
-            coordinates: {
-                latitude: latitude as number,
-                longitutde: longitude as number,
-            },
+            latitude: new Prisma.Decimal(latitude as number),
+            longitude: new Prisma.Decimal(longitude as number),
         });
     }
 
-    return results;
-};
+    const sync = await prisma.googleMapsSync.create({
+        data: {
+            search: "supermarkets",
+            latitude: new Prisma.Decimal(latitude),
+            longitude: new Prisma.Decimal(longitutde),
+        },
+    });
 
-export const syncSuperMarkets = async (
-    latitude: number,
-    longitutde: number
-) => {
-    const res: AxiosResponse<string> = await axios.get(
-        `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
-        {
-            headers,
-        }
+    await prisma.$transaction(
+        results.map((location) =>
+            prisma.googleMapsLocation.upsert({
+                where: {
+                    id: location.hex,
+                },
+                update: {
+                    ...location,
+                },
+                create: {
+                    ...location,
+                    syncId: sync.id,
+                },
+            })
+        )
     );
 };
