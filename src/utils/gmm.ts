@@ -1,18 +1,7 @@
+import { Prisma } from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
 
-export interface ISearchLocation {
-    name: string;
-    type: string;
-    reviews: number;
-    stars: number;
-    hex: string;
-    uri: string;
-    link: string;
-    coordinates: {
-        latitude: number;
-        longitutde: number;
-    };
-}
+import { prisma } from "~/server/db";
 
 const headers = {
     "User-Agent":
