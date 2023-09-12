@@ -35,16 +35,41 @@ const getLink = (
     return `https://www.google.com/maps/place/@${latitude},${longitude},15z/data=!4m6!3m5!1s${hex}!8m2!3d${latitude}!4d${longitude}!16s${uri}`;
 };
 
-export const parseBuffer = (data: unknown): Array<ISearchLocation> | null => {
-    const search = getArray(data, [0, 0]);
-    if (!search) return null;
+export const syncSuperMarkets = async (
+    latitude: number,
+    longitutde: number
+) => {
+    const res: AxiosResponse<string> = await axios.get(
+        `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
+        {
+            headers,
+        }
+    );
 
-    const raw = getArray(data, [0, 1]);
-    if (!Array.isArray(raw)) return null;
-    raw.shift();
+    const raw = res.data
+        .split(";window.APP_INITIALIZATION_STATE=")
+        .at(1)
+        ?.split(";window.APP_FLAGS")
+        .at(0)
+        ?.replace("\\", "");
 
-    const results: Array<ISearchLocation> = [];
-    for (const store of raw) {
+    const initializationState: unknown = raw ? JSON.parse(raw) : null;
+    const searchProtoBufString = (
+        getArray(initializationState, [3, 2], "") as string
+    ).substring(5);
+    if (searchProtoBufString.length === 0) return null;
+    const searchProtoBuf: unknown = JSON.parse(searchProtoBufString);
+
+    const searchResults = getArray(searchProtoBuf, [0, 0]);
+    if (!searchResults) return null;
+
+    const locationResults = getArray(searchResults, [0, 1]);
+    console.log(locationResults);
+    if (!Array.isArray(locationResults)) return null;
+    locationResults.shift();
+
+    const results = [];
+    for (const store of locationResults) {
         const name = getArray(store, [14, 11]);
         const type = getArray(store, [14, 88, 1]);
         const reviews = getArray(store, [14, 4, 8]);
@@ -99,18 +124,4 @@ export const syncSuperMarkets = async (
             headers,
         }
     );
-
-    const raw = res.data
-        .split(";window.APP_INITIALIZATION_STATE=")
-        .at(1)
-        ?.split(";window.APP_FLAGS")
-        .at(0)
-        ?.replace("\\", "");
-
-    const rawJson: unknown = raw ? JSON.parse(raw) : null;
-    const pb = getArray(rawJson, [3, 2], "") as string;
-    const dataString = pb.substring(5);
-    const data = JSON.parse(dataString) as ISearchData;
-
-    return parseBuffer(data);
 };
