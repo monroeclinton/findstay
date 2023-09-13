@@ -3,7 +3,9 @@ version: "3"
 services:
     database-findbase:
         container_name: database-findbase
-        image: postgres:${POSTGRES_VERSION:-14}-alpine
+        build:
+            context: ./
+            dockerfile: ./docker/postgresql/Dockerfile
         environment:
             POSTGRES_DB: ${POSTGRES_DB:-findbase}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
