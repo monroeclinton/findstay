@@ -1,13 +1,7 @@
 import homes from "~/data/airbnb.json";
 import supermarkets from "~/data/google_maps.json";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-
-interface Record {
-    listing: {
-        name: string;
-        avgRatingA11yLabel: string;
-    };
-}
+import { syncSuperMarkets } from "~/utils/gmm";
 
 // https://stackoverflow.com/q/18883601
 function getDistanceFromLatLonInKm(
