@@ -60,66 +60,59 @@ export const syncSuperMarkets = async (
     if (searchProtoBufString.length === 0) return null;
     const searchProtoBuf: unknown = JSON.parse(searchProtoBufString);
 
-    const searchResults = getArray(searchProtoBuf, [0, 0]);
-    if (!searchResults) return null;
-
-    const locationResults = getArray(searchResults, [0, 1]);
-    console.log(locationResults);
+    const locationResults = getArray(searchProtoBuf, [0, 1]);
     if (!Array.isArray(locationResults)) return null;
     locationResults.shift();
 
-    const results = [];
-    for (const store of locationResults) {
-        const name = getArray(store, [14, 11]);
-        const type = getArray(store, [14, 88, 1]);
-        const reviews = getArray(store, [14, 4, 8]);
-        const stars = getArray(store, [14, 4, 7]);
-        const latitude = getArray(store, [14, 9, 2]);
-        const longitude = getArray(store, [14, 9, 3]);
-        const hex = getArray(store, [14, 4, 10]);
-        const uri = getArray(store, [14, 4, 89]);
-
-        if (
-            name === null ||
-            type === null ||
-            reviews === null ||
-            stars === null ||
-            latitude === null ||
-            longitude === null ||
-            hex === null
-        ) {
-            continue;
-        }
-
-        results.push({
-            name: name as string,
-            type: type as string,
-            reviews: reviews as number,
-            stars: new Prisma.Decimal(stars as number),
-            hex: hex as string,
-            uri: uri as string,
-            link: getLink(
-                latitude as number,
-                longitude as number,
-                hex as string,
-                uri as string
-            ),
-            latitude: new Prisma.Decimal(latitude as number),
-            longitude: new Prisma.Decimal(longitude as number),
+    await prisma.$transaction(async (tx) => {
+        const sync = await tx.googleMapsSync.create({
+            data: {
+                search: "supermarkets",
+                latitude: new Prisma.Decimal(latitude),
+                longitude: new Prisma.Decimal(longitutde),
+            },
         });
-    }
 
-    const sync = await prisma.googleMapsSync.create({
-        data: {
-            search: "supermarkets",
-            latitude: new Prisma.Decimal(latitude),
-            longitude: new Prisma.Decimal(longitutde),
-        },
-    });
+        for (const store of locationResults) {
+            const name = getArray(store, [14, 11]);
+            const type = getArray(store, [14, 88, 1]);
+            const reviews = getArray(store, [14, 4, 8]);
+            const stars = getArray(store, [14, 4, 7]);
+            const latitude = getArray(store, [14, 9, 2]);
+            const longitude = getArray(store, [14, 9, 3]);
+            const hex = getArray(store, [14, 10]);
+            const uri = getArray(store, [14, 89]);
 
-    await prisma.$transaction(
-        results.map((location) =>
-            prisma.googleMapsLocation.upsert({
+            if (
+                name === null ||
+                type === null ||
+                reviews === null ||
+                stars === null ||
+                latitude === null ||
+                longitude === null ||
+                hex === null
+            ) {
+                continue;
+            }
+
+            const location = {
+                name: name as string,
+                type: type as string,
+                reviews: reviews as number,
+                stars: new Prisma.Decimal(stars as number),
+                hex: hex as string,
+                uri: uri as string,
+                link: getLink(
+                    latitude as number,
+                    longitude as number,
+                    hex as string,
+                    uri as string
+                ),
+                latitude: new Prisma.Decimal(latitude as number),
+                longitude: new Prisma.Decimal(longitude as number),
+            };
+
+            await tx.googleMapsLocation.upsert({
                 where: {
                     id: location.hex,
                 },
@@ -130,7 +123,7 @@ export const syncSuperMarkets = async (
                     ...location,
                     syncId: sync.id,
                 },
-            })
-        )
-    );
+            });
+        }
+    });
 };
