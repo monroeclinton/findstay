@@ -38,5 +38,9 @@ export const syncAirbnbListings = async (location: string) => {
         ?.split('"},')
         .at(0);
 
+    if (!apiKey) return;
+
+    await scrapeAirbnbApi(apiKey);
+
     return;
 };
