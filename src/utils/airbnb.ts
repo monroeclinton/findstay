@@ -1,3 +1,25 @@
-export const syncAirbnbListings = () => {
+import axios, { type AxiosResponse } from "axios";
+
+const headers = {
+    "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
+    "Content-Type":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+};
+
+export const syncAirbnbListings = async (location: string) => {
+    const res: AxiosResponse<string> = await axios.get(
+        `https://www.airbnb.com/s/${location}/homes`,
+        {
+            headers,
+        }
+    );
+
+    const apiKey = res.data
+        .split('"baseUrl":"/api","key":"')
+        .at(1)
+        ?.split('"},')
+        .at(0);
+
     return;
 };
