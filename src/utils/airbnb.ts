@@ -118,13 +118,10 @@ const scrapeAirbnbApi = async (apiKey: string) => {
 
 export const syncAirbnbListings = async (location: string) => {
     const res: AxiosResponse<string> = await axios.get(
-        `https://www.airbnb.com/s/${location}/homes`,
+        `https://www.airbnb.com/s/${location.replace(/ /g, "+")}/homes`,
         {
-            headers: {
-                ...headers,
-                "Content-Type":
-                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-            },
+            headers,
+            validateStatus: () => true,
         }
     );
 
