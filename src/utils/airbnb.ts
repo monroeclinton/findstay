@@ -1,5 +1,29 @@
 import axios, { type AxiosResponse } from "axios";
 
+interface MapSearchResponse {
+    data: {
+        presentation: {
+            explore: {
+                sections: {
+                    sectionIndependentData: {
+                        staysMapSearch: {
+                            mapSearchResults: {
+                                id: string;
+                                coordinate: {
+                                    longitude: number;
+                                    latitude: number;
+                                };
+                                name: string;
+                                avgRatingA11yLabel: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+}
+
 const headers = {
     "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
