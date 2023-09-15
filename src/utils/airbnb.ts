@@ -30,9 +30,8 @@ const headers = {
 };
 
 const scrapeAirbnbApi = async (apiKey: string) => {
-    const res: AxiosResponse<string> = await axios.post(
+    const res: AxiosResponse<MapSearchResponse> = await axios.post(
         `https://www.airbnb.com/api/v3/StaysMapS2Search?operationName=StaysMapS2Search&locale=en&currency=USD`,
-
         {
             operationName: "StaysMapS2Search",
             variables: {
