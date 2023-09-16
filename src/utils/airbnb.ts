@@ -1,5 +1,7 @@
 import axios, { type AxiosResponse } from "axios";
 
+import { prisma } from "~/server/db";
+
 interface MapSearchResponse {
     data: {
         presentation: {
@@ -135,7 +137,29 @@ export const syncAirbnbListings = async (location: string) => {
 
     if (!apiKey) return;
 
-    await scrapeAirbnbApi(apiKey);
+    const locationResults = await scrapeAirbnbApi(apiKey);
 
-    return;
+    await prisma.$transaction(async (tx) => {
+        for (const location of locationResults) {
+            await tx.airbnbLocation.upsert({
+                where: {
+                    airbnbId: location.listing.id,
+                },
+                update: {
+                    name: location.listing.name,
+                    rating: location.listing.avgRatingA11yLabel,
+                    latitude: location.listing.coordinate.latitude,
+                    longitude: location.listing.coordinate.longitude,
+                },
+                create: {
+                    airbnbId: location.listing.id,
+                    name: location.listing.name,
+                    link: "https://airbnb.com/rooms/" + location.listing.id,
+                    rating: location.listing.avgRatingA11yLabel,
+                    latitude: location.listing.coordinate.latitude,
+                    longitude: location.listing.coordinate.longitude,
+                },
+            });
+        }
+    });
 };
