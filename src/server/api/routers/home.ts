@@ -1,6 +1,5 @@
-import homes from "~/data/airbnb.json";
-import supermarkets from "~/data/google_maps.json";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { syncAirbnbListings } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
 // https://stackoverflow.com/q/18883601
@@ -29,8 +28,13 @@ function deg2rad(deg: number) {
 }
 
 export const homeRouter = createTRPCRouter({
-    getAll: publicProcedure.query(() => {
+    getAll: publicProcedure.query(async ({ ctx }) => {
+        await syncSuperMarkets(19.4181529, -99.1703512);
+        await syncAirbnbListings("Roma norte");
+
         const records = [];
+        const supermarkets = await ctx.prisma.googleMapsLocation.findMany();
+        const homes = await ctx.prisma.airbnbLocation.findMany();
 
         const closestSupermarket = ({
             latitude,
@@ -43,8 +47,8 @@ export const homeRouter = createTRPCRouter({
 
             for (const supermarket of supermarkets) {
                 const distance = getDistanceFromLatLonInKm(
-                    supermarket.coordinate.latitude,
-                    supermarket.coordinate.longitude,
+                    supermarket.latitude.toNumber(),
+                    supermarket.longitude.toNumber(),
                     latitude,
                     longitude
                 );
@@ -59,11 +63,14 @@ export const homeRouter = createTRPCRouter({
 
         for (const home of homes) {
             records.push({
-                id: home.listing.id,
-                name: home.listing.name,
-                ratings: home.listing.avgRatingA11yLabel,
-                supermarket: closestSupermarket(home.listing.coordinate),
-                link: "https://airbnb.com/rooms/" + home.listing.id,
+                id: home.id,
+                name: home.name,
+                ratings: home.rating,
+                supermarket: closestSupermarket({
+                    longitude: home.longitude.toNumber(),
+                    latitude: home.latitude.toNumber(),
+                }),
+                link: home.link,
             });
         }
 
