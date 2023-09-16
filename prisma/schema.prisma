@@ -15,6 +15,20 @@ datasource db {
     relationMode = "prisma"
 }
 
+model AirbnbLocation {
+    id        String   @id @default(cuid())
+    airbnbId  String   @unique
+    name      String
+    rating    String
+    link      String
+    latitude  Decimal
+    longitude Decimal
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("airbnb_location")
+}
+
 model GoogleMapsLocation {
     id        String         @id @default(cuid())
     syncId    String
