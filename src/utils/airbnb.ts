@@ -7,15 +7,17 @@ interface MapSearchResponse {
                 sections: {
                     sectionIndependentData: {
                         staysMapSearch: {
-                            mapSearchResults: {
-                                id: string;
-                                coordinate: {
-                                    longitude: number;
-                                    latitude: number;
+                            mapSearchResults: Array<{
+                                listing: {
+                                    id: string;
+                                    coordinate: {
+                                        longitude: number;
+                                        latitude: number;
+                                    };
+                                    name: string;
+                                    avgRatingA11yLabel: string;
                                 };
-                                name: string;
-                                avgRatingA11yLabel: string;
-                            };
+                            }>;
                         };
                     };
                 };
