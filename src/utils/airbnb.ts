@@ -1,6 +1,17 @@
+import { type Prisma } from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
+
+interface Coordinate {
+    longitude: number;
+    latitude: number;
+}
+
+interface BoundingBox {
+    northeast: Coordinate;
+    southwest: Coordinate;
+}
 
 interface MapSearchResponse {
     data: {
@@ -12,10 +23,7 @@ interface MapSearchResponse {
                             mapSearchResults: Array<{
                                 listing: {
                                     id: string;
-                                    coordinate: {
-                                        longitude: number;
-                                        latitude: number;
-                                    };
+                                    coordinate: Coordinate;
                                     name: string;
                                     avgRatingA11yLabel: string;
                                 };
@@ -27,6 +35,12 @@ interface MapSearchResponse {
         };
     };
 }
+
+type AirbnbLocationSync = Prisma.AirbnbLocationSyncGetPayload<{
+    include: {
+        locations: true;
+    };
+}>;
 
 const headers = {
     "Content-Type": "text/html",
@@ -120,7 +134,9 @@ const scrapeAirbnbApi = async (apiKey: string) => {
         .staysMapSearch.mapSearchResults;
 };
 
-export const syncAirbnbListings = async (location: string) => {
+export const syncAirbnbListings = async (
+    location: string
+): Promise<AirbnbLocationSync | null> => {
     const res: AxiosResponse<string> = await axios.get(
         `https://www.airbnb.com/s/${location.replace(/ /g, "+")}/homes`,
         {
@@ -132,14 +148,53 @@ export const syncAirbnbListings = async (location: string) => {
     const apiKey = res.data
         .split('"baseUrl":"/api","key":"')
         .at(1)
-        ?.split('"},')
+        ?.split("},")
         .at(0);
 
-    if (!apiKey) return;
+    if (!apiKey) return null;
+
+    const cursors = JSON.parse(
+        res.data
+            .split('"pageCursors":')
+            .at(1)
+            ?.split(',"previousPageCursor":null"')
+            .at(0) as string
+    ) as string[];
+
+    const boundingBox = JSON.parse(
+        res.data
+            .split('"mapBoundsHint":')
+            .at(1)
+            ?.split(',"poiTagsForFlexCategory"')
+            .at(0) as string
+    ) as BoundingBox;
 
     const locationResults = await scrapeAirbnbApi(apiKey);
 
     await prisma.$transaction(async (tx) => {
+        const sync = await tx.airbnbLocationSync.create({
+            data: {
+                search: location,
+                apiKey,
+                page: 1,
+                cursors,
+                neBBox: {
+                    type: "Point",
+                    coordinates: [
+                        boundingBox.northeast.longitude,
+                        boundingBox.northeast.latitude,
+                    ],
+                },
+                swBBox: {
+                    type: "Point",
+                    coordinates: [
+                        boundingBox.southwest.longitude,
+                        boundingBox.southwest.latitude,
+                    ],
+                },
+            },
+        });
+
         for (const location of locationResults) {
             await tx.airbnbLocation.upsert({
                 where: {
@@ -152,14 +207,25 @@ export const syncAirbnbListings = async (location: string) => {
                     longitude: location.listing.coordinate.longitude,
                 },
                 create: {
+                    syncId: sync.id,
                     airbnbId: location.listing.id,
                     name: location.listing.name,
-                    link: "https://airbnb.com/rooms/" + location.listing.id,
                     rating: location.listing.avgRatingA11yLabel,
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
                 },
             });
         }
+
+        return prisma.airbnbLocationSync.findUnique({
+            where: {
+                id: sync.id,
+            },
+            include: {
+                locations: true,
+            },
+        });
     });
+
+    return null;
 };
