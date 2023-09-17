@@ -1,7 +1,7 @@
 import { type GoogleMapsLocation, Prisma } from "@prisma/client";
+import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { prisma } from "~/server/db";
 import { syncAirbnbListings } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
@@ -57,20 +57,33 @@ function deg2rad(deg: number) {
 }
 
 export const homeRouter = createTRPCRouter({
-    getAll: publicProcedure.query(async ({ ctx }) => {
-        const airbnbSync = await syncAirbnbListings("Roma norte");
+    getAll: publicProcedure
+        .input(
+            z
+                .object({
+                    syncId: z.string(),
+                })
+                .optional()
+        )
+        .query(async ({ ctx, input }) => {
+            const airbnbSync = await syncAirbnbListings(
+                "Roma norte",
+                input?.syncId
+            );
 
-        if (!airbnbSync) throw new Error();
+            if (!airbnbSync) throw new Error();
 
-        const midpoint = getMidPoint(
-            airbnbSync.neBBox.coordinates[1],
-            airbnbSync.neBBox.coordinates[0],
-            airbnbSync.swBBox.coordinates[1],
-            airbnbSync.swBBox.coordinates[0]
-        );
-        await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
-        const supermarkets = await prisma.$queryRaw<GoogleMapsLocation[]>(
-            Prisma.sql`
+            const midpoint = getMidPoint(
+                airbnbSync.neBBox.coordinates[1],
+                airbnbSync.neBBox.coordinates[0],
+                airbnbSync.swBBox.coordinates[1],
+                airbnbSync.swBBox.coordinates[0]
+            );
+            await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
+            const supermarkets = await ctx.prisma.$queryRaw<
+                GoogleMapsLocation[]
+            >(
+                Prisma.sql`
                 SELECT
                     *
                 FROM
@@ -81,48 +94,51 @@ export const homeRouter = createTRPCRouter({
                         ST_MakePoint(${midpoint.longitude}, ${midpoint.latitude})
                     ) <= 1
             `
-        );
+            );
 
-        const records = [];
+            const records = [];
 
-        const closestSupermarket = ({
-            latitude,
-            longitude,
-        }: {
-            latitude: number;
-            longitude: number;
-        }): number => {
-            let shortest = null;
+            const closestSupermarket = ({
+                latitude,
+                longitude,
+            }: {
+                latitude: number;
+                longitude: number;
+            }): number => {
+                let shortest = null;
 
-            for (const supermarket of supermarkets) {
-                const distance = getDistanceFromLatLonInKm(
-                    supermarket.latitude.toNumber(),
-                    supermarket.longitude.toNumber(),
-                    latitude,
-                    longitude
-                );
+                for (const supermarket of supermarkets) {
+                    const distance = getDistanceFromLatLonInKm(
+                        supermarket.latitude.toNumber(),
+                        supermarket.longitude.toNumber(),
+                        latitude,
+                        longitude
+                    );
 
-                if (shortest === null || shortest > distance) {
-                    shortest = distance;
+                    if (shortest === null || shortest > distance) {
+                        shortest = distance;
+                    }
                 }
+
+                return Math.round((shortest || 0) * 1000);
+            };
+
+            for (const home of airbnbSync.locations) {
+                records.push({
+                    id: home.id,
+                    name: home.name,
+                    ratings: home.rating,
+                    supermarket: closestSupermarket({
+                        longitude: home.longitude.toNumber(),
+                        latitude: home.latitude.toNumber(),
+                    }),
+                    link: "https://airbnb.com/rooms/" + home.id,
+                });
             }
 
-            return Math.round((shortest || 0) * 1000);
-        };
-
-        for (const home of airbnbSync.locations) {
-            records.push({
-                id: home.id,
-                name: home.name,
-                ratings: home.rating,
-                supermarket: closestSupermarket({
-                    longitude: home.longitude.toNumber(),
-                    latitude: home.latitude.toNumber(),
-                }),
-                link: "https://airbnb.com/rooms/" + home.id,
-            });
-        }
-
-        return records;
-    }),
+            return {
+                syncId: airbnbSync.id,
+                locations: records,
+            };
+        }),
 });
