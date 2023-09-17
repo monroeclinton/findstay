@@ -16,15 +16,16 @@ datasource db {
 }
 
 model AirbnbLocation {
-    id        String   @id @default(cuid())
-    airbnbId  String   @unique
+    id        String             @id @default(cuid())
+    syncId    String
+    sync      AirbnbLocationSync @relation(fields: [syncId], references: [id], onDelete: Cascade)
+    airbnbId  String             @unique
     name      String
     rating    String
-    link      String
     latitude  Decimal
     longitude Decimal
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt DateTime           @default(now())
+    updatedAt DateTime           @updatedAt
 
     @@map("airbnb_location")
 }
