@@ -1,4 +1,5 @@
-import { type Prisma } from "@prisma/client";
+import { createId } from "@paralleldrive/cuid2";
+import { Prisma } from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
@@ -14,6 +15,13 @@ interface BoundingBox {
 }
 
 interface MapSearchResponse {
+    errors?: Array<{
+        extensions: {
+            response: {
+                body: string;
+            };
+        };
+    }>;
     data: {
         presentation: {
             explore: {
@@ -130,6 +138,10 @@ const scrapeAirbnbApi = async (apiKey: string) => {
             },
         }
     );
+
+    if (res.data.errors?.length !== undefined && res.data.errors.length > 0) {
+        console.log(res.data.errors.at(0)?.extensions.response);
+    }
 
     return res.data.data.presentation.explore.sections.sectionIndependentData
         .staysMapSearch.mapSearchResults;
