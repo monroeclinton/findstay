@@ -119,7 +119,7 @@ export const homeRouter = createTRPCRouter({
                     longitude: home.longitude.toNumber(),
                     latitude: home.latitude.toNumber(),
                 }),
-                link: home.link,
+                link: "https://airbnb.com/rooms/" + home.id,
             });
         }
 
