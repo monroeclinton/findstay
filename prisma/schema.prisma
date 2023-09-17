@@ -29,6 +29,23 @@ model AirbnbLocation {
     @@map("airbnb_location")
 }
 
+model AirbnbLocationSync {
+    id        String           @id @default(cuid())
+    search    String
+    apiKey    String
+    page      Int
+    cursors   String[]
+    neBBox    Unsupported("geometry(Point, 4326)")
+    swBBox    Unsupported("geometry(Point, 4326)")
+    locations AirbnbLocation[]
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+
+    @@map("airbnb_location_sync")
+    @@index([neBBox], type: Gist)
+    @@index([swBBox], type: Gist)
+}
+
 model GoogleMapsLocation {
     id        String         @id @default(cuid())
     syncId    String
