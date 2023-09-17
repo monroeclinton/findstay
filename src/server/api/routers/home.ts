@@ -1,4 +1,7 @@
+import { type GoogleMapsLocation, Prisma } from "@prisma/client";
+
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { prisma } from "~/server/db";
 import { syncAirbnbListings } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
@@ -23,18 +26,64 @@ function getDistanceFromLatLonInKm(
     return d;
 }
 
+// https://stackoverflow.com/a/4656937
+function getMidPoint(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const dLon = deg2rad(lon2 - lon1);
+
+    lat1 = deg2rad(lat1);
+    lat2 = deg2rad(lat2);
+    lon1 = deg2rad(lon1);
+
+    const Bx = Math.cos(lat2) * Math.cos(dLon);
+    const By = Math.cos(lat2) * Math.sin(dLon);
+    const lat3 = Math.atan2(
+        Math.sin(lat1) + Math.sin(lat2),
+        Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By)
+    );
+    const lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
+
+    return {
+        latitude: rad2deg(lat3),
+        longitude: rad2deg(lon3),
+    };
+}
+
+function rad2deg(rad: number) {
+    return rad * (180 / Math.PI);
+}
+
 function deg2rad(deg: number) {
     return deg * (Math.PI / 180);
 }
 
 export const homeRouter = createTRPCRouter({
     getAll: publicProcedure.query(async ({ ctx }) => {
-        await syncSuperMarkets(19.4181529, -99.1703512);
-        await syncAirbnbListings("Roma norte");
+        const airbnbSync = await syncAirbnbListings("Roma norte");
+
+        if (!airbnbSync) throw new Error();
+
+        const midpoint = getMidPoint(
+            airbnbSync.neBBox.coordinates[1],
+            airbnbSync.neBBox.coordinates[0],
+            airbnbSync.swBBox.coordinates[1],
+            airbnbSync.swBBox.coordinates[0]
+        );
+        await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
+        const supermarkets = await prisma.$queryRaw<GoogleMapsLocation[]>(
+            Prisma.sql`
+                SELECT
+                    *
+                FROM
+                    google_maps_location
+                WHERE
+                    ST_DistanceSphere(
+                        coordinate,
+                        ST_MakePoint(${midpoint.longitude}, ${midpoint.latitude})
+                    ) <= 1
+            `
+        );
 
         const records = [];
-        const supermarkets = await ctx.prisma.googleMapsLocation.findMany();
-        const homes = await ctx.prisma.airbnbLocation.findMany();
 
         const closestSupermarket = ({
             latitude,
@@ -61,7 +110,7 @@ export const homeRouter = createTRPCRouter({
             return Math.round((shortest || 0) * 1000);
         };
 
-        for (const home of homes) {
+        for (const home of airbnbSync.locations) {
             records.push({
                 id: home.id,
                 name: home.name,
