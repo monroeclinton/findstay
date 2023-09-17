@@ -75,6 +75,7 @@ const scrapeAirbnbApi = async (apiKey: string) => {
                         "micro_flex_show_by_default",
                         "search_input_placeholder_phrases",
                         "pets_fee_treatment",
+                        "upfront_pricing_enabled",
                     ],
                     rawParams: [
                         { filterName: "cdnCacheSafe", filterValues: ["false"] },
