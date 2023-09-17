@@ -148,7 +148,8 @@ const scrapeAirbnbApi = async (apiKey: string) => {
 };
 
 export const syncAirbnbListings = async (
-    location: string
+    location: string,
+    syncId: string | undefined
 ): Promise<AirbnbLocationSync | null> => {
     const res: AxiosResponse<string> = await axios.get(
         `https://www.airbnb.com/s/${location.replace(/ /g, "+")}/homes`,
@@ -161,57 +162,70 @@ export const syncAirbnbListings = async (
     const apiKey = res.data
         .split('"baseUrl":"/api","key":"')
         .at(1)
-        ?.split("},")
+        ?.split('"},')
         .at(0);
 
     if (!apiKey) return null;
 
-    const cursors = JSON.parse(
-        res.data
-            .split('"pageCursors":')
-            .at(1)
-            ?.split(',"previousPageCursor":null"')
-            .at(0) as string
-    ) as string[];
+    const cursorsString = res.data
+        .split('"pageCursors":')
+        .at(1)
+        ?.split(',"previousPageCursor":null')
+        .at(0) as string;
+    if (!cursorsString) return null;
+    const cursors = JSON.parse(cursorsString) as string[];
 
-    const boundingBox = JSON.parse(
-        res.data
-            .split('"mapBoundsHint":')
-            .at(1)
-            ?.split(',"poiTagsForFlexCategory"')
-            .at(0) as string
-    ) as BoundingBox;
+    const boundingBoxString = res.data
+        .split('"mapBoundsHint":')
+        .at(1)
+        ?.split(',"poiTagsForFlexCategory"')
+        .at(0) as string;
+    if (!boundingBoxString) return null;
+    const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
 
     const locationResults = await scrapeAirbnbApi(apiKey);
 
     await prisma.$transaction(async (tx) => {
-        const sync = await tx.airbnbLocationSync.create({
-            data: {
-                search: location,
-                apiKey,
-                page: 1,
-                cursors,
-                neBBox: {
-                    type: "Point",
-                    coordinates: [
-                        boundingBox.northeast.longitude,
-                        boundingBox.northeast.latitude,
-                    ],
-                },
-                swBBox: {
-                    type: "Point",
-                    coordinates: [
-                        boundingBox.southwest.longitude,
-                        boundingBox.southwest.latitude,
-                    ],
-                },
-            },
-        });
+        const sync = await tx.$queryRaw<{ id: string }>(
+            Prisma.sql`
+                INSERT INTO airbnb_location_sync (
+                    id,
+                    search,
+                    "apiKey",
+                    page,
+                    cursors,
+                    "neBBox",
+                    "swBBox",
+                    "updatedAt",
+                    "createdAt"
+                )
+                VALUES (
+                    ${syncId ? syncId : createId()},
+                    ${location},
+                    ${apiKey},
+                    1,
+                    ${cursors},
+                    ST_POINT(
+                        ${boundingBox.northeast.longitude},
+                        ${boundingBox.northeast.latitude}
+                    ),
+                    ST_POINT(
+                        ${boundingBox.southwest.longitude},
+                        ${boundingBox.southwest.latitude}
+                    ),
+                    NOW(),
+                    NOW()
+                )
+                ON CONFLICT (id) DO NOTHING
+                RETURNING id
+            `
+        );
 
         for (const location of locationResults) {
             await tx.airbnbLocation.upsert({
                 where: {
                     airbnbId: location.listing.id,
+                    syncId: sync.id,
                 },
                 update: {
                     name: location.listing.name,
@@ -232,7 +246,7 @@ export const syncAirbnbListings = async (
 
         return prisma.airbnbLocationSync.findUnique({
             where: {
-                id: sync.id,
+                id: syncId,
             },
             include: {
                 locations: true,
