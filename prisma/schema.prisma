@@ -32,7 +32,7 @@ model AirbnbLocation {
 }
 
 model AirbnbLocationSync {
-    id        String           @id @default(cuid())
+    id        String                               @id @default(cuid())
     search    String
     apiKey    String
     page      Int
@@ -40,8 +40,8 @@ model AirbnbLocationSync {
     neBBox    Unsupported("geometry(Point, 4326)")
     swBBox    Unsupported("geometry(Point, 4326)")
     locations AirbnbLocation[]
-    createdAt DateTime         @default(now())
-    updatedAt DateTime         @updatedAt
+    createdAt DateTime                             @default(now())
+    updatedAt DateTime                             @updatedAt
 
     @@map("airbnb_location_sync")
     @@index([neBBox], type: Gist)
