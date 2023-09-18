@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { Prisma } from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
 
@@ -112,18 +113,46 @@ export const syncSuperMarkets = async (
                 longitude: new Prisma.Decimal(longitude as number),
             };
 
-            await tx.googleMapsLocation.upsert({
-                where: {
-                    id: location.hex,
-                },
-                update: {
-                    ...location,
-                },
-                create: {
-                    ...location,
-                    syncId: sync.id,
-                },
-            });
+            await tx.$queryRaw<[{ id: string }]>(
+                Prisma.sql`
+                INSERT INTO google_maps_location (
+                    id,
+                    "syncId",
+                    name,
+                    type,
+                    reviews,
+                    stars,
+                    hex,
+                    uri,
+                    link,
+                    coordinate,
+                    latitude,
+                    longitude,
+                    "updatedAt",
+                    "createdAt"
+                )
+                VALUES (
+                    ${createId()},
+                    ${sync.id},
+                    ${location.name},
+                    ${location.type},
+                    ${location.reviews},
+                    ${location.stars},
+                    ${location.hex},
+                    ${location.uri},
+                    ${location.link},
+                    ST_POINT(
+                        ${location.latitude},
+                        ${location.longitude}
+                    ),
+                    ${location.latitude},
+                    ${location.longitude},
+                    NOW(),
+                    NOW()
+                )
+                ON CONFLICT (hex) DO NOTHING
+            `
+            );
         }
     });
 };
