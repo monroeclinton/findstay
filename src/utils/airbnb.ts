@@ -55,7 +55,11 @@ const headers = {
     "User-Agent": "curl/7.72.0",
 };
 
-const scrapeAirbnbApi = async (apiKey: string) => {
+const scrapeAirbnbApi = async (
+    search: string,
+    apiKey: string,
+    boundingBox: BoundingBox
+) => {
     const res: AxiosResponse<MapSearchResponse> = await axios.post(
         `https://www.airbnb.com/api/v3/StaysMapS2Search?operationName=StaysMapS2Search&locale=en&currency=USD`,
         {
@@ -90,15 +94,19 @@ const scrapeAirbnbApi = async (apiKey: string) => {
                         { filterName: "itemsPerGrid", filterValues: ["18"] },
                         {
                             filterName: "neLat",
-                            filterValues: ["19.429199181849693"],
+                            filterValues: [
+                                boundingBox.northeast.latitude.toString(),
+                            ],
                         },
                         {
                             filterName: "neLng",
-                            filterValues: ["-99.15389840993276"],
+                            filterValues: [
+                                boundingBox.northeast.longitude.toString(),
+                            ],
                         },
                         {
                             filterName: "query",
-                            filterValues: ["Roma Norte mexico"],
+                            filterValues: [search],
                         },
                         {
                             filterName: "refinementPaths",
@@ -107,11 +115,15 @@ const scrapeAirbnbApi = async (apiKey: string) => {
                         { filterName: "screenSize", filterValues: ["large"] },
                         {
                             filterName: "swLat",
-                            filterValues: ["19.406978102941135"],
+                            filterValues: [
+                                boundingBox.southwest.latitude.toString(),
+                            ],
                         },
                         {
                             filterName: "swLng",
-                            filterValues: ["-99.16909159006713"],
+                            filterValues: [
+                                boundingBox.southwest.longitude.toString(),
+                            ],
                         },
                         { filterName: "tabId", filterValues: ["home_tab"] },
                         { filterName: "version", filterValues: ["1.8.3"] },
@@ -148,11 +160,11 @@ const scrapeAirbnbApi = async (apiKey: string) => {
 };
 
 export const syncAirbnbListings = async (
-    location: string,
+    search: string,
     syncId: string | undefined
 ): Promise<AirbnbLocationSync | null> => {
     const res: AxiosResponse<string> = await axios.get(
-        `https://www.airbnb.com/s/${location.replace(/ /g, "+")}/homes`,
+        `https://www.airbnb.com/s/${search.replace(/ /g, "+")}/homes`,
         {
             headers,
             validateStatus: () => true,
