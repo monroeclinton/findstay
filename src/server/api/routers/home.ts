@@ -135,7 +135,7 @@ export const homeRouter = createTRPCRouter({
                 `
             );
 
-            const records = [];
+            const locations = [];
 
             const closestSupermarket = ({
                 latitude,
@@ -163,7 +163,7 @@ export const homeRouter = createTRPCRouter({
             };
 
             for (const home of airbnbSync.locations) {
-                records.push({
+                locations.push({
                     id: home.id,
                     name: home.name,
                     ratings: home.rating,
@@ -177,7 +177,7 @@ export const homeRouter = createTRPCRouter({
 
             return {
                 syncId: airbnbSync.id,
-                locations: records,
+                locations,
             };
         }),
 });
