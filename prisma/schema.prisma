@@ -49,20 +49,21 @@ model AirbnbLocationSync {
 }
 
 model GoogleMapsLocation {
-    id        String         @id @default(cuid())
-    syncId    String
-    sync      GoogleMapsSync @relation(fields: [syncId], references: [id], onDelete: Cascade)
-    name      String
-    type      String
-    reviews   Int
-    stars     Decimal
-    hex       String
-    uri       String
-    link      String
+    id         String                               @id @default(cuid())
+    syncId     String
+    sync       GoogleMapsSync                       @relation(fields: [syncId], references: [id], onDelete: Cascade)
+    name       String
+    type       String
+    reviews    Int
+    stars      Decimal
+    hex        String                               @unique
+    uri        String
+    link       String
+    coordinate Unsupported("geometry(Point, 4326)")
     latitude  Decimal
     longitude Decimal
-    createdAt DateTime       @default(now())
-    updatedAt DateTime       @updatedAt
+    createdAt  DateTime                             @default(now())
+    updatedAt  DateTime                             @updatedAt
 
     @@map("google_maps_location")
 }
