@@ -59,15 +59,14 @@ function deg2rad(deg: number) {
 export const homeRouter = createTRPCRouter({
     getAll: publicProcedure
         .input(
-            z
-                .object({
-                    syncId: z.string(),
-                })
-                .optional()
+            z.object({
+                search: z.string(),
+                syncId: z.string().optional(),
+            })
         )
         .query(async ({ ctx, input }) => {
             const airbnbSync = await syncAirbnbListings(
-                "Roma norte",
+                input.search,
                 input?.syncId
             );
 
