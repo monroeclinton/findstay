@@ -195,11 +195,12 @@ export const syncAirbnbListings = async (
     if (!boundingBoxString) return null;
     const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
 
-    const locationResults = await scrapeAirbnbApi(apiKey);
+    const locationResults = await scrapeAirbnbApi(search, apiKey, boundingBox);
 
-    await prisma.$transaction(async (tx) => {
-        const sync = await tx.$queryRaw<{ id: string }>(
-            Prisma.sql`
+    return await prisma.$transaction(async (tx) => {
+        const sync = (
+            await tx.$queryRaw<[{ id: string }]>(
+                Prisma.sql`
                 INSERT INTO airbnb_location_sync (
                     id,
                     search,
@@ -213,7 +214,7 @@ export const syncAirbnbListings = async (
                 )
                 VALUES (
                     ${syncId ? syncId : createId()},
-                    ${location},
+                    ${search},
                     ${apiKey},
                     1,
                     ${cursors},
@@ -231,17 +232,22 @@ export const syncAirbnbListings = async (
                 ON CONFLICT (id) DO NOTHING
                 RETURNING id
             `
-        );
+            )
+        ).at(0);
+
+        if (!sync) return null;
 
         for (const location of locationResults) {
             await tx.airbnbLocation.upsert({
                 where: {
-                    airbnbId: location.listing.id,
-                    syncId: sync.id,
+                    syncId_airbnbId: {
+                        airbnbId: location.listing.id,
+                        syncId: sync.id,
+                    },
                 },
                 update: {
                     name: location.listing.name,
-                    rating: location.listing.avgRatingA11yLabel,
+                    rating: location.listing.avgRatingA11yLabel || "None",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
                 },
@@ -249,22 +255,20 @@ export const syncAirbnbListings = async (
                     syncId: sync.id,
                     airbnbId: location.listing.id,
                     name: location.listing.name,
-                    rating: location.listing.avgRatingA11yLabel,
+                    rating: location.listing.avgRatingA11yLabel || "None",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
                 },
             });
         }
 
-        return prisma.airbnbLocationSync.findUnique({
+        return await tx.airbnbLocationSync.findUniqueOrThrow({
             where: {
-                id: syncId,
+                id: sync.id,
             },
             include: {
                 locations: true,
             },
         });
     });
-
-    return null;
 };
