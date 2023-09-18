@@ -43,7 +43,7 @@ const Home: NextPage = () => {
                         },
                     ]}
                     fetching={!homes.isFetched}
-                    records={homes.data}
+                    records={homes.data?.locations}
                 />
             </Layout>
         </>
