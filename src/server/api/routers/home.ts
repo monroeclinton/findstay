@@ -101,26 +101,38 @@ export const homeRouter = createTRPCRouter({
             if (!bBox) throw new Error("Unable to get Airbnb bounding box.");
 
             const midpoint = getMidPoint(
-                airbnbSync.neBBox.coordinates[1],
-                airbnbSync.neBBox.coordinates[0],
-                airbnbSync.swBBox.coordinates[1],
-                airbnbSync.swBBox.coordinates[0]
+                bBox.neLatitude,
+                bBox.neLongitude,
+                bBox.swLatitude,
+                bBox.swLongitude
             );
             await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
             const supermarkets = await ctx.prisma.$queryRaw<
                 GoogleMapsLocation[]
             >(
                 Prisma.sql`
-                SELECT
-                    *
-                FROM
-                    google_maps_location
-                WHERE
-                    ST_DistanceSphere(
-                        coordinate,
-                        ST_MakePoint(${midpoint.longitude}, ${midpoint.latitude})
-                    ) <= 1
-            `
+                    SELECT
+                        id,
+                        "syncId",
+                        name,
+                        type,
+                        reviews,
+                        stars,
+                        hex,
+                        uri,
+                        link,
+                        latitude,
+                        longitude,
+                        "updatedAt",
+                        "createdAt"
+                    FROM
+                        google_maps_location
+                    WHERE
+                        ST_DistanceSphere(
+                            coordinate,
+                            ST_MakePoint(${midpoint.latitude}, ${midpoint.longitude})
+                        ) <= 2000
+                `
             );
 
             const records = [];
