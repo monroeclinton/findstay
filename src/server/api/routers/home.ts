@@ -71,7 +71,34 @@ export const homeRouter = createTRPCRouter({
                 input?.syncId
             );
 
-            if (!airbnbSync) throw new Error();
+            if (!airbnbSync) throw new Error("Airbnb sync not successful.");
+
+            const bBox = (
+                await ctx.prisma.$queryRaw<
+                    [
+                        {
+                            neLatitude: number;
+                            neLongitude: number;
+                            swLatitude: number;
+                            swLongitude: number;
+                        }
+                    ]
+                >(
+                    Prisma.sql`
+                    SELECT
+                        ST_Y("neBBox") as "neLatitude",
+                        ST_X("neBBox") as "neLongitude",
+                        ST_Y("swBBox") as "swLatitude",
+                        ST_X("swBBox") as "swLongitude"
+                    FROM
+                        airbnb_location_sync
+                    WHERE
+                        id = ${airbnbSync.id}
+            `
+                )
+            ).at(0);
+
+            if (!bBox) throw new Error("Unable to get Airbnb bounding box.");
 
             const midpoint = getMidPoint(
                 airbnbSync.neBBox.coordinates[1],
