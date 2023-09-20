@@ -60,8 +60,8 @@ model GoogleMapsLocation {
     uri        String
     link       String
     coordinate Unsupported("geometry(Point, 4326)")
-    latitude  Decimal
-    longitude Decimal
+    latitude   Decimal
+    longitude  Decimal
     createdAt  DateTime                             @default(now())
     updatedAt  DateTime                             @updatedAt
 
@@ -69,13 +69,14 @@ model GoogleMapsLocation {
 }
 
 model GoogleMapsSync {
-    id        String   @id @default(cuid())
-    search    String
-    latitude  Decimal
-    longitude Decimal
-    locations GoogleMapsLocation[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id         String   @id @default(cuid())
+    search     String
+    coordinate Unsupported("geometry(Point, 4326)")
+    latitude   Decimal
+    longitude  Decimal
+    locations  GoogleMapsLocation[]
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
     @@map("google_maps_sync")
 }
