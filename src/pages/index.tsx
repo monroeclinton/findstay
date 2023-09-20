@@ -1,4 +1,5 @@
 import { SimpleGrid, TextInput, Title } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "mantine-datatable";
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -10,6 +11,7 @@ import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
     const [search, setSearch] = useState("");
+    const [debouncedSearch] = useDebouncedValue(search, 200);
 
     const homes = api.home.getAll.useQuery(
         {
@@ -61,7 +63,7 @@ const Home: NextPage = () => {
                             ),
                         },
                     ]}
-                    fetching={search.length > 3 && !homes.isFetched}
+                    fetching={debouncedSearch.length > 3 && !homes.isFetched}
                     records={homes.data?.locations}
                 />
             </Layout>
