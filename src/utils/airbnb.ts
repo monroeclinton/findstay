@@ -163,6 +163,23 @@ export const syncAirbnbListings = async (
     search: string,
     syncId: string | undefined
 ): Promise<AirbnbLocationSync | null> => {
+    const previousSync = await prisma.airbnbLocationSync.findFirst({
+        where: {
+            search: search,
+            createdAt: {
+                gte: new Date(Date.now() - 1800),
+            },
+        },
+        include: {
+            locations: true,
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    if (previousSync) return previousSync;
+
     const res: AxiosResponse<string> = await axios.get(
         `https://www.airbnb.com/s/${search.replace(/ /g, "+")}/homes`,
         {
