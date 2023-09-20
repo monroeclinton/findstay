@@ -36,12 +36,27 @@ const getLink = (
     return `https://www.google.com/maps/place/@${latitude},${longitude},15z/data=!4m6!3m5!1s${hex}!8m2!3d${latitude}!4d${longitude}!16s${uri}`;
 };
 
-export const syncSuperMarkets = async (
-    latitude: number,
-    longitutde: number
-) => {
+export const syncSuperMarkets = async (latitude: number, longitude: number) => {
+    const isSynced = (
+        await prisma.$queryRaw<[{ count: number }]>(
+            Prisma.sql`
+                SELECT
+                    COUNT(*) as count
+                FROM
+                    google_maps_sync
+                WHERE
+                    ST_DistanceSphere(
+                        coordinate,
+                        ST_MakePoint(${latitude}, ${longitude})
+                    ) <= 200
+            `
+        )
+    ).at(0);
+
+    if (!isSynced || isSynced.count > 0) return null;
+
     const res: AxiosResponse<string> = await axios.get(
-        `https://www.google.com/maps/search/supermarket/@${latitude},${longitutde},16z?entry=ttu`,
+        `https://www.google.com/maps/search/supermarket/@${latitude},${longitude},16z?entry=ttu`,
         {
             headers,
         }
@@ -66,13 +81,36 @@ export const syncSuperMarkets = async (
     locationResults.shift();
 
     await prisma.$transaction(async (tx) => {
-        const sync = await tx.googleMapsSync.create({
-            data: {
-                search: "supermarkets",
-                latitude: new Prisma.Decimal(latitude),
-                longitude: new Prisma.Decimal(longitutde),
-            },
-        });
+        const sync = (
+            await tx.$queryRaw<[{ id: string }]>(
+                Prisma.sql`
+                INSERT INTO google_maps_sync (
+                    id,
+                    search,
+                    coordinate,
+                    latitude,
+                    longitude,
+                    "updatedAt",
+                    "createdAt"
+                )
+                VALUES (
+                    ${createId()},
+                    'supermarkets',
+                    ST_POINT(
+                        ${latitude},
+                        ${longitude}
+                    ),
+                    ${latitude},
+                    ${longitude},
+                    NOW(),
+                    NOW()
+                )
+                RETURNING id
+            `
+            )
+        ).at(0);
+
+        if (!sync) return null;
 
         for (const store of locationResults) {
             const name = getArray(store, [14, 11]);
