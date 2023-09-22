@@ -1,4 +1,4 @@
-import { AppShell, Container, createStyles } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 
 import Side from "~/components/Side";
 
@@ -6,22 +6,21 @@ export interface LayoutProps {
     children: React.ReactNode;
 }
 
-const useStyles = createStyles(() => ({
-    container: {
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-    },
-}));
-
 const Layout = ({ children }: LayoutProps) => {
-    const { classes } = useStyles();
-
     return (
-        <AppShell padding="md" navbar={<Side />}>
-            <Container py="md" className={classes.container}>
-                {children}
-            </Container>
+        <AppShell
+            styles={{
+                main: {
+                    display: "flex",
+                    flexDirection: "column",
+                    paddingTop: 0,
+                    paddingBottom: 0,
+                    paddingRight: 0,
+                },
+            }}
+            navbar={<Side />}
+        >
+            {children}
         </AppShell>
     );
 };
