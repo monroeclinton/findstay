@@ -1,4 +1,4 @@
-import { SimpleGrid, TextInput, Title } from "@mantine/core";
+import { Flex } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { DataTable } from "mantine-datatable";
 import { type NextPage } from "next";
@@ -11,6 +11,7 @@ import XYZ from "ol/source/XYZ";
 import View from "ol/View";
 import { useEffect, useRef, useState } from "react";
 
+import FilterBar, { FILTER_BAR_HEIGHT } from "~/components/FilterBar";
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
 
@@ -58,20 +59,12 @@ const Home: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout>
-                <SimpleGrid cols={2} mb="sm">
-                    <Title order={1}>Homes</Title>
-                </SimpleGrid>
-                <SimpleGrid cols={2} mb="sm">
-                    <TextInput
-                        label="Location"
-                        value={search}
-                        onChange={(event) =>
-                            setSearch(event.currentTarget.value)
-                        }
-                    />
-                </SimpleGrid>
-                <SimpleGrid cols={2} h="100%">
+                <FilterBar search={search} setSearch={setSearch} />
+                <Flex>
                     <DataTable
+                        style={{
+                            flexBasis: "60%",
+                        }}
                         highlightOnHover
                         columns={[
                             {
@@ -99,8 +92,17 @@ const Home: NextPage = () => {
                         }
                         records={homes.data?.locations}
                     />
-                    <div id="map" />
-                </SimpleGrid>
+                    <Flex
+                        align="start"
+                        style={{
+                            height: `calc(100vh - ${FILTER_BAR_HEIGHT})`,
+                            flex: 1,
+                            position: "sticky",
+                            top: FILTER_BAR_HEIGHT,
+                        }}
+                        id="map"
+                    />
+                </Flex>
             </Layout>
         </>
     );
