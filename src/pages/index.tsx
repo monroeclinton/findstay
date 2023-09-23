@@ -1,8 +1,19 @@
-import { Badge, Card, Flex, Group, Text } from "@mantine/core";
+import {
+    Badge,
+    Card,
+    Center,
+    Flex,
+    Group,
+    Image,
+    Loader,
+    SimpleGrid,
+    Text,
+    ThemeIcon,
+} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
+import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import TileLayer from "ol/layer/Tile";
 import Map from "ol/Map";
 import { fromLonLat } from "ol/proj";
@@ -59,28 +70,82 @@ const Home: NextPage = () => {
             </Head>
             <Layout>
                 <FilterBar search={search} setSearch={setSearch} />
-                <Flex rowGap="sm">
+                <Flex columnGap="sm">
                     <Flex
+                        direction="column"
+                        rowGap="sm"
+                        mb="sm"
                         style={{
                             flexBasis: "60%",
                         }}
                     >
+                        {(search.length === 0 ||
+                            homes.data?.locations.length === 0) && (
+                            <Center
+                                style={{ flex: 1, flexDirection: "column" }}
+                            >
+                                <ThemeIcon
+                                    variant="light"
+                                    color="gray"
+                                    size="xl"
+                                >
+                                    <IconDatabaseOff />
+                                </ThemeIcon>
+                                <Text mt="sm">No listings</Text>
+                            </Center>
+                        )}
                         {homes.data?.locations.map((record) => (
-                            <Card withBorder radius="md" key={record.id}>
-                                <Card.Section withBorder inheritPadding py="xs">
-                                    <Group
-                                        justify="space-between"
-                                        mt="md"
-                                        mb="xs"
-                                    >
+                            <Card
+                                withBorder
+                                radius="md"
+                                px="lg"
+                                py="xl"
+                                key={record.id}
+                            >
+                                <Card.Section inheritPadding>
+                                    <Group justify="space-between">
                                         <Text fw={500}>{record.name}</Text>
                                         <Badge color="pink" variant="light">
-                                            On Sale
+                                            {record.ratings}
                                         </Badge>
                                     </Group>
                                 </Card.Section>
+                                {record.images.length > 0 && (
+                                    <Card.Section inheritPadding mt="md">
+                                        <SimpleGrid cols={3} h={200}>
+                                            {record.images
+                                                .slice(0, 3)
+                                                .map((image) => (
+                                                    <Image
+                                                        alt="Airbnb image"
+                                                        src={image}
+                                                        key={image}
+                                                        radius="sm"
+                                                    />
+                                                ))}
+                                        </SimpleGrid>
+                                    </Card.Section>
+                                )}
+                                <Card.Section inheritPadding mt="md">
+                                    <Text
+                                        c="dimmed"
+                                        size="xs"
+                                        tt="uppercase"
+                                        fw={700}
+                                    >
+                                        Supermarket
+                                    </Text>
+                                    <Text fw={400} size="xl">
+                                        {record.supermarket} meters
+                                    </Text>
+                                </Card.Section>
                             </Card>
                         ))}
+                        {homes.isFetching && (
+                            <Center style={{ flex: 1 }}>
+                                <Loader />
+                            </Center>
+                        )}
                     </Flex>
                     <Flex
                         align="start"
