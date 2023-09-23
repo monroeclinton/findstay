@@ -34,6 +34,9 @@ interface MapSearchResponse {
                                     coordinate: Coordinate;
                                     name: string;
                                     avgRatingA11yLabel: string;
+                                    contextualPictures: Array<{
+                                        picture: string;
+                                    }>;
                                 };
                             }>;
                         };
@@ -264,6 +267,9 @@ export const syncAirbnbListings = async (
                 },
                 update: {
                     name: location.listing.name,
+                    images: location.listing.contextualPictures.map(
+                        (ctx) => ctx.picture
+                    ),
                     rating: location.listing.avgRatingA11yLabel || "None",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
@@ -272,6 +278,9 @@ export const syncAirbnbListings = async (
                     syncId: sync.id,
                     airbnbId: location.listing.id,
                     name: location.listing.name,
+                    images: location.listing.contextualPictures.map(
+                        (ctx) => ctx.picture
+                    ),
                     rating: location.listing.avgRatingA11yLabel || "None",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
