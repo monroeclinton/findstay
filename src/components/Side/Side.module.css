@@ -1,0 +1,13 @@
+.navbar {
+    background: var(--mantine-color-gray-1);
+}
+
+.header {
+    padding: var(--mantine-spacing-md);
+    margin-bottom: calc(var(--mantine-spacing-md) * 1.5);
+}
+
+.footer {
+    padding-top: var(--mantine-spacing-md);
+    margin-top: var(--mantine-spacing-md);
+}
