@@ -1,6 +1,5 @@
-import { Flex } from "@mantine/core";
+import { Badge, Card, Flex, Group, Text } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import { DataTable } from "mantine-datatable";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -22,7 +21,7 @@ const Home: NextPage = () => {
 
     const homes = api.home.getAll.useQuery(
         {
-            search,
+            search: debouncedSearch,
         },
         {
             enabled: search.length > 3,
@@ -60,38 +59,29 @@ const Home: NextPage = () => {
             </Head>
             <Layout>
                 <FilterBar search={search} setSearch={setSearch} />
-                <Flex>
-                    <DataTable
+                <Flex rowGap="sm">
+                    <Flex
                         style={{
                             flexBasis: "60%",
                         }}
-                        highlightOnHover
-                        columns={[
-                            {
-                                accessor: "name",
-                            },
-                            {
-                                accessor: "ratings",
-                            },
-                            {
-                                accessor: "supermarket",
-                                render: (record) =>
-                                    record.supermarket.toString() + " meters",
-                            },
-                            {
-                                accessor: "link",
-                                render: (record) => (
-                                    <Link href={record.link}>
-                                        View on Airbnb
-                                    </Link>
-                                ),
-                            },
-                        ]}
-                        fetching={
-                            debouncedSearch.length > 3 && !homes.isFetched
-                        }
-                        records={homes.data?.locations}
-                    />
+                    >
+                        {homes.data?.locations.map((record) => (
+                            <Card withBorder radius="md" key={record.id}>
+                                <Card.Section withBorder inheritPadding py="xs">
+                                    <Group
+                                        justify="space-between"
+                                        mt="md"
+                                        mb="xs"
+                                    >
+                                        <Text fw={500}>{record.name}</Text>
+                                        <Badge color="pink" variant="light">
+                                            On Sale
+                                        </Badge>
+                                    </Group>
+                                </Card.Section>
+                            </Card>
+                        ))}
+                    </Flex>
                     <Flex
                         align="start"
                         style={{
