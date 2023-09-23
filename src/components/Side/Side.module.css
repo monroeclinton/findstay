@@ -1,5 +1,5 @@
 .navbar {
-    background: var(--mantine-color-gray-1);
+    box-shadow: 2px 2px 2px var(--mantine-color-gray-0);
 }
 
 .header {
