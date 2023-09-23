@@ -1,6 +1,6 @@
 import { AppShell } from "@mantine/core";
 
-import Side from "~/components/Side";
+import Side, { SIDE_BREAKPOINT, SIDE_WIDTH } from "~/components/Side";
 
 export interface LayoutProps {
     children: React.ReactNode;
@@ -9,6 +9,10 @@ export interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
     return (
         <AppShell
+            navbar={{
+                width: SIDE_WIDTH,
+                breakpoint: SIDE_BREAKPOINT,
+            }}
             styles={{
                 main: {
                     display: "flex",
@@ -18,9 +22,9 @@ const Layout = ({ children }: LayoutProps) => {
                     paddingRight: 0,
                 },
             }}
-            navbar={<Side />}
         >
-            {children}
+            <Side />
+            <AppShell.Main ml="sm">{children}</AppShell.Main>
         </AppShell>
     );
 };
