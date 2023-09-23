@@ -1,8 +1,6 @@
 import {
     Avatar,
     Box,
-    createStyles,
-    getStylesRef,
     Group,
     Menu,
     rem,
@@ -16,39 +14,13 @@ import {
 } from "@tabler/icons-react";
 import { signOut, useSession } from "next-auth/react";
 
-const useStyles = createStyles((theme) => ({
-    user: {
-        display: "block",
-        width: "100%",
-        padding: theme.spacing.sm,
-
-        "&:hover": {
-            backgroundColor:
-                theme.colorScheme === "dark"
-                    ? theme.colors.dark[8]
-                    : theme.colors.gray[0],
-
-            [`& .${getStylesRef("icon")}`]: {
-                color: theme.colorScheme === "dark" ? theme.white : theme.black,
-            },
-        },
-    },
-
-    userIcon: {
-        ref: getStylesRef("icon"),
-        color:
-            theme.colorScheme === "dark"
-                ? theme.colors.dark[2]
-                : theme.colors.gray[6],
-    },
-}));
+import classes from "./UserButton.module.css";
 
 interface UserButtonProps extends UnstyledButtonProps {
     icon?: React.ReactNode;
 }
 
 const UserButton = ({ icon, ...others }: UserButtonProps) => {
-    const { classes } = useStyles();
     const { data: sessionData } = useSession();
 
     return (
@@ -85,7 +57,7 @@ const UserButton = ({ icon, ...others }: UserButtonProps) => {
                 <Menu.Label>Application</Menu.Label>
                 <Menu.Item
                     color="red"
-                    icon={<IconLogout size={rem(14)} />}
+                    leftSection={<IconLogout size={rem(14)} />}
                     onClick={() => void signOut()}
                 >
                     Sign Out

@@ -1,0 +1,17 @@
+.user {
+    display: "block";
+    width: "100%";
+    padding: var(--mantine-spacing-sm);
+}
+
+.user:hover {
+    background-color: var(--mantine-color-gray-0);
+}
+
+.user:hover .userIcon {
+    color: var(--mantine-color-black-filled);
+}
+
+.userIcon {
+    color: var(--mantine-color-gray-6);
+}
