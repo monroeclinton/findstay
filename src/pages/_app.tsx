@@ -1,3 +1,5 @@
+import "@mantine/core/styles.css";
+
 import { MantineProvider } from "@mantine/core";
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
@@ -12,8 +14,6 @@ const MyApp: AppType<{ session: Session | null }> = ({
     return (
         <SessionProvider session={session}>
             <MantineProvider
-                withGlobalStyles
-                withNormalizeCSS
                 theme={{
                     primaryColor: "indigo",
                     primaryShade: { light: 7, dark: 8 },
