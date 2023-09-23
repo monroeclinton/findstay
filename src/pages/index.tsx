@@ -95,13 +95,7 @@ const Home: NextPage = () => {
                             </Center>
                         )}
                         {homes.data?.locations.map((record) => (
-                            <Card
-                                withBorder
-                                radius="md"
-                                px="lg"
-                                py="xl"
-                                key={record.id}
-                            >
+                            <Card withBorder px="lg" py="xl" key={record.id}>
                                 <Card.Section inheritPadding>
                                     <Group justify="space-between">
                                         <Text fw={500}>{record.name}</Text>
@@ -112,12 +106,13 @@ const Home: NextPage = () => {
                                 </Card.Section>
                                 {record.images.length > 0 && (
                                     <Card.Section inheritPadding mt="md">
-                                        <SimpleGrid cols={3} h={200}>
+                                        <SimpleGrid cols={3}>
                                             {record.images
                                                 .slice(0, 3)
                                                 .map((image) => (
                                                     <Image
                                                         alt="Airbnb image"
+                                                        h={200}
                                                         src={image}
                                                         key={image}
                                                         radius="sm"
