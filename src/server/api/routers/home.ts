@@ -165,17 +165,22 @@ export const homeRouter = createTRPCRouter({
                 locations.push({
                     id: home.id,
                     name: home.name,
+                    price: home.price,
                     ratings: home.rating,
+                    longitude: home.longitude.toNumber(),
+                    latitude: home.latitude.toNumber(),
                     supermarket: closestSupermarket({
                         longitude: home.longitude.toNumber(),
                         latitude: home.latitude.toNumber(),
                     }),
+                    images: home.images,
                     link: "https://airbnb.com/rooms/" + home.id,
                 });
             }
 
             return {
                 syncId: airbnbSync.id,
+                midpoint,
                 locations,
             };
         }),
