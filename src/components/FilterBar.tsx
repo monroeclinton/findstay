@@ -12,12 +12,13 @@ const FilterBar = ({ search, setSearch }: IFilterBarProps) => {
         <Flex
             style={{
                 height: FILTER_BAR_HEIGHT,
+                width: "100%",
             }}
         >
             <Flex
                 my="sm"
                 style={{
-                    flexBasis: "60%",
+                    flex: 1,
                 }}
             >
                 <TextInput
