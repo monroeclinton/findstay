@@ -1,5 +1,5 @@
 import {
-    Badge,
+    ActionIcon,
     Card,
     Center,
     Flex,
@@ -56,12 +56,24 @@ const Home: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout>
-                <FilterBar search={search} setSearch={setSearch} />
                 <Flex columnGap="sm">
                     <Flex
                         direction="column"
+                        align="start"
+                        style={{
+                            height: `calc(100vh)`,
+                            flex: 1,
+                            position: "sticky",
+                            top: 0,
+                        }}
+                    >
+                        <FilterBar search={search} setSearch={setSearch} />
+                        {homes.data && <Map data={homes.data} />}
+                    </Flex>
+                    <Flex
+                        direction="column"
                         rowGap="sm"
-                        mb="sm"
+                        my="md"
                         style={{
                             flexBasis: "60%",
                         }}
@@ -83,16 +95,20 @@ const Home: NextPage = () => {
                         )}
                         {homes.data?.locations.map((record) => (
                             <Card withBorder px="lg" py="xl" key={record.id}>
-                                <Card.Section inheritPadding>
-                                    <Group justify="space-between">
-                                        <Text fw={500}>{record.name}</Text>
-                                        <Badge color="pink" variant="light">
-                                            {record.ratings}
-                                        </Badge>
-                                    </Group>
-                                </Card.Section>
+                                <ActionIcon
+                                    size="lg"
+                                    variant="light"
+                                    color="pink"
+                                    style={{
+                                        position: "absolute",
+                                        marginTop: "4px",
+                                        marginLeft: "4px",
+                                    }}
+                                >
+                                    <IconHeart />
+                                </ActionIcon>
                                 {record.images.length > 0 && (
-                                    <Card.Section inheritPadding mt="md">
+                                    <Card.Section inheritPadding>
                                         <SimpleGrid cols={3}>
                                             {record.images
                                                 .slice(0, 3)
@@ -108,6 +124,37 @@ const Home: NextPage = () => {
                                         </SimpleGrid>
                                     </Card.Section>
                                 )}
+                                <Card.Section inheritPadding mt="md">
+                                    <Group justify="space-between">
+                                        <Flex direction="column">
+                                            <Flex align="center">
+                                                <ThemeIcon
+                                                    size="xs"
+                                                    color="yellow"
+                                                    variant="light"
+                                                >
+                                                    <IconStarFilled />
+                                                </ThemeIcon>
+                                                <Text
+                                                    fw={600}
+                                                    size="sm"
+                                                    c="gray"
+                                                    style={{
+                                                        marginLeft: "6px",
+                                                    }}
+                                                >
+                                                    {record.ratings
+                                                        .split("out of 5")
+                                                        .at(0)}
+                                                </Text>
+                                            </Flex>
+                                            <Text fw={600} c="green" mt="xs">
+                                                ${record.price} / night
+                                            </Text>
+                                        </Flex>
+                                        <Text fw={500}>{record.name}</Text>
+                                    </Group>
+                                </Card.Section>
                                 <Card.Section inheritPadding mt="md">
                                     <Text
                                         c="dimmed"
