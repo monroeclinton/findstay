@@ -1,4 +1,5 @@
 import "@mantine/core/styles.css";
+import "ol/ol.css";
 
 import { MantineProvider } from "@mantine/core";
 import { type AppType } from "next/app";
