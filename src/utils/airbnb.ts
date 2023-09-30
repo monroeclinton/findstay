@@ -38,6 +38,11 @@ interface MapSearchResponse {
                                         picture: string;
                                     }>;
                                 };
+                                pricingQuote: {
+                                    rate: {
+                                        amount: number;
+                                    };
+                                };
                             }>;
                         };
                     };
@@ -267,6 +272,7 @@ export const syncAirbnbListings = async (
                 },
                 update: {
                     name: location.listing.name,
+                    price: location.pricingQuote.rate.amount,
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
@@ -278,6 +284,7 @@ export const syncAirbnbListings = async (
                     syncId: sync.id,
                     airbnbId: location.listing.id,
                     name: location.listing.name,
+                    price: location.pricingQuote.rate.amount,
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
