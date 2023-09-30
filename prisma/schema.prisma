@@ -21,6 +21,7 @@ model AirbnbLocation {
     sync      AirbnbLocationSync @relation(fields: [syncId], references: [id], onDelete: Cascade)
     airbnbId  String
     name      String
+    price     Int
     images    String[]
     rating    String
     latitude  Decimal
