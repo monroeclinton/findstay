@@ -2,7 +2,7 @@ import { Badge } from "@mantine/core";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Point } from "ol/geom";
 import { fromLonLat } from "ol/proj";
-import { RFeature, RLayerVector, RMap, ROSM, ROverlay, RStyle } from "rlayers";
+import { RFeature, RLayerVector, RMap, ROSM, ROverlay } from "rlayers";
 
 import { type AppRouter } from "~/server/api/root";
 
