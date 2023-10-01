@@ -1,4 +1,12 @@
-import { Badge, Card, Flex, Image, Text, ThemeIcon } from "@mantine/core";
+import {
+    Badge,
+    Card,
+    Flex,
+    Image,
+    Text,
+    ThemeIcon,
+    Transition,
+} from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import { Point } from "ol/geom";
@@ -46,49 +54,56 @@ const Map = ({ data }: IMapProps) => {
                             offset={[0, 15]}
                             key={record.id}
                         >
-                            {selected === record.id && (
-                                <Card w={300} withBorder>
-                                    <Card.Section mb="md">
-                                        <Image
-                                            height={200}
-                                            width="100%"
-                                            src={record.images.at(0)}
-                                            alt="Airbnb image"
-                                        />
-                                    </Card.Section>
+                            <Transition
+                                mounted={selected === record.id}
+                                transition="fade"
+                                duration={100}
+                                timingFunction="ease"
+                            >
+                                {(styles) => (
+                                    <Card style={styles} w={300} withBorder>
+                                        <Card.Section mb="md">
+                                            <Image
+                                                height={200}
+                                                width="100%"
+                                                src={record.images.at(0)}
+                                                alt="Airbnb image"
+                                            />
+                                        </Card.Section>
 
-                                    <Text fw={500} lineClamp={1}>
-                                        {record.name}
-                                    </Text>
+                                        <Text fw={500} lineClamp={1}>
+                                            {record.name}
+                                        </Text>
 
-                                    <Flex justify="space-between">
-                                        <Flex align="center">
-                                            <ThemeIcon
-                                                size="xs"
-                                                color="yellow"
-                                                variant="light"
-                                            >
-                                                <IconStarFilled />
-                                            </ThemeIcon>
-                                            <Text
-                                                fw={600}
-                                                size="sm"
-                                                c="gray"
-                                                style={{
-                                                    marginLeft: "6px",
-                                                }}
-                                            >
-                                                {record.ratings
-                                                    .split("out of 5")
-                                                    .at(0)}
+                                        <Flex justify="space-between">
+                                            <Flex align="center">
+                                                <ThemeIcon
+                                                    size="xs"
+                                                    color="yellow"
+                                                    variant="light"
+                                                >
+                                                    <IconStarFilled />
+                                                </ThemeIcon>
+                                                <Text
+                                                    fw={600}
+                                                    size="sm"
+                                                    c="gray"
+                                                    style={{
+                                                        marginLeft: "6px",
+                                                    }}
+                                                >
+                                                    {record.ratings
+                                                        .split("out of 5")
+                                                        .at(0)}
+                                                </Text>
+                                            </Flex>
+                                            <Text fw={600} c="green" mt="xs">
+                                                ${record.price} / night
                                             </Text>
                                         </Flex>
-                                        <Text fw={600} c="green" mt="xs">
-                                            ${record.price} / night
-                                        </Text>
-                                    </Flex>
-                                </Card>
-                            )}
+                                    </Card>
+                                )}
+                            </Transition>
                         </ROverlay>
                     </RFeature>
                 ))}
