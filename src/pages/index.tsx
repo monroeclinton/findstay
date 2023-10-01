@@ -1,27 +1,13 @@
-import {
-    ActionIcon,
-    Card,
-    Center,
-    Flex,
-    Group,
-    Image,
-    Loader,
-    SimpleGrid,
-    Text,
-    ThemeIcon,
-} from "@mantine/core";
+import { Center, Flex, Loader, Text, ThemeIcon } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
-import {
-    IconDatabaseOff,
-    IconHeart,
-    IconStarFilled,
-} from "@tabler/icons-react";
+import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
+import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
 
@@ -93,82 +79,17 @@ const Home: NextPage = () => {
                                 <Text mt="sm">No listings</Text>
                             </Center>
                         )}
+                    </Flex>
+                    <Flex
+                        direction="column"
+                        rowGap="sm"
+                        my="md"
+                        style={{
+                            flexBasis: "60%",
+                        }}
+                    >
                         {homes.data?.locations.map((record) => (
-                            <Card withBorder px="lg" py="xl" key={record.id}>
-                                <ActionIcon
-                                    size="lg"
-                                    variant="light"
-                                    color="pink"
-                                    style={{
-                                        position: "absolute",
-                                        marginTop: "4px",
-                                        marginLeft: "4px",
-                                    }}
-                                >
-                                    <IconHeart />
-                                </ActionIcon>
-                                {record.images.length > 0 && (
-                                    <Card.Section inheritPadding>
-                                        <SimpleGrid cols={3}>
-                                            {record.images
-                                                .slice(0, 3)
-                                                .map((image) => (
-                                                    <Image
-                                                        alt="Airbnb image"
-                                                        h={200}
-                                                        src={image}
-                                                        key={image}
-                                                        radius="sm"
-                                                    />
-                                                ))}
-                                        </SimpleGrid>
-                                    </Card.Section>
-                                )}
-                                <Card.Section inheritPadding mt="md">
-                                    <Group justify="space-between">
-                                        <Flex direction="column">
-                                            <Flex align="center">
-                                                <ThemeIcon
-                                                    size="xs"
-                                                    color="yellow"
-                                                    variant="light"
-                                                >
-                                                    <IconStarFilled />
-                                                </ThemeIcon>
-                                                <Text
-                                                    fw={600}
-                                                    size="sm"
-                                                    c="gray"
-                                                    style={{
-                                                        marginLeft: "6px",
-                                                    }}
-                                                >
-                                                    {record.ratings
-                                                        .split("out of 5")
-                                                        .at(0)}
-                                                </Text>
-                                            </Flex>
-                                            <Text fw={600} c="green" mt="xs">
-                                                ${record.price} / night
-                                            </Text>
-                                        </Flex>
-                                        <Text fw={500}>{record.name}</Text>
-                                    </Group>
-                                </Card.Section>
-                                <Card.Section inheritPadding mt="md">
-                                    <Text
-                                        c="dimmed"
-                                        size="xs"
-                                        tt="uppercase"
-                                        fw={700}
-                                    >
-                                        Supermarket
-                                    </Text>
-                                    <Text fw={400} size="xl">
-                                        {record.supermarket} meters
-                                    </Text>
-                                </Card.Section>
-                            </Card>
+                            <HomeCard key={record.id} home={record} />
                         ))}
                         {homes.isFetching && (
                             <Center style={{ flex: 1 }}>
