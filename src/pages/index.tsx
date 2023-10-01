@@ -55,19 +55,14 @@ const Home: NextPage = () => {
                     >
                         <FilterBar search={search} setSearch={setSearch} />
                         {homes.data && <Map data={homes.data} />}
-                    </Flex>
-                    <Flex
-                        direction="column"
-                        rowGap="sm"
-                        my="md"
-                        style={{
-                            flexBasis: "60%",
-                        }}
-                    >
                         {(search.length === 0 ||
                             homes.data?.locations.length === 0) && (
                             <Center
-                                style={{ flex: 1, flexDirection: "column" }}
+                                style={{
+                                    flex: 1,
+                                    width: "100%",
+                                    flexDirection: "column",
+                                }}
                             >
                                 <ThemeIcon
                                     variant="light"
