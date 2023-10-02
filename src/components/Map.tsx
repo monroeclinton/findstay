@@ -63,7 +63,7 @@ const Map = ({ data }: IMapProps) => {
                             >
                                 {(styles) => (
                                     <Card style={styles} w={300} withBorder>
-                                        <Card.Section mb="md">
+                                        <Card.Section mb="sm">
                                             <Image
                                                 height={200}
                                                 width="100%"
@@ -71,11 +71,6 @@ const Map = ({ data }: IMapProps) => {
                                                 alt="Airbnb image"
                                             />
                                         </Card.Section>
-
-                                        <Text fw={500} lineClamp={1}>
-                                            {record.name}
-                                        </Text>
-
                                         <Flex justify="space-between">
                                             <Flex align="center">
                                                 <ThemeIcon
