@@ -1,4 +1,4 @@
-import { Center, Flex, Loader, Text, ThemeIcon } from "@mantine/core";
+import { Button, Center, Flex, Loader, Text, ThemeIcon } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
@@ -24,15 +24,30 @@ const Home: NextPage = () => {
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebouncedValue(search, 200);
 
-    const homes = api.home.getAll.useQuery(
+    const sync = api.home.createSync.useQuery(
         {
             search: debouncedSearch,
         },
         {
             enabled: search.length > 3,
+        }
+    );
+
+    const homes = api.home.getAll.useInfiniteQuery(
+        {
+            syncId: sync.data?.id as string,
+        },
+        {
+            getNextPageParam: (lastPage) => lastPage.nextCursor,
+            enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
         }
     );
+
+    const activePage =
+        sync.data?.cursors.indexOf(homes.data?.pages.at(-1)?.cusor as string) ||
+        0;
+    const page = homes.data?.pages.at(activePage);
 
     return (
         <>
@@ -54,9 +69,9 @@ const Home: NextPage = () => {
                         }}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
-                        {homes.data && <Map data={homes.data} />}
+                        {page && <Map data={page} page={activePage} />}
                         {(search.length === 0 ||
-                            homes.data?.locations.length === 0) && (
+                            homes.data?.pages.length === 0) && (
                             <Center
                                 style={{
                                     flex: 1,
@@ -83,14 +98,19 @@ const Home: NextPage = () => {
                             flexBasis: "60%",
                         }}
                     >
-                        {homes.data?.locations.map((record) => (
-                            <HomeCard key={record.id} home={record} />
-                        ))}
+                        {homes.data?.pages
+                            ?.at(activePage)
+                            ?.locations.map((record) => (
+                                <HomeCard key={record.id} home={record} />
+                            ))}
                         {homes.isFetching && (
                             <Center style={{ flex: 1 }}>
                                 <Loader />
                             </Center>
                         )}
+                        <Button onClick={() => void homes.fetchNextPage()}>
+                            Next page
+                        </Button>
                     </Flex>
                 </Flex>
             </Layout>
