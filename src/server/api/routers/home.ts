@@ -2,7 +2,12 @@ import { type GoogleMapsLocation, Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { syncAirbnbListings } from "~/utils/airbnb";
+import { prisma } from "~/server/db";
+import {
+    createAirbnbSync,
+    syncAirbnbListings,
+    syncAirbnbPage,
+} from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
 // https://stackoverflow.com/q/18883601
@@ -57,55 +62,48 @@ function deg2rad(deg: number) {
 }
 
 export const homeRouter = createTRPCRouter({
-    getAll: publicProcedure
+    createSync: publicProcedure
         .input(
             z.object({
                 search: z.string(),
-                syncId: z.string().optional(),
             })
         )
-        .query(async ({ ctx, input }) => {
-            const airbnbSync = await syncAirbnbListings(
-                input.search,
-                input?.syncId
-            );
+        .query(async ({ input }) => {
+            const airbnbSync = await createAirbnbSync(input.search);
 
             if (!airbnbSync) throw new Error("Airbnb sync not successful.");
 
-            const bBox = (
-                await ctx.prisma.$queryRaw<
-                    [
-                        {
-                            neLatitude: number;
-                            neLongitude: number;
-                            swLatitude: number;
-                            swLongitude: number;
-                        }
-                    ]
-                >(
-                    Prisma.sql`
-                    SELECT
-                        ST_Y("neBBox") as "neLatitude",
-                        ST_X("neBBox") as "neLongitude",
-                        ST_Y("swBBox") as "swLatitude",
-                        ST_X("swBBox") as "swLongitude"
-                    FROM
-                        airbnb_location_sync
-                    WHERE
-                        id = ${airbnbSync.id}
-            `
-                )
-            ).at(0);
-
-            if (!bBox) throw new Error("Unable to get Airbnb bounding box.");
-
             const midpoint = getMidPoint(
-                bBox.neLatitude,
-                bBox.neLongitude,
-                bBox.swLatitude,
-                bBox.swLongitude
+                airbnbSync.neLatitude.toNumber(),
+                airbnbSync.neLongitude.toNumber(),
+                airbnbSync.swLatitude.toNumber(),
+                airbnbSync.swLongitude.toNumber()
             );
             await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
+
+            return {
+                id: airbnbSync.id,
+                cursors: airbnbSync.cursors,
+            };
+        }),
+    getAll: publicProcedure
+        .input(
+            z.object({
+                syncId: z.string(),
+                cursor: z.string().nullish(),
+            })
+        )
+        .query(async ({ ctx, input }) => {
+            const airbnbSync = await syncAirbnbPage(input.syncId, input.cursor);
+            if (!airbnbSync) throw new Error("Airbnb sync not successful.");
+
+            const midpoint = getMidPoint(
+                airbnbSync.neLatitude.toNumber(),
+                airbnbSync.neLongitude.toNumber(),
+                airbnbSync.swLatitude.toNumber(),
+                airbnbSync.swLongitude.toNumber()
+            );
+
             const supermarkets = await ctx.prisma.$queryRaw<
                 GoogleMapsLocation[]
             >(
@@ -134,8 +132,6 @@ export const homeRouter = createTRPCRouter({
                 `
             );
 
-            const locations = [];
-
             const closestSupermarket = ({
                 latitude,
                 longitude,
@@ -161,7 +157,16 @@ export const homeRouter = createTRPCRouter({
                 return Math.round((shortest || 0) * 1000);
             };
 
-            for (const home of airbnbSync.locations) {
+            const page =
+                airbnbSync.pages.find((page) => page.cursor === input.cursor) ||
+                airbnbSync.pages.at(0);
+
+            if (!page) throw new Error("Unable to fetch page of listings");
+
+            const locations = [];
+            for (const result of page.locations) {
+                const home = result.location;
+
                 locations.push({
                     id: home.id,
                     name: home.name,
@@ -178,10 +183,21 @@ export const homeRouter = createTRPCRouter({
                 });
             }
 
+            const cursorPos: number = input.cursor
+                ? airbnbSync.cursors.indexOf(input.cursor) || 0
+                : 0;
+
+            const nextCursor: string | null =
+                airbnbSync.cursors.length - 1 > cursorPos
+                    ? airbnbSync.cursors.at(cursorPos + 1) || null
+                    : null;
+
             return {
                 syncId: airbnbSync.id,
                 midpoint,
                 locations,
+                cusor: input.cursor,
+                nextCursor,
             };
         }),
 });

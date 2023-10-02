@@ -1,5 +1,9 @@
 import { createId } from "@paralleldrive/cuid2";
-import { Prisma } from "@prisma/client";
+import {
+    type AirbnbLocationSync,
+    Prisma,
+    type Prisma as PrismaType,
+} from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
@@ -52,9 +56,17 @@ interface MapSearchResponse {
     };
 }
 
-type AirbnbLocationSync = Prisma.AirbnbLocationSyncGetPayload<{
+type AirbnbLocationSyncWithPages = PrismaType.AirbnbLocationSyncGetPayload<{
     include: {
-        locations: true;
+        pages: {
+            include: {
+                locations: {
+                    include: {
+                        location: true;
+                    };
+                };
+            };
+        };
     };
 }>;
 
@@ -63,17 +75,14 @@ const headers = {
     "User-Agent": "curl/7.72.0",
 };
 
-const scrapeAirbnbApi = async (
-    search: string,
-    apiKey: string,
-    boundingBox: BoundingBox
-) => {
+const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
     const res: AxiosResponse<MapSearchResponse> = await axios.post(
         `https://www.airbnb.com/api/v3/StaysMapS2Search?operationName=StaysMapS2Search&locale=en&currency=USD`,
         {
             operationName: "StaysMapS2Search",
             variables: {
                 staysMapSearchRequestV2: {
+                    cursor,
                     requestedPageType: "STAYS_SEARCH",
                     metadataOnly: false,
                     treatmentFlags: [
@@ -102,19 +111,15 @@ const scrapeAirbnbApi = async (
                         { filterName: "itemsPerGrid", filterValues: ["18"] },
                         {
                             filterName: "neLat",
-                            filterValues: [
-                                boundingBox.northeast.latitude.toString(),
-                            ],
+                            filterValues: [sync.neLatitude.toString()],
                         },
                         {
                             filterName: "neLng",
-                            filterValues: [
-                                boundingBox.northeast.longitude.toString(),
-                            ],
+                            filterValues: [sync.neLongitude.toString()],
                         },
                         {
                             filterName: "query",
-                            filterValues: [search],
+                            filterValues: [sync.search],
                         },
                         {
                             filterName: "refinementPaths",
@@ -123,15 +128,11 @@ const scrapeAirbnbApi = async (
                         { filterName: "screenSize", filterValues: ["large"] },
                         {
                             filterName: "swLat",
-                            filterValues: [
-                                boundingBox.southwest.latitude.toString(),
-                            ],
+                            filterValues: [sync.swLatitude.toString()],
                         },
                         {
                             filterName: "swLng",
-                            filterValues: [
-                                boundingBox.southwest.longitude.toString(),
-                            ],
+                            filterValues: [sync.swLongitude.toString()],
                         },
                         { filterName: "tabId", filterValues: ["home_tab"] },
                         { filterName: "version", filterValues: ["1.8.3"] },
@@ -153,7 +154,7 @@ const scrapeAirbnbApi = async (
         {
             headers: {
                 ...headers,
-                "X-Airbnb-API-Key": apiKey,
+                "X-Airbnb-API-Key": sync.apiKey,
                 "Content-Type": "application/json",
             },
         }
@@ -167,11 +168,10 @@ const scrapeAirbnbApi = async (
         .staysMapSearch.mapSearchResults;
 };
 
-export const syncAirbnbListings = async (
-    search: string,
-    syncId: string | undefined
+export const createAirbnbSync = async (
+    search: string
 ): Promise<AirbnbLocationSync | null> => {
-    const previousSync = await prisma.airbnbLocationSync.findFirst({
+    const recentSync = await prisma.airbnbLocationSync.findFirst({
         where: {
             search: search,
             createdAt: {
@@ -179,14 +179,18 @@ export const syncAirbnbListings = async (
             },
         },
         include: {
-            locations: true,
+            pages: {
+                include: {
+                    locations: true,
+                },
+            },
         },
         orderBy: {
             createdAt: "desc",
         },
     });
 
-    if (previousSync) return previousSync;
+    if (recentSync) return recentSync;
 
     const res: AxiosResponse<string> = await axios.get(
         `https://www.airbnb.com/s/${search.replace(/ /g, "+")}/homes`,
@@ -219,56 +223,86 @@ export const syncAirbnbListings = async (
         .at(0) as string;
     if (!boundingBoxString) return null;
     const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
+    console.log(boundingBox);
 
-    const locationResults = await scrapeAirbnbApi(search, apiKey, boundingBox);
-
-    return await prisma.$transaction(async (tx) => {
-        const sync = (
-            await tx.$queryRaw<[{ id: string }]>(
-                Prisma.sql`
+    const sync = (
+        await prisma.$queryRaw<[{ id: string }]>(
+            Prisma.sql`
                 INSERT INTO airbnb_location_sync (
                     id,
                     search,
                     "apiKey",
-                    page,
                     cursors,
                     "neBBox",
+                    "neLatitude",
+                    "neLongitude",
                     "swBBox",
+                    "swLatitude",
+                    "swLongitude",
                     "updatedAt",
                     "createdAt"
                 )
                 VALUES (
-                    ${syncId ? syncId : createId()},
+                    ${createId()},
                     ${search},
                     ${apiKey},
-                    1,
                     ${cursors},
                     ST_POINT(
                         ${boundingBox.northeast.longitude},
                         ${boundingBox.northeast.latitude}
                     ),
+                    ${boundingBox.northeast.latitude},
+                    ${boundingBox.northeast.longitude},
                     ST_POINT(
                         ${boundingBox.southwest.longitude},
                         ${boundingBox.southwest.latitude}
                     ),
+                    ${boundingBox.southwest.latitude},
+                    ${boundingBox.southwest.longitude},
                     NOW(),
                     NOW()
                 )
                 ON CONFLICT (id) DO NOTHING
                 RETURNING id
             `
-            )
-        ).at(0);
+        )
+    ).at(0);
 
-        if (!sync) return null;
+    return await prisma.airbnbLocationSync.findUniqueOrThrow({
+        where: {
+            id: sync?.id,
+        },
+        include: {
+            pages: {
+                include: {
+                    locations: true,
+                },
+            },
+        },
+    });
+};
 
+export const syncAirbnbPage = async (
+    syncId: string,
+    cursor: string | undefined | null = undefined
+): Promise<AirbnbLocationSyncWithPages | null> => {
+    const sync = await prisma.airbnbLocationSync.findUniqueOrThrow({
+        where: {
+            id: syncId,
+        },
+    });
+
+    const curCursor = cursor || sync.cursors.at(0);
+    if (!curCursor) return null;
+    const locationResults = await scrapeAirbnbApi(sync, curCursor);
+    console.log(locationResults);
+
+    return await prisma.$transaction(async (tx) => {
+        const locations = [];
         for (const location of locationResults) {
-            await tx.airbnbLocation.upsert({
+            const record = await tx.airbnbLocation.upsert({
                 where: {
-                    syncId_airbnbId: {
-                        airbnbId: location.listing.id,
-                        syncId: sync.id,
-                    },
+                    airbnbId: location.listing.id,
                 },
                 update: {
                     name: location.listing.name,
@@ -281,7 +315,6 @@ export const syncAirbnbListings = async (
                     longitude: location.listing.coordinate.longitude,
                 },
                 create: {
-                    syncId: sync.id,
                     airbnbId: location.listing.id,
                     name: location.listing.name,
                     price: location.pricingQuote.rate.amount,
@@ -293,14 +326,38 @@ export const syncAirbnbListings = async (
                     longitude: location.listing.coordinate.longitude,
                 },
             });
+
+            locations.push(record);
         }
+
+        const page = await tx.airbnbLocationSyncPage.create({
+            data: {
+                cursor: curCursor,
+                syncId: sync.id,
+            },
+        });
+
+        await tx.airbnbLocationsOnPages.createMany({
+            data: locations.map((location) => ({
+                locationId: location.id,
+                pageId: page.id,
+            })),
+        });
 
         return await tx.airbnbLocationSync.findUniqueOrThrow({
             where: {
                 id: sync.id,
             },
             include: {
-                locations: true,
+                pages: {
+                    include: {
+                        locations: {
+                            include: {
+                                location: true,
+                            },
+                        },
+                    },
+                },
             },
         });
     });
