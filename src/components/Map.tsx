@@ -24,6 +24,7 @@ interface IMapProps {
 
 const Map = ({ data }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
+    const [viewed, setViewed] = useState<Array<string>>([]);
 
     return (
         <RMap
@@ -125,10 +126,15 @@ const Map = ({ data }: IMapProps) => {
                                     cursor: "pointer",
                                 }}
                                 color={
-                                    selected === record.id ? "black" : "pink"
+                                    selected === record.id
+                                        ? "black"
+                                        : viewed.includes(record.id)
+                                        ? "gray"
+                                        : "pink"
                                 }
                                 onClick={() => {
                                     setSelected(record.id);
+                                    setViewed([record.id, ...viewed]);
                                 }}
                             >
                                 ${record.price}
