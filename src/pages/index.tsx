@@ -130,14 +130,26 @@ const Home: NextPage = () => {
                             ?.locations.map((record) => (
                                 <HomeCard key={record.id} home={record} />
                             ))}
-                        {homes.isFetching && (
+                        {homes.isInitialLoading && (
                             <Center style={{ flex: 1 }}>
                                 <Loader />
                             </Center>
                         )}
-                        <Button onClick={() => void homes.fetchNextPage()}>
-                            Next page
-                        </Button>
+                        {sync.data && (
+                            <Pagination
+                                mt="auto"
+                                value={activePage + 1}
+                                onChange={(pos) => {
+                                    const page = pos - 1;
+                                    if (!pageMap.includes(page)) {
+                                        setPageMap([...pageMap, page]);
+                                    }
+
+                                    setPage(page);
+                                }}
+                                total={sync.data.cursors.length}
+                            />
+                        )}
                     </Flex>
                 </Flex>
             </Layout>
