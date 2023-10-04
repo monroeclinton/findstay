@@ -42,6 +42,7 @@ const Home: NextPage = () => {
         },
         {
             enabled: search.length > 3,
+            refetchOnWindowFocus: false,
         }
     );
 
