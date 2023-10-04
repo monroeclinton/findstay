@@ -196,7 +196,7 @@ export const homeRouter = createTRPCRouter({
                 syncId: airbnbSync.id,
                 midpoint,
                 locations,
-                cusor: input.cursor,
+                cursor: input.cursor as string,
                 nextCursor,
             };
         }),
