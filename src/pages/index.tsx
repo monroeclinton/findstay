@@ -98,8 +98,7 @@ const Home: NextPage = () => {
                     >
                         <FilterBar search={search} setSearch={setSearch} />
                         {page && <Map data={page} page={activePage} />}
-                        {(search.length === 0 ||
-                            homes.data?.pages.length === 0) && (
+                        {search.length === 0 && (
                             <Center
                                 style={{
                                     flex: 1,
