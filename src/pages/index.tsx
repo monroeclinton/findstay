@@ -1,10 +1,17 @@
-import { Button, Center, Flex, Loader, Text, ThemeIcon } from "@mantine/core";
+import {
+    Center,
+    Flex,
+    Loader,
+    Pagination,
+    Text,
+    ThemeIcon,
+} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
@@ -21,8 +28,13 @@ const Map = dynamic(() => import("~/components/Map"), {
 });
 
 const Home: NextPage = () => {
+    const [activePage, setPage] = useState(0);
+    // Map of pages to the order they were loaded in
+    const [pageMap, setPageMap] = useState<number[]>([0]);
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebouncedValue(search, 200);
+
+    const prevPageRef = useRef<number[]>([]);
 
     const sync = api.home.createSync.useQuery(
         {
@@ -38,16 +50,31 @@ const Home: NextPage = () => {
             syncId: sync.data?.id as string,
         },
         {
-            getNextPageParam: (lastPage) => lastPage.nextCursor,
+            getNextPageParam: () => sync.data?.cursors.at(activePage),
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
         }
     );
 
-    const activePage =
-        sync.data?.cursors.indexOf(homes.data?.pages.at(-1)?.cusor as string) ||
-        0;
     const page = homes.data?.pages.at(activePage);
+
+    useEffect(() => {
+        prevPageRef.current = pageMap;
+    });
+    const prevPageMap = prevPageRef.current;
+
+    useEffect(() => {
+        if (homes.isFetched && !prevPageMap.includes(activePage)) {
+            void homes.fetchNextPage();
+        }
+    }, [homes, activePage, prevPageMap]);
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+        });
+    }, [activePage]);
 
     return (
         <>
@@ -99,7 +126,7 @@ const Home: NextPage = () => {
                         }}
                     >
                         {homes.data?.pages
-                            ?.at(activePage)
+                            ?.at(pageMap.indexOf(activePage))
                             ?.locations.map((record) => (
                                 <HomeCard key={record.id} home={record} />
                             ))}
