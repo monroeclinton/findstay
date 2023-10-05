@@ -11,7 +11,7 @@ import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
@@ -29,12 +29,8 @@ const Map = dynamic(() => import("~/components/Map"), {
 
 const Home: NextPage = () => {
     const [activePage, setPage] = useState(0);
-    // Map of pages to the order they were loaded in
-    const [pageMap, setPageMap] = useState<number[]>([0]);
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebouncedValue(search, 200);
-
-    const prevPageRef = useRef<number[]>([]);
 
     const sync = api.home.createSync.useQuery(
         {
@@ -46,35 +42,28 @@ const Home: NextPage = () => {
         }
     );
 
-    const homes = api.home.getAll.useInfiniteQuery(
+    const homes = api.home.getAll.useQuery(
         {
             syncId: sync.data?.id as string,
+            cursor: sync.data?.cursors.at(activePage),
         },
         {
-            getNextPageParam: () => sync.data?.cursors.at(activePage),
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
         }
     );
 
-    const page = homes.data?.pages.at(activePage);
-
     useEffect(() => {
-        prevPageRef.current = pageMap;
-    });
-    const prevPageMap = prevPageRef.current;
+        const timeout = setTimeout(
+            () =>
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                }),
+            200
+        );
 
-    useEffect(() => {
-        if (homes.isFetched && !prevPageMap.includes(activePage)) {
-            void homes.fetchNextPage();
-        }
-    }, [homes, activePage, prevPageMap]);
-
-    useEffect(() => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-        });
+        return () => clearTimeout(timeout);
     }, [activePage]);
 
     return (
@@ -97,7 +86,7 @@ const Home: NextPage = () => {
                         }}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
-                        {page && <Map data={page} page={activePage} />}
+                        {homes.data && <Map data={homes.data} />}
                         {search.length === 0 && (
                             <Center
                                 style={{
@@ -125,11 +114,9 @@ const Home: NextPage = () => {
                             flexBasis: "60%",
                         }}
                     >
-                        {homes.data?.pages
-                            ?.at(pageMap.indexOf(activePage))
-                            ?.locations.map((record) => (
-                                <HomeCard key={record.id} home={record} />
-                            ))}
+                        {homes.data?.locations.map((record) => (
+                            <HomeCard key={record.id} home={record} />
+                        ))}
                         {homes.isInitialLoading && (
                             <Center style={{ flex: 1 }}>
                                 <Loader />
@@ -139,14 +126,7 @@ const Home: NextPage = () => {
                             <Pagination
                                 mt="auto"
                                 value={activePage + 1}
-                                onChange={(pos) => {
-                                    const page = pos - 1;
-                                    if (!pageMap.includes(page)) {
-                                        setPageMap([...pageMap, page]);
-                                    }
-
-                                    setPage(page);
-                                }}
+                                onChange={(pos) => setPage(pos - 1)}
                                 total={sync.data.cursors.length}
                             />
                         )}
