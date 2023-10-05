@@ -81,7 +81,7 @@ export const homeRouter = createTRPCRouter({
                 cursors: airbnbSync.cursors,
             };
         }),
-    getAll: publicProcedure
+    getPage: publicProcedure
         .input(
             z.object({
                 syncId: z.string(),

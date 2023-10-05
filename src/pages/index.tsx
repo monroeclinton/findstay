@@ -42,7 +42,7 @@ const Home: NextPage = () => {
         }
     );
 
-    const homes = api.home.getAll.useQuery(
+    const homes = api.home.getPage.useQuery(
         {
             syncId: sync.data?.id as string,
             cursor: sync.data?.cursors.at(activePage),
