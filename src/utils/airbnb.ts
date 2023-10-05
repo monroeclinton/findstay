@@ -290,75 +290,80 @@ export const syncAirbnbPage = async (
         where: {
             id: syncId,
         },
+        include: {
+            pages: true,
+        },
     });
 
     const curCursor = cursor || sync.cursors.at(0);
     if (!curCursor) return null;
-    const locationResults = await scrapeAirbnbApi(sync, curCursor);
-    console.log(locationResults);
 
-    return await prisma.$transaction(async (tx) => {
-        const locations = [];
-        for (const location of locationResults) {
-            const record = await tx.airbnbLocation.upsert({
-                where: {
-                    airbnbId: location.listing.id,
-                },
-                update: {
-                    name: location.listing.name,
-                    price: location.pricingQuote.rate.amount,
-                    images: location.listing.contextualPictures.map(
-                        (ctx) => ctx.picture
-                    ),
-                    rating: location.listing.avgRatingA11yLabel || "None",
-                    latitude: location.listing.coordinate.latitude,
-                    longitude: location.listing.coordinate.longitude,
-                },
-                create: {
-                    airbnbId: location.listing.id,
-                    name: location.listing.name,
-                    price: location.pricingQuote.rate.amount,
-                    images: location.listing.contextualPictures.map(
-                        (ctx) => ctx.picture
-                    ),
-                    rating: location.listing.avgRatingA11yLabel || "None",
-                    latitude: location.listing.coordinate.latitude,
-                    longitude: location.listing.coordinate.longitude,
+    if (!sync.pages.map((page) => page.cursor).includes(curCursor)) {
+        const locationResults = await scrapeAirbnbApi(sync, curCursor);
+
+        await prisma.$transaction(async (tx) => {
+            const locations = [];
+            for (const location of locationResults) {
+                const record = await tx.airbnbLocation.upsert({
+                    where: {
+                        airbnbId: location.listing.id,
+                    },
+                    update: {
+                        name: location.listing.name,
+                        price: location.pricingQuote.rate.amount,
+                        images: location.listing.contextualPictures.map(
+                            (ctx) => ctx.picture
+                        ),
+                        rating: location.listing.avgRatingA11yLabel || "None",
+                        latitude: location.listing.coordinate.latitude,
+                        longitude: location.listing.coordinate.longitude,
+                    },
+                    create: {
+                        airbnbId: location.listing.id,
+                        name: location.listing.name,
+                        price: location.pricingQuote.rate.amount,
+                        images: location.listing.contextualPictures.map(
+                            (ctx) => ctx.picture
+                        ),
+                        rating: location.listing.avgRatingA11yLabel || "None",
+                        latitude: location.listing.coordinate.latitude,
+                        longitude: location.listing.coordinate.longitude,
+                    },
+                });
+
+                locations.push(record);
+            }
+
+            const page = await tx.airbnbLocationSyncPage.create({
+                data: {
+                    cursor: curCursor,
+                    syncId: sync.id,
                 },
             });
 
-            locations.push(record);
-        }
-
-        const page = await tx.airbnbLocationSyncPage.create({
-            data: {
-                cursor: curCursor,
-                syncId: sync.id,
-            },
+            await tx.airbnbLocationsOnPages.createMany({
+                data: locations.map((location) => ({
+                    locationId: location.id,
+                    pageId: page.id,
+                })),
+            });
         });
+    }
 
-        await tx.airbnbLocationsOnPages.createMany({
-            data: locations.map((location) => ({
-                locationId: location.id,
-                pageId: page.id,
-            })),
-        });
-
-        return await tx.airbnbLocationSync.findUniqueOrThrow({
-            where: {
-                id: sync.id,
-            },
-            include: {
-                pages: {
-                    include: {
-                        locations: {
-                            include: {
-                                location: true,
-                            },
+    return await prisma.airbnbLocationSync.findUniqueOrThrow({
+        where: {
+            id: sync.id,
+        },
+        include: {
+            pages: {
+                include: {
+                    locations: {
+                        include: {
+                            location: true,
                         },
                     },
                 },
             },
-        });
+        },
     });
 };
