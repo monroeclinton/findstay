@@ -2,12 +2,7 @@ import { type GoogleMapsLocation, Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { prisma } from "~/server/db";
-import {
-    createAirbnbSync,
-    syncAirbnbListings,
-    syncAirbnbPage,
-} from "~/utils/airbnb";
+import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
 // https://stackoverflow.com/q/18883601
