@@ -19,10 +19,11 @@ import { type AppRouter } from "~/server/api/root";
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
 interface IMapProps {
-    data: RouterOutput["home"]["getAll"];
+    data: RouterOutput["home"]["getPage"];
+    page: number;
 }
 
-const Map = ({ data }: IMapProps) => {
+const Map = ({ data, page }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
 
@@ -53,7 +54,7 @@ const Map = ({ data }: IMapProps) => {
                         <ROverlay
                             positioning="top-center"
                             offset={[0, 15]}
-                            key={record.id}
+                            key={record.id + "-card-" + page.toString()}
                         >
                             <Transition
                                 mounted={selected === record.id}
@@ -107,7 +108,7 @@ const Map = ({ data }: IMapProps) => {
             <RLayerVector>
                 {data.locations.map((record) => (
                     <RFeature
-                        key={record.id}
+                        key={record.id + "-badge-" + page.toString()}
                         geometry={
                             new Point(
                                 fromLonLat([record.longitude, record.latitude])
