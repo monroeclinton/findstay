@@ -159,6 +159,15 @@ export const homeRouter = createTRPCRouter({
 
             if (!page) throw new Error("Unable to fetch page of listings");
 
+            const favorites = await ctx.prisma.airbnbLocationFavorite.findMany({
+                where: {
+                    userId: ctx.session?.user.id,
+                },
+            });
+            const favoriteIds = favorites.map(
+                (favorite) => favorite.locationId
+            );
+
             const locations = [];
             for (const result of page.locations) {
                 const home = result.location;
@@ -176,6 +185,7 @@ export const homeRouter = createTRPCRouter({
                     }),
                     images: home.images,
                     link: "https://airbnb.com/rooms/" + home.id,
+                    isFavorited: favoriteIds.includes(home.id),
                 });
             }
 

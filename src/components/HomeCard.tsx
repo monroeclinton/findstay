@@ -8,23 +8,55 @@ import {
     Text,
     ThemeIcon,
 } from "@mantine/core";
-import { IconHeart, IconStarFilled } from "@tabler/icons-react";
+import {
+    IconHeart,
+    IconHeartFilled,
+    IconStarFilled,
+} from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 
 import { type AppRouter } from "~/server/api/root";
+import { api } from "~/utils/api";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
 interface IHomeCardProps {
-    home: RouterOutput["home"]["getAll"]["locations"][0];
+    home: RouterOutput["home"]["getPage"]["locations"][0];
 }
 
 const HomeCard = ({ home }: IHomeCardProps) => {
+    const utils = api.useContext();
+
+    const deleteFavorite = api.favorite.delete.useMutation({
+        onSuccess: async () => {
+            await utils.home.getPage.refetch();
+        },
+    });
+
+    const createFavorite = api.favorite.create.useMutation({
+        onSuccess: async () => {
+            await utils.home.getPage.refetch();
+        },
+    });
+
+    const handleFavorite = () => {
+        if (home.isFavorited) {
+            deleteFavorite.mutate({
+                locationId: home.id,
+            });
+        } else {
+            createFavorite.mutate({
+                locationId: home.id,
+            });
+        }
+    };
+
     return (
         <Card withBorder px="lg" py="xl" key={home.id}>
             <ActionIcon
+                onClick={handleFavorite}
                 size="lg"
-                variant="light"
+                variant={home.isFavorited ? "dark" : "light"}
                 color="pink"
                 style={{
                     position: "absolute",
@@ -32,7 +64,8 @@ const HomeCard = ({ home }: IHomeCardProps) => {
                     marginLeft: "4px",
                 }}
             >
-                <IconHeart />
+                {!home.isFavorited && <IconHeart />}
+                {home.isFavorited && <IconHeartFilled />}
             </ActionIcon>
             {home.images.length > 0 && (
                 <Card.Section inheritPadding>
