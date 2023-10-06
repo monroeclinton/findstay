@@ -173,10 +173,14 @@ export const createAirbnbSync = async (
 ): Promise<AirbnbLocationSync | null> => {
     const recentSync = await prisma.airbnbLocationSync.findFirst({
         where: {
-            search: search,
-            createdAt: {
-                gte: new Date(Date.now() - 1800),
-            },
+            AND: [
+                { search: search },
+                {
+                    createdAt: {
+                        gte: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+                    },
+                },
+            ],
         },
         include: {
             pages: {
@@ -239,8 +243,7 @@ export const createAirbnbSync = async (
                     "swBBox",
                     "swLatitude",
                     "swLongitude",
-                    "updatedAt",
-                    "createdAt"
+                    "updatedAt"
                 )
                 VALUES (
                     ${createId()},
@@ -259,8 +262,7 @@ export const createAirbnbSync = async (
                     ),
                     ${boundingBox.southwest.latitude},
                     ${boundingBox.southwest.longitude},
-                    NOW(),
-                    NOW()
+                    CURRENT_TIMESTAMP
                 )
                 ON CONFLICT (id) DO NOTHING
                 RETURNING id
