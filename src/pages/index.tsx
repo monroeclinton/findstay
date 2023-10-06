@@ -37,7 +37,7 @@ const Home: NextPage = () => {
             search: debouncedSearch,
         },
         {
-            enabled: search.length > 3,
+            enabled: debouncedSearch.length > 3,
             refetchOnWindowFocus: false,
         }
     );
@@ -89,7 +89,7 @@ const Home: NextPage = () => {
                         {homes.data && (
                             <Map data={homes.data} page={activePage} />
                         )}
-                        {search.length === 0 && (
+                        {debouncedSearch.length === 0 && (
                             <Center
                                 style={{
                                     flex: 1,
