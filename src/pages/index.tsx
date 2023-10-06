@@ -86,8 +86,12 @@ const Home: NextPage = () => {
                         }}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
-                        {homes.data && (
-                            <Map data={homes.data} page={activePage} />
+                        {sync.data && (
+                            <Map
+                                data={homes.data}
+                                midpoint={sync.data.midpoint}
+                                page={activePage}
+                            />
                         )}
                         {debouncedSearch.length === 0 && (
                             <Center
