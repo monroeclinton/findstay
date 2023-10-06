@@ -16,17 +16,18 @@ datasource db {
 }
 
 model AirbnbLocation {
-    id        String             @id @default(cuid())
-    airbnbId  String             @unique
-    name      String
-    price     Int
-    images    String[]
-    rating    String
-    latitude  Decimal
-    longitude Decimal
-    pages     AirbnbLocationsOnPages[]
-    createdAt DateTime           @default(now())
-    updatedAt DateTime           @updatedAt
+    id              String                   @id @default(cuid())
+    airbnbId        String                   @unique
+    name            String
+    price           Int
+    images          String[]
+    rating          String
+    latitude        Decimal
+    longitude       Decimal
+    pages           AirbnbLocationsOnPages[]
+    airbnbFavorites AirbnbLocationFavorite[]
+    createdAt       DateTime                 @default(now())
+    updatedAt       DateTime                 @updatedAt
 
     @@map("airbnb_location")
 }
@@ -71,6 +72,17 @@ model AirbnbLocationsOnPages {
 
     @@map("airbnb_locations_on_pages")
     @@id([locationId, pageId])
+}
+
+model AirbnbLocationFavorite {
+    id         String         @id @default(cuid())
+    location   AirbnbLocation @relation(fields: [locationId], references: [id])
+    locationId String
+    user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId     String
+
+    @@map("airbnb_location_favorite")
+    @@unique([locationId, userId])
 }
 
 model GoogleMapsLocation {
@@ -144,6 +156,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    airbnbFavorites   AirbnbLocationFavorite[]
 
     @@map("user")
 }
