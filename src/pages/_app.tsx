@@ -8,6 +8,8 @@ import { SessionProvider } from "next-auth/react";
 
 import { api } from "~/utils/api";
 
+import AuthGuard from "../components/AuthGuard";
+
 const MyApp: AppType<{ session: Session | null }> = ({
     Component,
     pageProps: { session, ...pageProps },
@@ -20,7 +22,9 @@ const MyApp: AppType<{ session: Session | null }> = ({
                     primaryShade: { light: 7, dark: 8 },
                 }}
             >
-                <Component {...pageProps} />
+                <AuthGuard>
+                    <Component {...pageProps} />
+                </AuthGuard>
             </MantineProvider>
         </SessionProvider>
     );
