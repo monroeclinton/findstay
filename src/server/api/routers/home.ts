@@ -60,7 +60,7 @@ export const homeRouter = createTRPCRouter({
     createSync: publicProcedure
         .input(
             z.object({
-                search: z.string(),
+                search: z.string().min(5),
             })
         )
         .query(async ({ input }) => {
