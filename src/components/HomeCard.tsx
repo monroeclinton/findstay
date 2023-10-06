@@ -56,7 +56,7 @@ const HomeCard = ({ home }: IHomeCardProps) => {
             <ActionIcon
                 onClick={handleFavorite}
                 size="lg"
-                variant={home.isFavorited ? "dark" : "light"}
+                variant="white"
                 color="pink"
                 style={{
                     position: "absolute",

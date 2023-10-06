@@ -32,11 +32,16 @@ export const favoriteRouter = createTRPCRouter({
                 locationId: z.string(),
             })
         )
-        .mutation(async ({ ctx }) => {
+        .mutation(async ({ ctx, input }) => {
             const session = ctx.session;
 
-            return ctx.prisma.user.delete({
-                where: { id: session.user.id },
+            return ctx.prisma.airbnbLocationFavorite.delete({
+                where: {
+                    locationId_userId: {
+                        locationId: input.locationId,
+                        userId: session.user.id,
+                    },
+                },
             });
         }),
 });
