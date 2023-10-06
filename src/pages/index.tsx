@@ -20,7 +20,7 @@ import { api } from "~/utils/api";
 
 const Map = dynamic(() => import("~/components/Map"), {
     loading: () => (
-        <Center style={{ flex: 1 }}>
+        <Center style={{ flex: 1, width: "100%" }}>
             <Loader />
         </Center>
     ),
