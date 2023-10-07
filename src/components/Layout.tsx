@@ -1,12 +1,17 @@
-import { AppShell } from "@mantine/core";
+import { AppShell, type AppShellProps, Container, Flex } from "@mantine/core";
 
 import Side, { SIDE_BREAKPOINT, SIDE_WIDTH } from "~/components/Side";
 
-export interface LayoutProps {
-    children: React.ReactNode;
+interface ILayoutProps extends AppShellProps {
+    container?: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, container = true, ...props }: ILayoutProps) => {
+    const mainChildren = (
+        <Flex direction="column" style={{ flex: 1 }} mt="sm">
+            {children}
+        </Flex>
+    );
     return (
         <AppShell
             navbar={{
@@ -16,15 +21,20 @@ const Layout = ({ children }: LayoutProps) => {
             styles={{
                 main: {
                     display: "flex",
-                    flexDirection: "column",
-                    paddingTop: 0,
-                    paddingBottom: 0,
-                    paddingRight: 0,
                 },
             }}
+            {...props}
         >
             <Side />
-            <AppShell.Main ml="sm">{children}</AppShell.Main>
+            <AppShell.Main mx="sm">
+                {container === true ? (
+                    <Container size="lg" mt="sm" w="100%">
+                        {mainChildren}
+                    </Container>
+                ) : (
+                    mainChildren
+                )}
+            </AppShell.Main>
         </AppShell>
     );
 };

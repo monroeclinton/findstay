@@ -73,13 +73,13 @@ const Home: NextPage = () => {
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
-            <Layout>
+            <Layout container={false}>
                 <Flex columnGap="sm">
                     <Flex
                         direction="column"
                         align="start"
                         style={{
-                            height: `calc(100vh)`,
+                            height: `calc(100vh - var(--mantine-spacing-sm) * 2)`,
                             flex: 1,
                             position: "sticky",
                             top: 0,

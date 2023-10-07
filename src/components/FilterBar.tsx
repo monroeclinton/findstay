@@ -16,7 +16,6 @@ const FilterBar = ({ search, setSearch }: IFilterBarProps) => {
             }}
         >
             <Flex
-                my="sm"
                 style={{
                     flex: 1,
                 }}
