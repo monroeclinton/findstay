@@ -227,7 +227,6 @@ export const createAirbnbSync = async (
         .at(0) as string;
     if (!boundingBoxString) return null;
     const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
-    console.log(boundingBox);
 
     const sync = (
         await prisma.$queryRaw<[{ id: string }]>(
