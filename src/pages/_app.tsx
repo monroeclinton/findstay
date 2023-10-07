@@ -3,6 +3,7 @@ import "@mantine/notifications/styles.css";
 import "ol/ol.css";
 
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
@@ -24,10 +25,12 @@ const MyApp: AppType<{ session: Session | null }> = ({
                     primaryShade: { light: 7, dark: 8 },
                 }}
             >
-                <Notifications />
-                <AuthGuard>
-                    <Component {...pageProps} />
-                </AuthGuard>
+                <ModalsProvider>
+                    <Notifications />
+                    <AuthGuard>
+                        <Component {...pageProps} />
+                    </AuthGuard>
+                </ModalsProvider>
             </MantineProvider>
         </SessionProvider>
     );
