@@ -1,4 +1,5 @@
 import {
+    Alert,
     Avatar,
     Button,
     Divider,
@@ -9,11 +10,13 @@ import {
     TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
+import { IconExclamationCircle } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { type Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
@@ -24,7 +27,8 @@ interface FormValues {
 }
 
 const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
-    const update = api.user.update.useMutation();
+    const updateUser = api.user.update.useMutation();
+    const deleteUser = api.user.delete.useMutation();
 
     const form = useForm<FormValues>({
         initialValues: {
@@ -42,7 +46,7 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
     });
 
     const handleSubmit = (values: { name: string; email: string }): void => {
-        update.mutate(values, {
+        updateUser.mutate(values, {
             onSuccess: () =>
                 notifications.show({
                     title: "Updated account",
@@ -50,6 +54,25 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
                 }),
         });
     };
+
+    const deleteModal = () =>
+        modals.openConfirmModal({
+            title: "Please confirm",
+            children: (
+                <Text size="sm">
+                    This will <b>delete</b> your account and is irreversible.
+                </Text>
+            ),
+            confirmProps: { color: "red" },
+            labels: {
+                confirm: "Delete account",
+                cancel: "No, don't delete it",
+            },
+            onConfirm: () =>
+                deleteUser.mutate(undefined, {
+                    onSuccess: () => void signIn(),
+                }),
+        });
 
     return (
         <Paper radius="md" withBorder p="lg" bg="var(--mantine-color-body)">
@@ -74,7 +97,7 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
                 </Text>
             )}
 
-            <Divider my="md" />
+            <Divider my="lg" />
 
             <form onSubmit={form.onSubmit(handleSubmit)}>
                 <TextInput
@@ -97,6 +120,22 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
                     <Button type="submit">Submit</Button>
                 </Group>
             </form>
+
+            <Divider my="lg" />
+
+            <Alert
+                variant="light"
+                color="red"
+                title="Delete account"
+                icon={<IconExclamationCircle />}
+            >
+                This will delete your account and is unable to be reversed.
+                <Group mt="md">
+                    <Button bg="red" onClick={deleteModal}>
+                        Delete
+                    </Button>
+                </Group>
+            </Alert>
         </Paper>
     );
 };
