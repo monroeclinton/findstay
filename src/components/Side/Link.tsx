@@ -19,7 +19,7 @@ const Link = ({ icon: Icon, label, link }: LinkProps) => {
             <NextLink
                 href={link}
                 className={classNames(classes.link, {
-                    linkActive: link === router.asPath,
+                    [classes.linkActive as string]: link === router.asPath,
                 })}
             >
                 <ThemeIcon
