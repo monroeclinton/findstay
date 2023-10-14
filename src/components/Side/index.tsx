@@ -1,5 +1,5 @@
 import { AppShell, Center, Flex, Title } from "@mantine/core";
-import { IconAdjustments, IconHome } from "@tabler/icons-react";
+import { IconAdjustments, IconHeart, IconHome } from "@tabler/icons-react";
 
 import UserButton from "~/components/Button/UserButton";
 import Link from "~/components/Side/Link";
@@ -14,6 +14,7 @@ interface Item {
 
 const items: Item[] = [
     { label: "Dashboard", icon: IconHome, link: "/" },
+    { label: "Favorites", icon: IconHeart, link: "/favorites" },
     { label: "Settings", icon: IconAdjustments, link: "/settings" },
 ];
 
