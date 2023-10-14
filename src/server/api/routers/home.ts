@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
-import { getMidPoint } from "~/utils/geometry";
+import { getMidPoint, getDistanceFromLatLonInKm } from "~/utils/geometry";
 
 export const homeRouter = createTRPCRouter({
     createSync: protectedProcedure
