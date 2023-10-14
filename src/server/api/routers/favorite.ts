@@ -44,4 +44,13 @@ export const favoriteRouter = createTRPCRouter({
                 },
             });
         }),
+    getAll: protectedProcedure.query(async ({ ctx, input }) => {
+        const session = ctx.session;
+
+        return ctx.prisma.airbnbLocationFavorite.findMany({
+            where: {
+                userId: session.user.id,
+            }
+        });
+    })
 });
