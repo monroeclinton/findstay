@@ -47,7 +47,7 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
                 WHERE
                     ST_DistanceSphere(
                         coordinate,
-                        ST_MakePoint(${latitude}, ${longitude})
+                        ST_MakePoint(${longitude}, ${latitude})
                     ) <= 200
             `
         )
@@ -97,8 +97,8 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
                     ${createId()},
                     'supermarkets',
                     ST_POINT(
-                        ${latitude},
-                        ${longitude}
+                        ${longitude},
+                        ${latitude}
                     ),
                     ${latitude},
                     ${longitude},
