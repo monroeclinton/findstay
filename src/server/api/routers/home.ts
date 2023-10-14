@@ -1,7 +1,7 @@
 import { type GoogleMapsLocation, Prisma } from "@prisma/client";
 import { z } from "zod";
 
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
 import { syncSuperMarkets } from "~/utils/gmm";
 
@@ -57,7 +57,7 @@ function deg2rad(deg: number) {
 }
 
 export const homeRouter = createTRPCRouter({
-    createSync: publicProcedure
+    createSync: protectedProcedure
         .input(
             z.object({
                 search: z.string().min(5),
@@ -82,7 +82,7 @@ export const homeRouter = createTRPCRouter({
                 midpoint,
             };
         }),
-    getPage: publicProcedure
+    getPage: protectedProcedure
         .input(
             z.object({
                 syncId: z.string(),
