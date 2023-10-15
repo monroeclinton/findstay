@@ -1,6 +1,7 @@
 import {
     ActionIcon,
     Card,
+    CardProps,
     Flex,
     Group,
     Image,
@@ -20,11 +21,11 @@ import { api } from "~/utils/api";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
-interface IHomeCardProps {
+interface IHomeCardProps extends CardProps {
     home: RouterOutput["home"]["getPage"]["locations"][0];
 }
 
-const HomeCard = ({ home }: IHomeCardProps) => {
+const HomeCard = ({ home, ...props }: IHomeCardProps) => {
     const utils = api.useContext();
 
     const deleteFavorite = api.favorite.delete.useMutation({
@@ -52,7 +53,7 @@ const HomeCard = ({ home }: IHomeCardProps) => {
     };
 
     return (
-        <Card withBorder px="lg" py="xl" key={home.id}>
+        <Card withBorder px="lg" py="xl" key={home.id} {...props}>
             <ActionIcon
                 onClick={handleFavorite}
                 size="lg"
