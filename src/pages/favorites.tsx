@@ -1,8 +1,6 @@
 import {
     Center,
-    Flex,
     Loader,
-    Pagination,
     Text,
     ThemeIcon,
 } from "@mantine/core";
@@ -46,7 +44,7 @@ const Home: NextPage = () => {
                     </Center>
                 )}
                 {homes.data?.map((record) => (
-                    <HomeCard key={record.id} home={record} />
+                    <HomeCard key={record.id} home={record} mb="sm" />
                 ))}
                 {homes.isInitialLoading && (
                     <Center style={{ flex: 1 }}>
