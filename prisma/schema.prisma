@@ -75,14 +75,26 @@ model AirbnbLocationsOnPages {
 }
 
 model AirbnbLocationFavorite {
-    id         String         @id @default(cuid())
-    location   AirbnbLocation @relation(fields: [locationId], references: [id])
+    id         String                       @id @default(cuid())
+    location   AirbnbLocation               @relation(fields: [locationId], references: [id])
     locationId String
-    user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     String
-
+    folder     AirbnbLocationFavoriteFolder @relation(fields: [folderId], references: [id])
+    folderId String
+ 
     @@map("airbnb_location_favorite")
     @@unique([locationId, userId])
+}
+
+model AirbnbLocationFavoriteFolder {
+    id        String                   @id @default(cuid())
+    user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    String
+    favorites AirbnbLocationFavorite[]
+    name      String
+
+    @@map("airbnb_location_favorite_folder")
 }
 
 model GoogleMapsLocation {
@@ -149,14 +161,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    airbnbFavorites   AirbnbLocationFavorite[]
+    id                    String                        @id @default(cuid())
+    name                  String?
+    email                 String?                       @unique
+    emailVerified         DateTime?
+    image                 String?
+    accounts              Account[]
+    sessions              Session[]
+    airbnbFavorites       AirbnbLocationFavorite[]
+    airbnbFavoriteFolders AirbnbLocationFavoriteFolder[]
 
     @@map("user")
 }
