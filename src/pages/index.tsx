@@ -86,6 +86,11 @@ const Home: NextPage = () => {
                         }}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
+                        {sync.isInitialLoading && (
+                            <Center style={{ flex: 1, width: "100%" }}>
+                                <Loader />
+                            </Center>
+                        )}
                         {sync.data && (
                             <Map
                                 data={homes.data}
