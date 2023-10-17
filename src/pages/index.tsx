@@ -82,7 +82,7 @@ const Home: NextPage = () => {
                             height: `calc(100vh - var(--mantine-spacing-sm) * 2)`,
                             flex: 1,
                             position: "sticky",
-                            top: 0,
+                            top: "var(--mantine-spacing-sm)",
                         }}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
@@ -129,7 +129,7 @@ const Home: NextPage = () => {
                             <HomeCard key={record.id} home={record} />
                         ))}
                         {homes.isInitialLoading && (
-                            <Center style={{ flex: 1 }}>
+                            <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
                             </Center>
                         )}
