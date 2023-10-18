@@ -84,7 +84,7 @@ model AirbnbLocationFavorite {
     folderId String
  
     @@map("airbnb_location_favorite")
-    @@unique([locationId, userId])
+    @@unique([locationId, userId, folderId])
 }
 
 model AirbnbLocationFavoriteFolder {
