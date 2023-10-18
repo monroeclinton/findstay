@@ -64,5 +64,28 @@ export const favoriteRouter = createTRPCRouter({
         });
 
         return addComputedFields(locations, session.user.id);
+    }),
+    createFolder: protectedProcedure
+        .input(z.object({
+            name: z.string().min(3),
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const session = ctx.session;
+
+            return await ctx.prisma.airbnbLocationFavoriteFolder.create({
+                data: {
+                    name: input.name,
+                    userId: session.user.id,
+                }
+            });
+        }),
+    getFolders: protectedProcedure.query(async ({ ctx, input }) => {
+        const session = ctx.session;
+
+        return await ctx.prisma.airbnbLocationFavoriteFolder.findMany({
+            where: {
+                userId: session.user.id,
+            }
+        });
     })
 });
