@@ -8,6 +8,7 @@ export const favoriteRouter = createTRPCRouter({
         .input(
             z.object({
                 locationId: z.string(),
+                folderId: z.string(),
             })
         )
         .mutation(async ({ ctx, input }) => {
@@ -18,12 +19,14 @@ export const favoriteRouter = createTRPCRouter({
                     locationId_userId: {
                         locationId: input.locationId,
                         userId: session.user.id,
+                        folderId: input.folderId,
                     },
                 },
                 update: {},
                 create: {
                     locationId: input.locationId,
                     userId: session.user.id,
+                    folderId: input.folderId,
                 },
             });
         }),
@@ -36,12 +39,10 @@ export const favoriteRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             const session = ctx.session;
 
-            return ctx.prisma.airbnbLocationFavorite.delete({
+            return ctx.prisma.airbnbLocationFavorite.deleteMany({
                 where: {
-                    locationId_userId: {
-                        locationId: input.locationId,
-                        userId: session.user.id,
-                    },
+                    locationId: input.locationId,
+                    userId: session.user.id,
                 },
             });
         }),
