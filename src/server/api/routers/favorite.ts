@@ -16,7 +16,7 @@ export const favoriteRouter = createTRPCRouter({
 
             return ctx.prisma.airbnbLocationFavorite.upsert({
                 where: {
-                    locationId_userId: {
+                    locationId_userId_folderId: {
                         locationId: input.locationId,
                         userId: session.user.id,
                         folderId: input.folderId,
