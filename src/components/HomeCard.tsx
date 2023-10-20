@@ -3,18 +3,27 @@ import {
     Card,
     CardProps,
     Flex,
+    TextInput,
     Group,
     Image,
+    Select,
     SimpleGrid,
     Text,
     ThemeIcon,
+    Stack,
+    Divider,
+    Loader,
+    Center,
 } from "@mantine/core";
+import { modals } from "@mantine/modals";
 import {
     IconHeart,
     IconHeartFilled,
     IconStarFilled,
+    IconPlus,
 } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
+import { useEffect, useRef, useState } from "react";
 
 import { type AppRouter } from "~/server/api/root";
 import { api } from "~/utils/api";
