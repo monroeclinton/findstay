@@ -86,18 +86,32 @@ const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
 
 const HomeCard = ({ home, ...props }: IHomeCardProps) => {
     const utils = api.useContext();
+    const folderRef = useRef<string>();
 
     const deleteFavorite = api.favorite.delete.useMutation({
         onSuccess: async () => {
-            await utils.home.getPage.refetch();
+            await utils.home.getPage.invalidate();
         },
     });
 
     const createFavorite = api.favorite.create.useMutation({
         onSuccess: async () => {
-            await utils.home.getPage.refetch();
+            await utils.home.getPage.invalidate();
+            folderRef.current = undefined;
         },
     });
+
+    const favoriteModal = () =>
+        modals.openConfirmModal({
+            title: "Save to folder",
+            children: <FolderSelect onChange={(value) => folderRef.current = value} />,
+            labels: {
+                confirm: "Save",
+                cancel: "Cancel",
+            },
+            onCancel: () => folderRef.current = undefined,
+            onConfirm: () => folderRef.current && createFavorite.mutate({ locationId: home.id, folderId: folderRef.current }),
+        });
 
     const handleFavorite = () => {
         if (home.isFavorited) {
@@ -105,9 +119,7 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
                 locationId: home.id,
             });
         } else {
-            createFavorite.mutate({
-                locationId: home.id,
-            });
+            favoriteModal();
         }
     };
 
