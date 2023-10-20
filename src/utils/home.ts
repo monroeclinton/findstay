@@ -60,7 +60,7 @@ export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userI
             SELECT
                 airbnb.id as "airbnbId",
                 supermarket.id as "supermarketId",
-                supermarket.distance as distance
+                supermarket.distance::int as distance
             FROM
                 airbnb_location
             AS
