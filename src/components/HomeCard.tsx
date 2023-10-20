@@ -34,6 +34,56 @@ interface IHomeCardProps extends CardProps {
     home: RouterOutput["home"]["getPage"]["locations"][0];
 }
 
+const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
+    const utils = api.useContext();
+    const folders = api.favorite.getFolders.useQuery();
+    const [folderName, setFolderName] = useState<string>("");
+    const createFolder = api.favorite.createFolder.useMutation({
+        onSuccess: () => {
+            setFolderName("");
+            utils.favorite.getFolders.refetch();
+        },
+    });
+
+    useEffect(() => {
+        let defaultFolder = folders.data?.at(0)?.id;
+        if (defaultFolder) onChange(defaultFolder);
+    }, [folders.data]);
+
+    return (
+        <>
+            {!folders.data && (
+                <Center>
+                    <Loader />
+                </Center>
+            )}
+
+            {folders.data && (
+                <Select
+                placeholder="Pick folder"
+                defaultValue={folders.data.at(0)?.id || null}
+                data={folders.data.map(folder => ({ value: folder.id, label: folder.name }))}
+                allowDeselect={false}
+                onChange={onChange}/>
+            )}
+
+            <Divider my="sm" />
+
+            <Stack>
+                <TextInput
+                value={folderName}
+                onChange={(event) => setFolderName(event.currentTarget.value)}
+                placeholder="Folder name"
+                rightSection={
+                    <ActionIcon disabled={folderName.length === 0} onClick={() => createFolder.mutate({ name: folderName })}>
+                        <IconPlus />
+                    </ActionIcon>
+                }/>
+            </Stack>
+        </>
+    );
+};
+
 const HomeCard = ({ home, ...props }: IHomeCardProps) => {
     const utils = api.useContext();
 
