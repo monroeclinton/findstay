@@ -7,7 +7,7 @@ import {
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
@@ -15,7 +15,11 @@ import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-    const homes = api.favorite.getAll.useQuery();
+    const [folder, setFolder] = useState<string | null>(null);
+    const folders = api.favorite.getFolders.useQuery();
+    const homes = api.favorite.getAll.useQuery({
+        folderId: folder,
+    });
 
     return (
         <>
