@@ -36,7 +36,8 @@ const Home: NextPage = () => {
                 mb="md"
                 value={folder}
                 onChange={setFolder}
-                data={folders.data?.map(folder => ({ value: folder.id, label: folder.name })) || []} />
+                data={folders.data?.map(folder => ({ value: folder.id, label: folder.name })) || []}
+                clearable />
                 {homes.data?.length === 0 && (
                     <Center
                         style={{
