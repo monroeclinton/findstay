@@ -1,15 +1,16 @@
 import {
     Center,
     Loader,
+    Select,
     Text,
     ThemeIcon,
+    Title,
 } from "@mantine/core";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 
-import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
@@ -29,6 +30,13 @@ const Home: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout>
+                <Title order={2} mb="sm">Favorites</Title>
+                <Select
+                placeholder="Folder"
+                mb="md"
+                value={folder}
+                onChange={setFolder}
+                data={folders.data?.map(folder => ({ value: folder.id, label: folder.name })) || []} />
                 {homes.data?.length === 0 && (
                     <Center
                         style={{
