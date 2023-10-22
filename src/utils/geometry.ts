@@ -6,7 +6,6 @@ export const zoomLevel = (
     swLng: number,
     map: { height: number, width: number }
 ): number => {
-    console.log(neLat, neLng, swLat, swLng);
     let WORLD_DIM = { height: 256, width: 256 };
     let ZOOM_MAX = 21;
 

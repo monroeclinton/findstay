@@ -50,7 +50,6 @@ export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userI
                 airbnb.id IN (${Prisma.join(airbnbLocations.map((location) => location.id))})
         `
     );
-    console.log(supermarkets);
 
     const locations = [];
     for (const location of airbnbLocations) {
