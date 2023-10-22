@@ -31,6 +31,12 @@ export const homeRouter = createTRPCRouter({
                 id: airbnbSync.id,
                 cursors: airbnbSync.cursors,
                 midpoint,
+                boundingBox: {
+                    neLat: airbnbSync.neLatitude.toNumber(),
+                    neLng: airbnbSync.neLongitude.toNumber(),
+                    swLat: airbnbSync.swLatitude.toNumber(),
+                    swLng: airbnbSync.swLongitude.toNumber()
+                },
             };
         }),
     getPage: protectedProcedure

@@ -93,10 +93,15 @@ const Home: NextPage = () => {
                                 <Loader />
                             </Center>
                         )}
-                        {sync.data && (
+                        {sync.data && mapContainerRef.current && (
                             <Map
                                 data={homes.data}
                                 midpoint={sync.data.midpoint}
+                                boundingBox={sync.data.boundingBox}
+                                map={{
+                                    width: mapContainerRef.current.clientWidth,
+                                    height: mapContainerRef.current.clientHeight,
+                                }}
                                 page={activePage}
                             />
                         )}

@@ -13,6 +13,7 @@ import { Point } from "ol/geom";
 import { fromLonLat } from "ol/proj";
 import { useState } from "react";
 import { RFeature, RLayerVector, RMap, ROSM, ROverlay } from "rlayers";
+import { zoomLevel } from "~/utils/geometry";
 
 import { type AppRouter } from "~/server/api/root";
 
@@ -24,10 +25,20 @@ interface IMapProps {
         latitude: number;
         longitude: number;
     };
+    boundingBox: {
+        neLat: number,
+        neLng: number,
+        swLat: number,
+        swLng: number,
+    },
+    map: {
+        width: number,
+        height: number,
+    },
     page: number;
 }
 
-const Map = ({ data, midpoint, page }: IMapProps) => {
+const Map = ({ data, midpoint, boundingBox, map, page }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
 
@@ -37,7 +48,13 @@ const Map = ({ data, midpoint, page }: IMapProps) => {
             height="100%"
             initial={{
                 center: fromLonLat([midpoint.longitude, midpoint.latitude]),
-                zoom: 16,
+                zoom: zoomLevel(
+                    boundingBox.neLat,
+                    boundingBox.neLng,
+                    boundingBox.swLat,
+                    boundingBox.swLng,
+                    map
+                ),
             }}
             onClick={() => setSelected(null)}
         >
