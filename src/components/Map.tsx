@@ -13,7 +13,9 @@ import { Point } from "ol/geom";
 import { fromLonLat } from "ol/proj";
 import { useState } from "react";
 import { RFeature, RLayerVector, RMap, ROSM, ROverlay } from "rlayers";
-import { zoomLevel } from "~/utils/geometry";
+import { zoomLevel, type BoundingBox } from "~/utils/geometry";
+
+import { transformExtent } from "ol/proj";
 
 import { type AppRouter } from "~/server/api/root";
 
@@ -25,22 +27,40 @@ interface IMapProps {
         latitude: number;
         longitude: number;
     };
-    boundingBox: {
-        neLat: number,
-        neLng: number,
-        swLat: number,
-        swLng: number,
-    },
+    boundingBox: BoundingBox,
     map: {
         width: number,
         height: number,
     },
     page: number;
+    onMove: (_: BoundingBox) => void,
 }
 
-const Map = ({ data, midpoint, boundingBox, map, page }: IMapProps) => {
+const Map = ({ data, midpoint, boundingBox, map, page, onMove }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
+
+    const handleMove = (rmap: RMap) => {
+        const extent = transformExtent(
+            rmap.map.getView().calculateExtent(rmap.map.getSize()),
+            rmap.map.getView().getProjection(),
+            'EPSG:4326'
+        );
+
+        const neLat = extent[3];
+        const neLng= extent[2];
+        const swLat = extent[1];
+        const swLng = extent[0];
+
+        if (neLat && neLng && swLat && swLng) {
+            onMove({
+                neLat,
+                neLng,
+                swLat,
+                swLng,
+            });
+        }
+    };
 
     return (
         <RMap
@@ -56,6 +76,7 @@ const Map = ({ data, midpoint, boundingBox, map, page }: IMapProps) => {
                     map
                 ),
             }}
+            onMoveEnd={handleMove}
             onClick={() => setSelected(null)}
         >
             <ROSM />

@@ -17,6 +17,7 @@ import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
+import { BoundingBox } from "~/utils/geometry";
 
 const Map = dynamic(() => import("~/components/Map"), {
     loading: () => (
