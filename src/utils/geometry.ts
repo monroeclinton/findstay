@@ -1,3 +1,10 @@
+export type BoundingBox = {
+    neLat: number,
+    neLng: number,
+    swLat: number,
+    swLng: number,
+};
+
 // https://stackoverflow.com/a/13274361
 export const zoomLevel = (
     neLat: number,
