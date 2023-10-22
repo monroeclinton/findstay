@@ -11,7 +11,7 @@ import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
@@ -31,6 +31,7 @@ const Home: NextPage = () => {
     const [activePage, setPage] = useState(0);
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebouncedValue(search, 200);
+    const mapContainerRef = useRef<HTMLDivElement>(null);
 
     const sync = api.home.createSync.useQuery(
         {
@@ -84,6 +85,7 @@ const Home: NextPage = () => {
                             position: "sticky",
                             top: "var(--mantine-spacing-sm)",
                         }}
+                        ref={mapContainerRef}
                     >
                         <FilterBar search={search} setSearch={setSearch} />
                         {sync.isInitialLoading && (
