@@ -6,7 +6,7 @@ import {
     Text,
     ThemeIcon,
 } from "@mantine/core";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebouncedState } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
@@ -29,16 +29,17 @@ const Map = dynamic(() => import("~/components/Map"), {
 
 const Home: NextPage = () => {
     const [activePage, setPage] = useState(0);
-    const [search, setSearch] = useState("");
-    const [debouncedSearch] = useDebouncedValue(search, 200);
+    const [search, setSearch] = useDebouncedState("", 200);
+    const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(null, 200);
     const mapContainerRef = useRef<HTMLDivElement>(null);
 
     const sync = api.home.createSync.useQuery(
         {
-            search: debouncedSearch,
+            search,
+            boundingBox,
         },
         {
-            enabled: debouncedSearch.length > 3,
+            enabled: search.length > 3,
             refetchOnWindowFocus: false,
         }
     );
@@ -103,9 +104,10 @@ const Home: NextPage = () => {
                                     height: mapContainerRef.current.clientHeight,
                                 }}
                                 page={activePage}
+                                onMove={setBoundingBox}
                             />
                         )}
-                        {debouncedSearch.length === 0 && (
+                        {search.length === 0 && (
                             <Center
                                 style={{
                                     flex: 1,
