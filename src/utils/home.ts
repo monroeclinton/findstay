@@ -1,31 +1,5 @@
-import { AirbnbLocation, GoogleMapsLocation, Prisma } from "@prisma/client";
+import { AirbnbLocation, Prisma } from "@prisma/client";
 import { prisma } from "~/server/db";
-import { getDistanceFromLatLonInKm } from "./geometry";
-
-const closestSupermarket = ({
-    latitude,
-    longitude,
-}: {
-    latitude: number;
-    longitude: number;
-}, supermarkets: GoogleMapsLocation[]): number => {
-    let shortest = null;
-
-    for (const supermarket of supermarkets) {
-        const distance = getDistanceFromLatLonInKm(
-            supermarket.latitude.toNumber(),
-            supermarket.longitude.toNumber(),
-            latitude,
-            longitude
-        );
-
-        if (shortest === null || shortest > distance) {
-            shortest = distance;
-        }
-    }
-
-    return Math.round((shortest || 0) * 1000);
-};
 
 export type Location = {
     id: string;
