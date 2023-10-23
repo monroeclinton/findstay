@@ -14,15 +14,17 @@
     color: var(--mantine-color-default-color);
 }
 
- .link:hover .linkIcon {
+.link:hover .linkIcon {
     color: var(--mantine-color-default-color);
- }
+}
 
 .linkIcon {
     color: var(--mantine-color-gray-6);
 }
 
-.linkActive, .linkActive .linkIcon, .linkActive:hover {
+.linkActive,
+.linkActive .linkIcon,
+.linkActive:hover {
     background-color: var(--mantine-color-gray-2);
     color: var(--mantine-color-default-color);
 }

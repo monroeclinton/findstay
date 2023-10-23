@@ -32,7 +32,10 @@ const Home: NextPage = () => {
     const [activePage, setPage] = useState(0);
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebouncedValue(search, 200);
-    const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(null, 200);
+    const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
+        null,
+        200
+    );
     const mapContainerRef = useRef<HTMLDivElement>(null);
 
     const sync = api.home.createSync.useQuery(
@@ -103,7 +106,8 @@ const Home: NextPage = () => {
                                 boundingBox={sync.data.boundingBox}
                                 map={{
                                     width: mapContainerRef.current.clientWidth,
-                                    height: mapContainerRef.current.clientHeight,
+                                    height: mapContainerRef.current
+                                        .clientHeight,
                                 }}
                                 page={activePage}
                                 onMove={setBoundingBox}

@@ -28,7 +28,12 @@ const Layout = ({ children, container = true, ...props }: ILayoutProps) => {
             <Side />
             <AppShell.Main mx="sm">
                 {container === true ? (
-                    <Container size="lg" mt="sm" w="100%" style={{ display: "flex" }}>
+                    <Container
+                        size="lg"
+                        mt="sm"
+                        w="100%"
+                        style={{ display: "flex" }}
+                    >
                         {mainChildren}
                     </Container>
                 ) : (

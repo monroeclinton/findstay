@@ -27,13 +27,13 @@ interface IMapProps {
         latitude: number;
         longitude: number;
     };
-    boundingBox: BoundingBox,
+    boundingBox: BoundingBox;
     map: {
-        width: number,
-        height: number,
-    },
+        width: number;
+        height: number;
+    };
     page: number;
-    onMove: (_: BoundingBox) => void,
+    onMove: (_: BoundingBox) => void;
 }
 
 const Map = ({ data, midpoint, boundingBox, map, page, onMove }: IMapProps) => {
@@ -44,11 +44,11 @@ const Map = ({ data, midpoint, boundingBox, map, page, onMove }: IMapProps) => {
         const extent = transformExtent(
             rmap.map.getView().calculateExtent(rmap.map.getSize()),
             rmap.map.getView().getProjection(),
-            'EPSG:4326'
+            "EPSG:4326"
         );
 
         const neLat = extent[3];
-        const neLng= extent[2];
+        const neLng = extent[2];
         const swLat = extent[1];
         const swLng = extent[0];
 

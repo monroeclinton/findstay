@@ -47,9 +47,11 @@ export const favoriteRouter = createTRPCRouter({
             });
         }),
     getAll: protectedProcedure
-        .input(z.object({
-            folderId: z.string().nullish(),
-        }))
+        .input(
+            z.object({
+                folderId: z.string().nullish(),
+            })
+        )
         .query(async ({ ctx, input }) => {
             const session = ctx.session;
 
@@ -57,23 +59,25 @@ export const favoriteRouter = createTRPCRouter({
                 where: {
                     userId: session.user.id,
                     ...(input.folderId ? { folderId: input.folderId } : {}),
-                }
-            })
+                },
+            });
 
             const locations = await ctx.prisma.airbnbLocation.findMany({
                 where: {
                     id: {
-                        in: favorites.map(favorite => favorite.locationId),
+                        in: favorites.map((favorite) => favorite.locationId),
                     },
-                }
+                },
             });
 
             return addComputedFields(locations, session.user.id);
         }),
     createFolder: protectedProcedure
-        .input(z.object({
-            name: z.string().min(3),
-        }))
+        .input(
+            z.object({
+                name: z.string().min(3),
+            })
+        )
         .mutation(async ({ ctx, input }) => {
             const session = ctx.session;
 
@@ -81,7 +85,7 @@ export const favoriteRouter = createTRPCRouter({
                 data: {
                     name: input.name,
                     userId: session.user.id,
-                }
+                },
             });
         }),
     getFolders: protectedProcedure.query(async ({ ctx, input }) => {
@@ -90,7 +94,7 @@ export const favoriteRouter = createTRPCRouter({
         return await ctx.prisma.airbnbLocationFavoriteFolder.findMany({
             where: {
                 userId: session.user.id,
-            }
+            },
         });
-    })
+    }),
 });

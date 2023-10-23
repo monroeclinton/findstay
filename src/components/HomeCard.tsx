@@ -60,25 +60,37 @@ const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
 
             {folders.data && (
                 <Select
-                placeholder="Pick folder"
-                defaultValue={folders.data.at(0)?.id || null}
-                data={folders.data.map(folder => ({ value: folder.id, label: folder.name }))}
-                allowDeselect={false}
-                onChange={onChange}/>
+                    placeholder="Pick folder"
+                    defaultValue={folders.data.at(0)?.id || null}
+                    data={folders.data.map((folder) => ({
+                        value: folder.id,
+                        label: folder.name,
+                    }))}
+                    allowDeselect={false}
+                    onChange={onChange}
+                />
             )}
 
             <Divider my="sm" />
 
             <Stack>
                 <TextInput
-                value={folderName}
-                onChange={(event) => setFolderName(event.currentTarget.value)}
-                placeholder="Folder name"
-                rightSection={
-                    <ActionIcon disabled={folderName.length === 0} onClick={() => createFolder.mutate({ name: folderName })}>
-                        <IconPlus />
-                    </ActionIcon>
-                }/>
+                    value={folderName}
+                    onChange={(event) =>
+                        setFolderName(event.currentTarget.value)
+                    }
+                    placeholder="Folder name"
+                    rightSection={
+                        <ActionIcon
+                            disabled={folderName.length === 0}
+                            onClick={() =>
+                                createFolder.mutate({ name: folderName })
+                            }
+                        >
+                            <IconPlus />
+                        </ActionIcon>
+                    }
+                />
             </Stack>
         </>
     );
@@ -104,13 +116,22 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
     const favoriteModal = () =>
         modals.openConfirmModal({
             title: "Save to folder",
-            children: <FolderSelect onChange={(value) => folderRef.current = value} />,
+            children: (
+                <FolderSelect
+                    onChange={(value) => (folderRef.current = value)}
+                />
+            ),
             labels: {
                 confirm: "Save",
                 cancel: "Cancel",
             },
-            onCancel: () => folderRef.current = undefined,
-            onConfirm: () => folderRef.current && createFavorite.mutate({ locationId: home.id, folderId: folderRef.current }),
+            onCancel: () => (folderRef.current = undefined),
+            onConfirm: () =>
+                folderRef.current &&
+                createFavorite.mutate({
+                    locationId: home.id,
+                    folderId: folderRef.current,
+                }),
         });
 
     const handleFavorite = () => {

@@ -11,10 +11,13 @@ export type Location = {
     supermarket: number;
     images: string[];
     link: string;
-    isFavorited: boolean,
-}
+    isFavorited: boolean;
+};
 
-export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userId: string): Promise<Location[]> => {
+export const addComputedFields = async (
+    airbnbLocations: AirbnbLocation[],
+    userId: string
+): Promise<Location[]> => {
     if (airbnbLocations.length === 0) return [];
 
     const favorites = await prisma.airbnbLocationFavorite.findMany({
@@ -23,12 +26,10 @@ export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userI
         },
     });
 
-    const favoriteIds = favorites.map(
-        (favorite) => favorite.locationId
-    );
+    const favoriteIds = favorites.map((favorite) => favorite.locationId);
 
     const supermarkets = await prisma.$queryRaw<
-        Array<{ airbnbId: string, supermarketId: string, distance: number }>
+        Array<{ airbnbId: string; supermarketId: string; distance: number }>
     >(
         Prisma.sql`
             SELECT
@@ -47,7 +48,9 @@ export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userI
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
                 LIMIT 1) AS supermarket
             WHERE
-                airbnb.id IN (${Prisma.join(airbnbLocations.map((location) => location.id))})
+                airbnb.id IN (${Prisma.join(
+                    airbnbLocations.map((location) => location.id)
+                )})
         `
     );
 
@@ -60,13 +63,14 @@ export const addComputedFields = async (airbnbLocations: AirbnbLocation[], userI
             ratings: location.rating,
             longitude: location.longitude.toNumber(),
             latitude: location.latitude.toNumber(),
-            supermarket: supermarkets.find(supermarket => supermarket.airbnbId === location.id)?.distance as number,
+            supermarket: supermarkets.find(
+                (supermarket) => supermarket.airbnbId === location.id
+            )?.distance as number,
             images: location.images,
             link: "https://airbnb.com/rooms/" + location.id,
             isFavorited: favoriteIds.includes(location.id),
         });
     }
-
 
     return locations;
 };

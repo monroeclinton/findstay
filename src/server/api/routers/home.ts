@@ -12,16 +12,21 @@ export const homeRouter = createTRPCRouter({
         .input(
             z.object({
                 search: z.string().min(5),
-                boundingBox: z.object({
-                    neLat: z.number(),
-                    neLng: z.number(),
-                    swLat: z.number(),
-                    swLng: z.number(),
-                }).nullish(),
+                boundingBox: z
+                    .object({
+                        neLat: z.number(),
+                        neLng: z.number(),
+                        swLat: z.number(),
+                        swLng: z.number(),
+                    })
+                    .nullish(),
             })
         )
         .query(async ({ input }) => {
-            const airbnbSync = await createAirbnbSync(input.search);
+            const airbnbSync = await createAirbnbSync(
+                input.search,
+                input.boundingBox
+            );
 
             if (!airbnbSync) throw new Error("Airbnb sync not successful.");
 
@@ -41,7 +46,7 @@ export const homeRouter = createTRPCRouter({
                     neLat: airbnbSync.neLatitude.toNumber(),
                     neLng: airbnbSync.neLongitude.toNumber(),
                     swLat: airbnbSync.swLatitude.toNumber(),
-                    swLng: airbnbSync.swLongitude.toNumber()
+                    swLng: airbnbSync.swLongitude.toNumber(),
                 },
             };
         }),
@@ -69,7 +74,10 @@ export const homeRouter = createTRPCRouter({
 
             if (!page) throw new Error("Unable to fetch page of listings");
 
-            const locations = await addComputedFields(page.locations.map(result => result.location), ctx.session.user.id);
+            const locations = await addComputedFields(
+                page.locations.map((result) => result.location),
+                ctx.session.user.id
+            );
 
             const cursorPos: number = input.cursor
                 ? airbnbSync.cursors.indexOf(input.cursor) || 0

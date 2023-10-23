@@ -1,11 +1,4 @@
-import {
-    Center,
-    Loader,
-    Select,
-    Text,
-    ThemeIcon,
-    Title,
-} from "@mantine/core";
+import { Center, Loader, Select, Text, ThemeIcon, Title } from "@mantine/core";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -30,14 +23,22 @@ const Home: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout>
-                <Title order={2} mb="sm">Favorites</Title>
+                <Title order={2} mb="sm">
+                    Favorites
+                </Title>
                 <Select
-                placeholder="Folder"
-                mb="md"
-                value={folder}
-                onChange={setFolder}
-                data={folders.data?.map(folder => ({ value: folder.id, label: folder.name })) || []}
-                clearable />
+                    placeholder="Folder"
+                    mb="md"
+                    value={folder}
+                    onChange={setFolder}
+                    data={
+                        folders.data?.map((folder) => ({
+                            value: folder.id,
+                            label: folder.name,
+                        })) || []
+                    }
+                    clearable
+                />
                 {homes.data?.length === 0 && (
                     <Center
                         style={{
@@ -46,11 +47,7 @@ const Home: NextPage = () => {
                             flexDirection: "column",
                         }}
                     >
-                        <ThemeIcon
-                            variant="light"
-                            color="gray"
-                            size="xl"
-                        >
+                        <ThemeIcon variant="light" color="gray" size="xl">
                             <IconDatabaseOff />
                         </ThemeIcon>
                         <Text mt="sm">No Favorites</Text>
