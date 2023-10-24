@@ -314,14 +314,14 @@ export const createAirbnbSync = async (
     const apiConfig = res.data.split('"api_config":{').at(1)?.split("},").at(0);
     const apiKey = JSON.parse("{" + apiConfig + "}")["key"];
 
-    if (!apiKey) return null;
+    if (!apiKey) throw new Error("No API key");
 
     const cursorsString = res.data
         .split('"pageCursors":')
         .at(1)
         ?.split(',"previousPageCursor":null')
         .at(0) as string;
-    if (!cursorsString) return null;
+    if (!cursorsString) throw new Error("No available cursors");
     const cursors = JSON.parse(cursorsString) as string[];
 
     const boundingBoxString = res.data
@@ -329,7 +329,7 @@ export const createAirbnbSync = async (
         .at(1)
         ?.split(',"poiTagsForFlexCategory"')
         .at(0) as string;
-    if (!boundingBoxString) return null;
+    if (!boundingBoxString) throw new Error("No bounding box");
     const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
 
     const sync = (
