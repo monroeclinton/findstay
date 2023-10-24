@@ -84,6 +84,22 @@ const Home: NextPage = () => {
         return () => clearTimeout(timeout);
     }, [activePage]);
 
+    if (homes.isFetched && router.query.q !== search) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("q", search);
+
+        if (search.length === 0) {
+            url.searchParams.delete("q");
+        }
+
+        window.history.replaceState(null, "", url);
+    }
+
+    if (search.length <= 3 && (sync.data || homes.data)) {
+        utils.home.createSync.reset();
+        utils.home.getPage.reset();
+    }
+
     return (
         <>
             <Head>
