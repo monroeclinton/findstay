@@ -49,7 +49,7 @@ const Home: NextPage = () => {
         {
             enabled: debouncedSearch.length > 3,
             refetchOnWindowFocus: false,
-            keepPreviousData: true,
+            keepPreviousData: search.length > 3,
         }
     );
 
@@ -61,7 +61,7 @@ const Home: NextPage = () => {
         {
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
-            keepPreviousData: true,
+            keepPreviousData: search.length > 3,
         }
     );
 
