@@ -1,8 +1,10 @@
 import {
     Badge,
     Card,
+    Center,
     Flex,
     Image,
+    Loader,
     Text,
     ThemeIcon,
     Transition,
@@ -12,16 +14,26 @@ import type { inferRouterOutputs } from "@trpc/server";
 import { Point } from "ol/geom";
 import { fromLonLat } from "ol/proj";
 import { useState } from "react";
-import { RFeature, RLayerVector, RMap, ROSM, ROverlay } from "rlayers";
+import {
+    RFeature,
+    RLayerVector,
+    RMap,
+    ROSM,
+    ROverlay,
+    RControl,
+} from "rlayers";
 import { zoomLevel, type BoundingBox } from "~/utils/geometry";
+import classNames from "classnames";
 
 import { transformExtent } from "ol/proj";
 
+import classes from "./Map.module.css";
 import { type AppRouter } from "~/server/api/root";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
 interface IMapProps {
+    isLoading: boolean;
     data: RouterOutput["home"]["getPage"] | undefined;
     midpoint: {
         latitude: number;
@@ -36,7 +48,15 @@ interface IMapProps {
     onMove: (_: BoundingBox) => void;
 }
 
-const Map = ({ data, midpoint, boundingBox, map, page, onMove }: IMapProps) => {
+const Map = ({
+    isLoading,
+    data,
+    midpoint,
+    boundingBox,
+    map,
+    page,
+    onMove,
+}: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
 
@@ -199,6 +219,16 @@ const Map = ({ data, midpoint, boundingBox, map, page, onMove }: IMapProps) => {
                             </RFeature>
                         ))}
                     </RLayerVector>
+                    <RControl.RCustom
+                        key="ol-loader"
+                        className={classNames(classes.olSpinner, {
+                            [classes.olHidden as string]: !isLoading,
+                        })}
+                    >
+                        <Center>
+                            <Loader />
+                        </Center>
+                    </RControl.RCustom>
                 </>
             )}
         </RMap>
