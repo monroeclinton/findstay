@@ -311,11 +311,8 @@ export const createAirbnbSync = async (
         }
     );
 
-    const apiKey = res.data
-        .split('"baseUrl":"/api","key":"')
-        .at(1)
-        ?.split('"},')
-        .at(0);
+    const apiConfig = res.data.split('"api_config":{').at(1)?.split("},").at(0);
+    const apiKey = JSON.parse("{" + apiConfig + "}")["key"];
 
     if (!apiKey) return null;
 
