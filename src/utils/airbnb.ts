@@ -271,8 +271,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
         console.log(res.data.errors.at(0)?.extensions.response);
     }
 
-    return res.data.data.presentation.explore.sections.sectionIndependentData
-        .staysMapSearch.mapSearchResults;
+    return res.data.data.presentation.staysSearch.results.searchResults;
 };
 
 export const createAirbnbSync = async (
