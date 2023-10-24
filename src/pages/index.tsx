@@ -11,6 +11,7 @@ import { IconDatabaseOff } from "@tabler/icons-react";
 import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
@@ -29,8 +30,10 @@ const Map = dynamic(() => import("~/components/Map"), {
 });
 
 const Home: NextPage = () => {
+    const utils = api.useContext();
+    const router = useRouter();
     const [activePage, setPage] = useState(0);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState((router.query.q as string) || "");
     const [debouncedSearch] = useDebouncedValue(search, 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
