@@ -62,6 +62,12 @@ const Home: NextPage = () => {
         }
     );
 
+    const handleMove = (boundingBox: BoundingBox) => {
+        if (homes.data && !homes.isFetching) {
+            setBoundingBox(boundingBox);
+        }
+    };
+
     useEffect(() => {
         const timeout = setTimeout(
             () =>
@@ -103,6 +109,7 @@ const Home: NextPage = () => {
                         )}
                         {sync.data && mapContainerRef.current && (
                             <Map
+                                isLoading={sync.isFetching || homes.isFetching}
                                 data={homes.data}
                                 midpoint={sync.data.midpoint}
                                 boundingBox={sync.data.boundingBox}
@@ -112,7 +119,7 @@ const Home: NextPage = () => {
                                         .clientHeight,
                                 }}
                                 page={activePage}
-                                onMove={setBoundingBox}
+                                onMove={handleMove}
                             />
                         )}
                         {debouncedSearch.length === 0 && (
