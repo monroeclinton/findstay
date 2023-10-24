@@ -28,28 +28,24 @@ interface MapSearchResponse {
     }>;
     data: {
         presentation: {
-            explore: {
-                sections: {
-                    sectionIndependentData: {
-                        staysMapSearch: {
-                            mapSearchResults: Array<{
-                                listing: {
-                                    id: string;
-                                    coordinate: Coordinate;
-                                    name: string;
-                                    avgRatingA11yLabel: string;
-                                    contextualPictures: Array<{
-                                        picture: string;
-                                    }>;
-                                };
-                                pricingQuote: {
-                                    rate: {
-                                        amount: number;
-                                    };
-                                };
+            staysSearch: {
+                results: {
+                    searchResults: Array<{
+                        listing: {
+                            id: string;
+                            coordinate: Coordinate;
+                            name: string;
+                            avgRatingA11yLabel: string;
+                            contextualPictures: Array<{
+                                picture: string;
                             }>;
                         };
-                    };
+                        pricingQuote: {
+                            rate: {
+                                amount: number;
+                            };
+                        };
+                    }>;
                 };
             };
         };
@@ -77,10 +73,13 @@ const headers = {
 
 const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
     const res: AxiosResponse<MapSearchResponse> = await axios.post(
-        `https://www.airbnb.com/api/v3/StaysMapS2Search?operationName=StaysMapS2Search&locale=en&currency=USD`,
+        `https://www.airbnb.com/api/v3/StaysSearch?operationName=StaysSearch&locale=en&currency=USD`,
         {
             operationName: "StaysMapS2Search",
             variables: {
+                decomposeCleanupEnabled: true,
+                feedMapDecoupleEnabled: true,
+                isLeanTreatment: false,
                 staysMapSearchRequestV2: {
                     cursor,
                     requestedPageType: "STAYS_SEARCH",
@@ -107,8 +106,14 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         "upfront_pricing_enabled",
                     ],
                     rawParams: [
-                        { filterName: "cdnCacheSafe", filterValues: ["false"] },
-                        { filterName: "itemsPerGrid", filterValues: ["18"] },
+                        {
+                            filterName: "cdnCacheSafe",
+                            filterValues: ["false"],
+                        },
+                        {
+                            filterName: "itemsPerGrid",
+                            filterValues: ["18"],
+                        },
                         {
                             filterName: "neLat",
                             filterValues: [sync.neLatitude.toString()],
@@ -125,7 +130,10 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
                         },
-                        { filterName: "screenSize", filterValues: ["large"] },
+                        {
+                            filterName: "screenSize",
+                            filterValues: ["large"],
+                        },
                         {
                             filterName: "swLat",
                             filterValues: [sync.swLatitude.toString()],
@@ -134,12 +142,110 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                             filterName: "swLng",
                             filterValues: [sync.swLongitude.toString()],
                         },
-                        { filterName: "tabId", filterValues: ["home_tab"] },
-                        { filterName: "version", filterValues: ["1.8.3"] },
+                        {
+                            filterName: "tabId",
+                            filterValues: ["home_tab"],
+                        },
+                        {
+                            filterName: "version",
+                            filterValues: ["1.8.3"],
+                        },
                         {
                             filterName: "zoomLevel",
                             filterValues: ["16"],
                         },
+                    ],
+                },
+                staysSearchRequest: {
+                    metadataOnly: false,
+                    rawParams: [
+                        {
+                            filterName: "cdnCacheSafe",
+                            filterValues: ["false"],
+                        },
+                        {
+                            filterName: "channel",
+                            filterValues: ["EXPLORE"],
+                        },
+                        {
+                            filterName: "datePickerType",
+                            filterValues: ["calendar"],
+                        },
+                        {
+                            filterName: "flexibleTripLengths",
+                            filterValues: ["one_week"],
+                        },
+                        {
+                            filterName: "itemsPerGrid",
+                            filterValues: ["18"],
+                        },
+                        {
+                            filterName: "monthlyLength",
+                            filterValues: ["3"],
+                        },
+                        {
+                            filterName: "monthlyStartDate",
+                            filterValues: ["2023-11-01"],
+                        },
+                        {
+                            filterName: "neLat",
+                            filterValues: [sync.neLatitude.toString()],
+                        },
+                        {
+                            filterName: "neLng",
+                            filterValues: [sync.neLongitude.toString()],
+                        },
+                        {
+                            filterName: "priceFilterInputType",
+                            filterValues: ["0"],
+                        },
+                        {
+                            filterName: "priceFilterNumNights",
+                            filterValues: ["5"],
+                        },
+                        {
+                            filterName: "query",
+                            filterValues: [sync.search],
+                        },
+                        {
+                            filterName: "refinementPaths",
+                            filterValues: ["/homes"],
+                        },
+                        {
+                            filterName: "screenSize",
+                            filterValues: ["large"],
+                        },
+                        {
+                            filterName: "searchByMap",
+                            filterValues: ["true"],
+                        },
+                        {
+                            filterName: "swLat",
+                            filterValues: [sync.swLatitude.toString()],
+                        },
+                        {
+                            filterName: "swLng",
+                            filterValues: [sync.swLongitude.toString()],
+                        },
+                        {
+                            filterName: "tabId",
+                            filterValues: ["home_tab"],
+                        },
+                        {
+                            filterName: "version",
+                            filterValues: ["1.8.3"],
+                        },
+                        {
+                            filterName: "zoomLevel",
+                            filterValues: ["16"],
+                        },
+                    ],
+                    requestedPageType: "STAYS_SEARCH",
+                    searchType: "user_map_move",
+                    source: "structured_search_input_header",
+                    treatmentFlags: [
+                        "new_filter_bar_v2_fm_header",
+                        "feed_map_decouple_m11_treatment",
                     ],
                 },
             },
@@ -147,8 +253,9 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                 persistedQuery: {
                     version: 1,
                     sha256Hash:
-                        "63159bb86aab7260c73e654a3e33e0b9b08ca21813ebca34969938ead98dc000",
+                        "ec7165512f4a12cc00f169462bbcfffcdb33c231506761deb872b4b18ff23c6c",
                 },
+                operationName: "StaysSearch",
             },
         },
         {
