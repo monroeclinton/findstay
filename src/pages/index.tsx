@@ -34,7 +34,7 @@ const Home: NextPage = () => {
     const [debouncedSearch] = useDebouncedValue(search, 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
-        200
+        100
     );
     const mapContainerRef = useRef<HTMLDivElement>(null);
 
