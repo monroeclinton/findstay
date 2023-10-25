@@ -13,12 +13,12 @@ import { useForm } from "@mantine/form";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconExclamationCircle } from "@tabler/icons-react";
-import { type NextPage } from "next";
 import Head from "next/head";
 import { type Session } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
 
 import Layout from "~/components/Layout";
+import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 
 interface FormValues {
@@ -140,7 +140,7 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
     );
 };
 
-const Settings: NextPage = () => {
+const Settings: FindBasePage = () => {
     const { status, data: sessionData } = useSession();
 
     return (
@@ -160,5 +160,7 @@ const Settings: NextPage = () => {
         </>
     );
 };
+
+Settings.authRequired = true;
 
 export default Settings;

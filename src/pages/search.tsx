@@ -8,7 +8,6 @@ import {
 } from "@mantine/core";
 import { useDebouncedState, useDebouncedValue } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
-import { type NextPage } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -17,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
 
@@ -29,7 +29,7 @@ const Map = dynamic(() => import("~/components/Map"), {
     ssr: false,
 });
 
-const Home: NextPage = () => {
+const Search: FindBasePage = () => {
     const utils = api.useContext();
     const router = useRouter();
     const [activePage, setPage] = useState(0);
@@ -191,4 +191,6 @@ const Home: NextPage = () => {
     );
 };
 
-export default Home;
+Search.authRequired = true;
+
+export default Search;

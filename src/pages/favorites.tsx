@@ -1,14 +1,14 @@
 import { Center, Loader, Select, Text, ThemeIcon, Title } from "@mantine/core";
 import { IconDatabaseOff } from "@tabler/icons-react";
-import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 
-const Home: NextPage = () => {
+const Favorites: FindBasePage = () => {
     const [folder, setFolder] = useState<string | null>(null);
     const folders = api.favorite.getFolders.useQuery();
     const homes = api.favorite.getAll.useQuery({
@@ -66,4 +66,6 @@ const Home: NextPage = () => {
     );
 };
 
-export default Home;
+Favorites.authRequired = true;
+
+export default Favorites;

@@ -5,15 +5,14 @@ import "ol/ol.css";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
-import { type AppType } from "next/app";
-import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import React from "react";
 
+import AuthGuard from "~/components/AuthGuard";
+import { type FindBaseAppProps } from "~/types/next";
 import { api } from "~/utils/api";
 
-import AuthGuard from "../components/AuthGuard";
-
-const MyApp: AppType<{ session: Session | null }> = ({
+const MyApp: React.FC<FindBaseAppProps> = ({
     Component,
     pageProps: { session, ...pageProps },
 }) => {
@@ -27,9 +26,13 @@ const MyApp: AppType<{ session: Session | null }> = ({
             >
                 <ModalsProvider>
                     <Notifications />
-                    <AuthGuard>
+                    {Component.authRequired ? (
+                        <AuthGuard>
+                            <Component {...pageProps} />
+                        </AuthGuard>
+                    ) : (
                         <Component {...pageProps} />
-                    </AuthGuard>
+                    )}
                 </ModalsProvider>
             </MantineProvider>
         </SessionProvider>
