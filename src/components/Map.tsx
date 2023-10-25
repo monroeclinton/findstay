@@ -11,24 +11,23 @@ import {
 } from "@mantine/core";
 import { IconStarFilled } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
+import classNames from "classnames";
 import { Point } from "ol/geom";
-import { fromLonLat } from "ol/proj";
+import { fromLonLat, transformExtent } from "ol/proj";
 import { useState } from "react";
 import {
+    RControl,
     RFeature,
     RLayerVector,
     RMap,
     ROSM,
     ROverlay,
-    RControl,
 } from "rlayers";
-import { zoomLevel, type BoundingBox } from "~/utils/geometry";
-import classNames from "classnames";
 
-import { transformExtent } from "ol/proj";
+import { type AppRouter } from "~/server/api/root";
+import { type BoundingBox, zoomLevel } from "~/utils/geometry";
 
 import classes from "./Map.module.css";
-import { type AppRouter } from "~/server/api/root";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 

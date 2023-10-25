@@ -18,7 +18,7 @@ import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { api } from "~/utils/api";
-import { BoundingBox } from "~/utils/geometry";
+import { type BoundingBox } from "~/utils/geometry";
 
 const Map = dynamic(() => import("~/components/Map"), {
     loading: () => (
@@ -96,8 +96,8 @@ const Home: NextPage = () => {
     }
 
     if (search.length <= 3 && (sync.data || homes.data)) {
-        utils.home.createSync.reset();
-        utils.home.getPage.reset();
+        void utils.home.createSync.reset();
+        void utils.home.getPage.reset();
     }
 
     return (

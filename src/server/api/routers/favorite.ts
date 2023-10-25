@@ -88,7 +88,7 @@ export const favoriteRouter = createTRPCRouter({
                 },
             });
         }),
-    getFolders: protectedProcedure.query(async ({ ctx, input }) => {
+    getFolders: protectedProcedure.query(async ({ ctx }) => {
         const session = ctx.session;
 
         return await ctx.prisma.airbnbLocationFavoriteFolder.findMany({

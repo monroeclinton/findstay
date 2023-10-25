@@ -1,4 +1,5 @@
-import { AirbnbLocation, Prisma } from "@prisma/client";
+import { type AirbnbLocation, Prisma } from "@prisma/client";
+
 import { prisma } from "~/server/db";
 
 export type Location = {

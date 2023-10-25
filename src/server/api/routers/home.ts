@@ -2,9 +2,9 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
+import { getMidPoint } from "~/utils/geometry";
 import { syncSuperMarkets } from "~/utils/gmm";
 import { addComputedFields } from "~/utils/home";
-import { getMidPoint } from "~/utils/geometry";
 
 export const homeRouter = createTRPCRouter({
     createSync: protectedProcedure

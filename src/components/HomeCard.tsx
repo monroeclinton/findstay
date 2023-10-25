@@ -1,26 +1,26 @@
 import {
     ActionIcon,
     Card,
-    CardProps,
+    type CardProps,
+    Center,
+    Divider,
     Flex,
-    TextInput,
     Group,
     Image,
+    Loader,
     Select,
     SimpleGrid,
-    Text,
-    ThemeIcon,
     Stack,
-    Divider,
-    Loader,
-    Center,
+    Text,
+    TextInput,
+    ThemeIcon,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import {
     IconHeart,
     IconHeartFilled,
-    IconStarFilled,
     IconPlus,
+    IconStarFilled,
 } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import { useEffect, useRef, useState } from "react";
@@ -46,7 +46,7 @@ const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
     });
 
     useEffect(() => {
-        let defaultFolder = folders.data?.at(0)?.id;
+        const defaultFolder = folders.data?.at(0)?.id;
         if (defaultFolder) onChange(defaultFolder);
     }, [folders.data]);
 

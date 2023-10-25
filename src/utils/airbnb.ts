@@ -311,8 +311,11 @@ export const createAirbnbSync = async (
     );
 
     const apiConfig = res.data.split('"api_config":{').at(1)?.split("},").at(0);
-    const apiKey = JSON.parse("{" + apiConfig + "}")["key"];
+    if (!apiConfig) throw new Error("No API config");
 
+    const apiKey = (JSON.parse("{" + apiConfig + "}") as { key: string })[
+        "key"
+    ];
     if (!apiKey) throw new Error("No API key");
 
     const cursorsString = res.data
