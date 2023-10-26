@@ -41,18 +41,24 @@ export async function POST(req: Request) {
                 case "checkout.session.completed":
                     data = event.data.object;
                     console.log(
-                        `💰 CheckoutSession status: ${data.payment_status}`
+                        `💰 CheckoutSession status: ${data.id} - ${data.payment_status}`
                     );
                     break;
                 case "payment_intent.payment_failed":
                     data = event.data.object;
-                    console.log(
-                        `❌ Payment failed: ${data.last_payment_error?.message}`
-                    );
+                    if (data.last_payment_error?.message) {
+                        console.log(
+                            `❌ Payment failed: ${data.id} - ${data.last_payment_error.message}`
+                        );
+                    } else {
+                        console.log(`❌ Payment failed: ${data.id}`);
+                    }
                     break;
                 case "payment_intent.succeeded":
                     data = event.data.object;
-                    console.log(`💰 PaymentIntent status: ${data.status}`);
+                    console.log(
+                        `💰 PaymentIntent status: ${data.id} - ${data.status}`
+                    );
                     break;
                 default:
                     throw new Error(`Unhandled event: ${event.type}`);
