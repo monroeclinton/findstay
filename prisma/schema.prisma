@@ -132,11 +132,12 @@ model GoogleMapsSync {
 
 model Invoice {
     id         String @id @default(cuid())
-    url        String @unique
     txId       String @unique
     email      String
     paid       Boolean @default(false)
     createdAt  DateTime @default(now())
+
+    @@map("billing_invoice")
 }
 
 // Necessary for Next auth
