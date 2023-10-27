@@ -130,6 +130,15 @@ model GoogleMapsSync {
     @@map("google_maps_sync")
 }
 
+model Invoice {
+    id         String @id @default(cuid())
+    url        String @unique
+    txId       String @unique
+    email      String
+    paid       Boolean @default(false)
+    createdAt  DateTime @default(now())
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
