@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
+import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe";
 
 export async function POST(req: Request) {
@@ -29,7 +30,6 @@ export async function POST(req: Request) {
 
     const permittedEvents: string[] = [
         "checkout.session.completed",
-        "payment_intent.succeeded",
         "payment_intent.payment_failed",
     ];
 
@@ -40,9 +40,20 @@ export async function POST(req: Request) {
             switch (event.type) {
                 case "checkout.session.completed":
                     data = event.data.object;
-                    console.log(
-                        `💰 CheckoutSession status: ${data.id} - ${data.payment_status}`
-                    );
+
+                    if (data.invoice) {
+                        await prisma.invoice.update({
+                            where: {
+                                txId: data.invoice.toString(),
+                            },
+                            data: {
+                                paid: true,
+                            },
+                        });
+                    } else {
+                        console.log(`❌ No invoice: ${data.id}`);
+                    }
+
                     break;
                 case "payment_intent.payment_failed":
                     data = event.data.object;
@@ -53,12 +64,6 @@ export async function POST(req: Request) {
                     } else {
                         console.log(`❌ Payment failed: ${data.id}`);
                     }
-                    break;
-                case "payment_intent.succeeded":
-                    data = event.data.object;
-                    console.log(
-                        `💰 PaymentIntent status: ${data.id} - ${data.status}`
-                    );
                     break;
                 default:
                     throw new Error(`Unhandled event: ${event.type}`);
