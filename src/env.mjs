@@ -25,6 +25,7 @@ export const env = createEnv({
         GITHUB_CLIENT_SECRET: z.string(),
         // Stripe envs
         STRIPE_SECRET_KEY: z.string(),
+        STRIPE_WEBHOOK_SECRET: z.string(),
         STRIPE_PRICE_ID: z.string(),
         STRIPE_SUCCESS_URL: z.string(),
         STRIPE_CANCEL_URL: z.string(),
@@ -50,9 +51,10 @@ export const env = createEnv({
         NEXTAUTH_URL: process.env.NEXTAUTH_URL,
         GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
         GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
             process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+        STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+        STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
         STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID,
         STRIPE_SUCCESS_URL: process.env.STRIPE_SUCCESS_URL,
         STRIPE_CANCEL_URL: process.env.STRIPE_CANCEL_URL,

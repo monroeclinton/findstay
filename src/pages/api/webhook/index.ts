@@ -1,17 +1,22 @@
+import { buffer } from "micro";
+import { type NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
+import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe";
 
-export async function POST(req: Request) {
+const handler = async (req: NextApiRequest) => {
     let event: Stripe.Event;
 
     try {
+        const buf = await buffer(req);
+
         event = stripe.webhooks.constructEvent(
-            await (await req.blob()).text(),
-            req.headers.get("stripe-signature") as string,
-            process.env.STRIPE_WEBHOOK_SECRET as string
+            buf,
+            req.headers["stripe-signature"] as string,
+            env.STRIPE_WEBHOOK_SECRET
         );
     } catch (err) {
         const errorMessage =
