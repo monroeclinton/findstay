@@ -47,14 +47,17 @@ const handler = async (req: NextApiRequest) => {
                     data = event.data.object;
 
                     if (data.invoice) {
-                        await prisma.invoice.update({
-                            where: {
-                                txId: data.invoice.toString(),
-                            },
-                            data: {
-                                paid: true,
-                            },
-                        });
+                        if (data.customer_email) {
+                            await prisma.invoice.create({
+                                data: {
+                                    email: data.customer_email,
+                                    paid: true,
+                                    txId: data.invoice.toString(),
+                                },
+                            });
+                        } else {
+                            console.log(`❌ No customer email: ${data.id}`);
+                        }
                     } else {
                         console.log(`❌ No invoice: ${data.id}`);
                     }
