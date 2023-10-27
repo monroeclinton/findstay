@@ -38,6 +38,16 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
     callbacks: {
+        async signIn({ user }) {
+            return (
+                (await prisma.invoice.count({
+                    where: {
+                        email: user.email || undefined,
+                        paid: true,
+                    },
+                })) > 0
+            );
+        },
         session: ({ session, user }) => ({
             ...session,
             user: {
