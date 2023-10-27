@@ -86,4 +86,6 @@ const handler = async (req: NextApiRequest) => {
     }
     // Return a response to acknowledge receipt of the event.
     return NextResponse.json({ message: "Received" }, { status: 200 });
-}
+};
+
+export default handler;
