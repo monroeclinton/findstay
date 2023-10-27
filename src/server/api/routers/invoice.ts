@@ -11,7 +11,7 @@ export const invoiceRouter = createTRPCRouter({
                 email: z.string().email(),
             })
         )
-        .mutation(async ({ ctx, input }) => {
+        .mutation(async ({ input }) => {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ["card"],
                 customer_email: input.email,
@@ -26,15 +26,11 @@ export const invoiceRouter = createTRPCRouter({
                 cancel_url: env.STRIPE_CANCEL_URL,
             });
 
-            if (!session.url || !session.invoice)
+            if (!session.url)
                 throw new Error(`${session.id} - No url generated`);
 
-            return ctx.prisma.invoice.create({
-                data: {
-                    txId: session.invoice.toString(),
-                    url: session.url,
-                    email: input.email,
-                },
-            });
+            return {
+                url: session.url,
+            };
         }),
 });
