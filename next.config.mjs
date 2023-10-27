@@ -18,5 +18,12 @@ const config = {
         locales: ["en"],
         defaultLocale: "en",
     },
+
+    /**
+     * Needed for Stripe to parse webhooks as buffers
+     */
+    api: {
+        bodyParser: false,
+    },
 };
 export default config;
