@@ -38,7 +38,7 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
         validate: {
             name: (value) => (value ? null : "Invalid name"),
             email: (value) => {
-                return value && /^\S+@\S+$/.test(value)
+                return value && /^\S+@\S+\.\S+$/.test(value)
                     ? null
                     : "Invalid email";
             },
