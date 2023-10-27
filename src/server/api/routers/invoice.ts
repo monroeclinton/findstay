@@ -4,16 +4,17 @@ import { env } from "~/env.mjs";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { stripe } from "~/server/stripe";
 
-export const userRouter = createTRPCRouter({
+export const invoiceRouter = createTRPCRouter({
     create: publicProcedure
         .input(
             z.object({
                 email: z.string().email(),
             })
         )
-        .mutation(async ({ ctx }) => {
+        .mutation(async ({ ctx, input }) => {
             const session = await stripe.checkout.sessions.create({
                 payment_method_types: ["card"],
+                customer_email: input.email,
                 line_items: [
                     {
                         price: env.STRIPE_PRICE_ID,
@@ -25,8 +26,15 @@ export const userRouter = createTRPCRouter({
                 cancel_url: env.STRIPE_CANCEL_URL,
             });
 
+            if (!session.url || !session.invoice)
+                throw new Error(`${session.id} - No url generated`);
+
             return ctx.prisma.invoice.create({
-                data: {},
+                data: {
+                    txId: session.invoice.toString(),
+                    url: session.url,
+                    email: input.email,
+                },
             });
         }),
 });
