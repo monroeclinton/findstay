@@ -13,7 +13,7 @@ interface Item {
 }
 
 const items: Item[] = [
-    { label: "Dashboard", icon: IconHome, link: "/" },
+    { label: "Dashboard", icon: IconHome, link: "/search" },
     { label: "Favorites", icon: IconHeart, link: "/favorites" },
     { label: "Settings", icon: IconAdjustments, link: "/settings" },
 ];
