@@ -1,7 +1,9 @@
 import { Button, Container, Group, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { IconArrowRight } from "@tabler/icons-react";
+import { type GetServerSidePropsContext } from "next";
 import Head from "next/head";
+import { getSession } from "next-auth/react";
 
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
@@ -54,6 +56,25 @@ const Home: FindBasePage = () => {
             </Container>
         </>
     );
+};
+
+export const getServerSideProps = async (
+    context: GetServerSidePropsContext
+) => {
+    const session = await getSession(context);
+
+    if (session) {
+        return {
+            redirect: {
+                destination: "/search",
+                permanent: false,
+            },
+        };
+    }
+
+    return {
+        props: { session },
+    };
 };
 
 export default Home;
