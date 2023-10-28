@@ -1,5 +1,5 @@
 import { buffer } from "micro";
-import { type NextApiRequest } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
@@ -7,7 +7,7 @@ import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 import { stripe } from "~/server/stripe";
 
-const handler = async (req: NextApiRequest) => {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     let event: Stripe.Event;
 
     try {
@@ -24,10 +24,8 @@ const handler = async (req: NextApiRequest) => {
         // On error, log and return the error message.
         if (err instanceof Error) console.log(err);
         console.log(`❌ Error message: ${errorMessage}`);
-        return NextResponse.json(
-            { message: `Webhook Error: ${errorMessage}` },
-            { status: 400 }
-        );
+        res.status(400).json({ message: `Webhook Error: ${errorMessage}` });
+        return;
     }
 
     // Successfully constructed event.
@@ -46,20 +44,16 @@ const handler = async (req: NextApiRequest) => {
                 case "checkout.session.completed":
                     data = event.data.object;
 
-                    if (data.invoice) {
-                        if (data.customer_email) {
-                            await prisma.invoice.create({
-                                data: {
-                                    email: data.customer_email,
-                                    paid: true,
-                                    txId: data.invoice.toString(),
-                                },
-                            });
-                        } else {
-                            console.log(`❌ No customer email: ${data.id}`);
-                        }
+                    if (data.customer_email) {
+                        await prisma.invoice.create({
+                            data: {
+                                email: data.customer_email,
+                                paid: true,
+                                txId: data.id,
+                            },
+                        });
                     } else {
-                        console.log(`❌ No invoice: ${data.id}`);
+                        console.log(`❌ No customer email: ${data.id}`);
                     }
 
                     break;
@@ -78,14 +72,19 @@ const handler = async (req: NextApiRequest) => {
             }
         } catch (error) {
             console.log(error);
-            return NextResponse.json(
-                { message: "Webhook handler failed" },
-                { status: 500 }
-            );
+            res.status(500).json({ message: "Webhook handler failed" });
+            return;
         }
     }
+
     // Return a response to acknowledge receipt of the event.
-    return NextResponse.json({ message: "Received" }, { status: 200 });
+    res.status(200).json({ message: "Received" });
+};
+
+export const config = {
+    api: {
+        bodyParser: false,
+    },
 };
 
 export default handler;
