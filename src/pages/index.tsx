@@ -5,6 +5,7 @@ import { type GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { getSession } from "next-auth/react";
 
+import Header from "~/components/Header";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 
@@ -33,6 +34,7 @@ const Home: FindBasePage = () => {
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+            <Header />
             <Container>
                 <form
                     onSubmit={form.onSubmit((values) =>
