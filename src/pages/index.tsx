@@ -50,7 +50,11 @@ const Home: FindBasePage = () => {
                     />
 
                     <Group mt="md">
-                        <Button type="submit" rightSection={<IconArrowRight />}>
+                        <Button
+                            type="submit"
+                            rightSection={<IconArrowRight />}
+                            loading={createInvoice.isLoading}
+                        >
                             Find your stay
                         </Button>
                     </Group>
