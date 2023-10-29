@@ -156,6 +156,8 @@ const Home: FindBasePage = () => {
                     ))}
                 </SimpleGrid>
             </Container>
+
+            <Footer />
         </>
     );
 };
