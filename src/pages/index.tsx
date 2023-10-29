@@ -107,7 +107,9 @@ const Home: FindBasePage = () => {
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+
             <Header />
+
             <Container>
                 <form
                     onSubmit={form.onSubmit((values) =>
