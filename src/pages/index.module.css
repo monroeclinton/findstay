@@ -1,0 +1,30 @@
+.imageContainer {
+    position: relative;
+}
+
+.imageContainer .overlay {
+    position: absolute;
+    height: 400px;
+    width: 400px;
+    background-color: var(--mantine-color-gray-1);
+    z-index: -1;
+}
+
+.imageContainer .overlay:nth-child(1) {
+    top: -10px;
+    left: -10px;
+}
+
+.imageContainer .overlay:nth-child(2) {
+    bottom: -10px;
+    right: -10px;
+}
+
+.feature {
+    position: relative;
+    padding-top: var(--mantine-spacing-xl);
+}
+
+.feature .icon {
+    color: var(--mantine-color-indigo-filled);
+}
