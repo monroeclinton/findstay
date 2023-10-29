@@ -111,29 +111,50 @@ const Home: FindBasePage = () => {
             <Header />
 
             <Container>
-                <form
-                    onSubmit={form.onSubmit((values) =>
-                        createInvoice.mutate({
-                            email: values.email,
-                        })
-                    )}
-                >
-                    <TextInput
-                        label="Your email"
-                        {...form.getInputProps("email")}
-                        onBlur={() => form.validate()}
-                    />
+                <Title>Find your perfect Airbnb stay</Title>
+                <Box className={classes.imageContainer} p="md" my="xl">
+                    <div className={classes.overlay} />
+                    <div className={classes.overlay} />
 
-                    <Group mt="md">
-                        <Button
-                            type="submit"
-                            rightSection={<IconArrowRight />}
-                            loading={createInvoice.isLoading}
-                        >
-                            Find your stay
-                        </Button>
-                    </Group>
-                </form>
+                    <Card shadow="sm" withBorder>
+                        <Image
+                            src="/assets/search.png"
+                            alt="Image of the search page."
+                        />
+                    </Card>
+                </Box>
+
+                <Box py="xl">
+                    <form
+                        onSubmit={form.onSubmit((values) =>
+                            createInvoice.mutate({
+                                email: values.email,
+                            })
+                        )}
+                    >
+                        <TextInput
+                            label="Your email"
+                            {...form.getInputProps("email")}
+                            onBlur={() => form.validate()}
+                        />
+
+                        <Group mt="md">
+                            <Button
+                                type="submit"
+                                rightSection={<IconArrowRight />}
+                                loading={createInvoice.isLoading}
+                            >
+                                Find your stay
+                            </Button>
+                        </Group>
+                    </form>
+                </Box>
+
+                <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={50} my="xl">
+                    {features.map((item) => (
+                        <Feature {...item} key={item.title} />
+                    ))}
+                </SimpleGrid>
             </Container>
         </>
     );
