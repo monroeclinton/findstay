@@ -32,6 +32,13 @@ model AirbnbLocation {
     @@map("airbnb_location")
 }
 
+model AirbnbApi {
+    id          String                               @id @default(cuid())
+    apiKey      String
+    createdAt   DateTime                             @default(now())
+    updatedAt   DateTime                             @updatedAt
+}
+
 model AirbnbLocationSync {
     id          String                               @id @default(cuid())
     search      String
