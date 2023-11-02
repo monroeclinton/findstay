@@ -8,6 +8,9 @@ import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
 
+import { zoomLevel } from "./geometry";
+import { searchToCoordinates } from "./nominatim";
+
 interface Coordinate {
     longitude: number;
     latitude: number;
@@ -467,7 +470,7 @@ export const syncAirbnbPage = async (
     if (!curCursor) return null;
 
     if (!sync.pages.map((page) => page.cursor).includes(curCursor)) {
-        const locationResults = await scrapeAirbnbApi(sync, curCursor);
+        const locationResults = await scrapeAirbnbLocations(sync, curCursor);
 
         await prisma.$transaction(async (tx) => {
             const locations = [];
