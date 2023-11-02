@@ -137,6 +137,21 @@ model GoogleMapsSync {
     @@map("google_maps_sync")
 }
 
+model NominatimSearch {
+    id         String   @id @default(cuid())
+    search     String
+    latitude   Decimal
+    longitude  Decimal
+    neLatitude  Decimal
+    neLongitude Decimal
+    swLatitude  Decimal
+    swLongitude Decimal
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@map("nominatim_search")
+}
+
 model Invoice {
     id         String @id @default(cuid())
     txId       String @unique
