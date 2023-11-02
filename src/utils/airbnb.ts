@@ -371,37 +371,29 @@ export const createAirbnbSync = async (
 
     if (recentSync) return recentSync;
 
-    const res: AxiosResponse<string> = await axios.get(
-        `https://www.airbnb.com/s/${search.replace(/ /g, "+")}/homes`,
-        {
-            headers,
-            validateStatus: () => true,
-        }
+    const apiKey = await scrapeAirbnbApiKey(search);
+    const nominatim = await searchToCoordinates(search);
+    // TODO: Fetch from client height
+    zoomLevel(
+        nominatim.neLatitude.toNumber(),
+        nominatim.neLongitude.toNumber(),
+        nominatim.swLatitude.toNumber(),
+        nominatim.swLongitude.toNumber(),
+        { width: 0, height: 0 }
     );
 
-    const apiConfig = res.data.split('"api_config":{').at(1)?.split("},").at(0);
-    if (!apiConfig) throw new Error("No API config");
-
-    const apiKey = (JSON.parse("{" + apiConfig + "}") as { key: string })[
-        "key"
-    ];
-    if (!apiKey) throw new Error("No API key");
-
-    const cursorsString = res.data
-        .split('"pageCursors":')
-        .at(1)
-        ?.split(',"previousPageCursor":null')
-        .at(0) as string;
-    if (!cursorsString) throw new Error("No available cursors");
-    const cursors = JSON.parse(cursorsString) as string[];
-
-    const boundingBoxString = res.data
-        .split('"mapBoundsHint":')
-        .at(1)
-        ?.split(',"poiTagsForFlexCategory"')
-        .at(0) as string;
-    if (!boundingBoxString) throw new Error("No bounding box");
-    const boundingBox = JSON.parse(boundingBoxString) as BoundingBox;
+    const locationResults = await fetchAirbnbApi(
+        apiKey,
+        search,
+        nominatim.neLatitude.toNumber(),
+        nominatim.neLongitude.toNumber(),
+        nominatim.swLatitude.toNumber(),
+        nominatim.swLongitude.toNumber(),
+        16
+    );
+    const cursors =
+        locationResults.data.presentation.staysSearch.results.paginationInfo
+            .pageCursors;
 
     const sync = (
         await prisma.$queryRaw<[{ id: string }]>(
@@ -425,17 +417,17 @@ export const createAirbnbSync = async (
                     ${apiKey},
                     ${cursors},
                     ST_POINT(
-                        ${boundingBox.northeast.longitude},
-                        ${boundingBox.northeast.latitude}
+                        ${nominatim.neLongitude.toNumber()},
+                        ${nominatim.neLatitude.toNumber()}
                     ),
-                    ${boundingBox.northeast.latitude},
-                    ${boundingBox.northeast.longitude},
+                    ${nominatim.neLatitude.toNumber()},
+                    ${nominatim.neLongitude.toNumber()},
                     ST_POINT(
-                        ${boundingBox.southwest.longitude},
-                        ${boundingBox.southwest.latitude}
+                        ${nominatim.swLongitude.toNumber()},
+                        ${nominatim.swLatitude.toNumber()}
                     ),
-                    ${boundingBox.southwest.latitude},
-                    ${boundingBox.southwest.longitude},
+                    ${nominatim.swLatitude.toNumber()},
+                    ${nominatim.swLongitude.toNumber()},
                     CURRENT_TIMESTAMP
                 )
                 ON CONFLICT (id) DO NOTHING
