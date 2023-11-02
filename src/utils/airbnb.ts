@@ -30,6 +30,9 @@ interface MapSearchResponse {
         presentation: {
             staysSearch: {
                 results: {
+                    paginationInfo: {
+                        pageCursors: Array<string>;
+                    };
                     searchResults: Array<{
                         listing: {
                             id: string;
