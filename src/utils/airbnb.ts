@@ -283,7 +283,64 @@ const fetchAirbnbApi = async (
         console.log(res.data.errors.at(0)?.extensions.response);
     }
 
-    return res.data.data.presentation.staysSearch.results.searchResults;
+    return res.data;
+};
+
+const scrapeAirbnbLocations = async (
+    sync: AirbnbLocationSync,
+    cursor: string
+) => {
+    const scrape = await fetchAirbnbApi(
+        sync.apiKey,
+        sync.search,
+        sync.neLatitude.toNumber(),
+        sync.neLongitude.toNumber(),
+        sync.swLatitude.toNumber(),
+        sync.swLongitude.toNumber(),
+        16,
+        cursor
+    );
+
+    return scrape.data.presentation.staysSearch.results.searchResults;
+};
+
+const scrapeAirbnbApiKey = async (search: string) => {
+    const recentApiKey = await prisma.airbnbApi.findFirst({
+        where: {
+            createdAt: {
+                gte: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+            },
+        },
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+
+    if (recentApiKey) return recentApiKey.apiKey;
+
+    const res: AxiosResponse<string> = await axios.get(
+        `https://www.airbnb.com/s/${search.replace(/ /g, "+")}/homes`,
+        {
+            headers,
+            validateStatus: () => true,
+        }
+    );
+
+    const apiConfig = res.data.split('"api_config":{').at(1)?.split("},").at(0);
+    if (!apiConfig) throw new Error("No API config");
+
+    const apiKey = (JSON.parse("{" + apiConfig + "}") as { key: string })[
+        "key"
+    ];
+    if (!apiKey) throw new Error("No API key");
+
+    await prisma.airbnbApi.create({
+        data: {
+            apiKey,
+        },
+    });
+
+    return apiKey;
 };
 
 export const createAirbnbSync = async (
