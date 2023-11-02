@@ -74,7 +74,16 @@ const headers = {
     "User-Agent": "curl/7.72.0",
 };
 
-const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
+const fetchAirbnbApi = async (
+    apiKey: string,
+    search: string,
+    neLatitude: number,
+    neLongitude: number,
+    swLatitude: number,
+    swLongitude: number,
+    zoom: number,
+    cursor: undefined | string = undefined
+) => {
     const res: AxiosResponse<MapSearchResponse> = await axios.post(
         `https://www.airbnb.com/api/v3/StaysSearch?operationName=StaysSearch&locale=en&currency=USD`,
         {
@@ -84,7 +93,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                 feedMapDecoupleEnabled: true,
                 isLeanTreatment: false,
                 staysMapSearchRequestV2: {
-                    cursor,
+                    ...(cursor ? { cursor } : {}),
                     requestedPageType: "STAYS_SEARCH",
                     metadataOnly: false,
                     treatmentFlags: [
@@ -119,15 +128,15 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "neLat",
-                            filterValues: [sync.neLatitude.toString()],
+                            filterValues: [neLatitude.toString()],
                         },
                         {
                             filterName: "neLng",
-                            filterValues: [sync.neLongitude.toString()],
+                            filterValues: [neLongitude.toString()],
                         },
                         {
                             filterName: "query",
-                            filterValues: [sync.search],
+                            filterValues: [search],
                         },
                         {
                             filterName: "refinementPaths",
@@ -139,11 +148,11 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "swLat",
-                            filterValues: [sync.swLatitude.toString()],
+                            filterValues: [swLatitude.toString()],
                         },
                         {
                             filterName: "swLng",
-                            filterValues: [sync.swLongitude.toString()],
+                            filterValues: [swLongitude.toString()],
                         },
                         {
                             filterName: "tabId",
@@ -155,7 +164,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "zoomLevel",
-                            filterValues: ["16"],
+                            filterValues: [zoom.toString()],
                         },
                     ],
                 },
@@ -192,11 +201,11 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "neLat",
-                            filterValues: [sync.neLatitude.toString()],
+                            filterValues: [neLatitude.toString()],
                         },
                         {
                             filterName: "neLng",
-                            filterValues: [sync.neLongitude.toString()],
+                            filterValues: [neLongitude.toString()],
                         },
                         {
                             filterName: "priceFilterInputType",
@@ -208,7 +217,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "query",
-                            filterValues: [sync.search],
+                            filterValues: [search],
                         },
                         {
                             filterName: "refinementPaths",
@@ -224,11 +233,11 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "swLat",
-                            filterValues: [sync.swLatitude.toString()],
+                            filterValues: [swLatitude.toString()],
                         },
                         {
                             filterName: "swLng",
-                            filterValues: [sync.swLongitude.toString()],
+                            filterValues: [swLongitude.toString()],
                         },
                         {
                             filterName: "tabId",
@@ -240,7 +249,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
                         },
                         {
                             filterName: "zoomLevel",
-                            filterValues: ["16"],
+                            filterValues: [zoom.toString()],
                         },
                     ],
                     requestedPageType: "STAYS_SEARCH",
@@ -264,7 +273,7 @@ const scrapeAirbnbApi = async (sync: AirbnbLocationSync, cursor: string) => {
         {
             headers: {
                 ...headers,
-                "X-Airbnb-API-Key": sync.apiKey,
+                "X-Airbnb-API-Key": apiKey,
                 "Content-Type": "application/json",
             },
         }
