@@ -44,10 +44,14 @@ const Search: FindBasePage = () => {
     const sync = api.home.createSync.useQuery(
         {
             search: debouncedSearch,
+            dimensions: {
+                width: mapContainerRef.current?.clientWidth as number,
+                height: mapContainerRef.current?.clientHeight as number,
+            },
             boundingBox,
         },
         {
-            enabled: debouncedSearch.length > 3,
+            enabled: debouncedSearch.length > 3 && mapContainerRef.current,
             refetchOnWindowFocus: false,
             keepPreviousData: search.length > 3,
         }

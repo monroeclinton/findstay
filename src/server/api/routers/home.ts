@@ -11,6 +11,10 @@ export const homeRouter = createTRPCRouter({
         .input(
             z.object({
                 search: z.string().min(5),
+                dimensions: z.object({
+                    width: z.number(),
+                    height: z.number(),
+                }),
                 boundingBox: z
                     .object({
                         neLat: z.number(),
