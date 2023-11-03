@@ -373,22 +373,31 @@ export const createAirbnbSync = async (
 
     const apiKey = await scrapeAirbnbApiKey(search);
     const nominatim = await searchToCoordinates(search);
-    // TODO: Fetch from client height
+
+    const boundingBox: BoundingBox = clientBoundingBox
+        ? clientBoundingBox
+        : {
+              neLat: nominatim.neLatitude.toNumber(),
+              neLng: nominatim.neLongitude.toNumber(),
+              swLat: nominatim.swLatitude.toNumber(),
+              swLng: nominatim.swLongitude.toNumber(),
+          };
+
     zoomLevel(
-        nominatim.neLatitude.toNumber(),
-        nominatim.neLongitude.toNumber(),
-        nominatim.swLatitude.toNumber(),
-        nominatim.swLongitude.toNumber(),
-        { width: 0, height: 0 }
+        boundingBox.neLat,
+        boundingBox.neLng,
+        boundingBox.swLat,
+        boundingBox.swLng,
+        { width: dimensions.width, height: dimensions.height }
     );
 
     const locationResults = await fetchAirbnbApi(
         apiKey,
         search,
-        nominatim.neLatitude.toNumber(),
-        nominatim.neLongitude.toNumber(),
-        nominatim.swLatitude.toNumber(),
-        nominatim.swLongitude.toNumber(),
+        boundingBox.neLat,
+        boundingBox.neLng,
+        boundingBox.swLat,
+        boundingBox.swLng,
         16
     );
     const cursors =
