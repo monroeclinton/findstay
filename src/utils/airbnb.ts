@@ -347,7 +347,9 @@ const scrapeAirbnbApiKey = async (search: string) => {
 };
 
 export const createAirbnbSync = async (
-    search: string
+    search: string,
+    dimensions: { width: number; height: number },
+    clientBoundingBox: BoundingBox | undefined | null
 ): Promise<AirbnbLocationSync | null> => {
     const recentSync = await prisma.airbnbLocationSync.findFirst({
         where: {

@@ -26,7 +26,11 @@ export const homeRouter = createTRPCRouter({
             })
         )
         .query(async ({ input }) => {
-            const airbnbSync = await createAirbnbSync(input.search);
+            const airbnbSync = await createAirbnbSync(
+                input.search,
+                input.dimensions,
+                input.boundingBox,
+            );
 
             if (!airbnbSync) throw new Error("Airbnb sync not successful.");
 
