@@ -8,17 +8,12 @@ import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
 
-import { zoomLevel } from "./geometry";
+import { type BoundingBox, zoomLevel } from "./geometry";
 import { searchToCoordinates } from "./nominatim";
 
 interface Coordinate {
     longitude: number;
     latitude: number;
-}
-
-interface BoundingBox {
-    northeast: Coordinate;
-    southwest: Coordinate;
 }
 
 interface MapSearchResponse {
