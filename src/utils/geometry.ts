@@ -5,6 +5,18 @@ export type BoundingBox = {
     swLng: number;
 };
 
+export const boundingBoxEqual = (
+    bBox1: BoundingBox,
+    bBox2: BoundingBox
+): boolean => {
+    return (
+        bBox1.neLat === bBox2.neLat &&
+        bBox1.neLng === bBox2.neLng &&
+        bBox1.swLat === bBox2.swLat &&
+        bBox1.swLng === bBox2.swLng
+    );
+};
+
 // https://stackoverflow.com/a/13274361
 export const zoomLevel = (
     neLat: number,
