@@ -426,17 +426,17 @@ export const createAirbnbSync = async (
                     ${apiKey},
                     ${cursors},
                     ST_POINT(
-                        ${nominatim.neLongitude.toNumber()},
-                        ${nominatim.neLatitude.toNumber()}
+                        ${boundingBox.neLng},
+                        ${boundingBox.neLat}
                     ),
-                    ${nominatim.neLatitude.toNumber()},
-                    ${nominatim.neLongitude.toNumber()},
+                    ${boundingBox.neLat},
+                    ${boundingBox.neLng},
                     ST_POINT(
-                        ${nominatim.swLongitude.toNumber()},
-                        ${nominatim.swLatitude.toNumber()}
+                        ${boundingBox.swLng},
+                        ${boundingBox.swLat}
                     ),
-                    ${nominatim.swLatitude.toNumber()},
-                    ${nominatim.swLongitude.toNumber()},
+                    ${boundingBox.swLat},
+                    ${boundingBox.swLng},
                     CURRENT_TIMESTAMP
                 )
                 ON CONFLICT (id) DO NOTHING
