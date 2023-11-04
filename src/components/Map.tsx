@@ -14,7 +14,7 @@ import type { inferRouterOutputs } from "@trpc/server";
 import classNames from "classnames";
 import { Point } from "ol/geom";
 import { fromLonLat, transformExtent } from "ol/proj";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     RControl,
     RFeature,
@@ -22,10 +22,15 @@ import {
     RMap,
     ROSM,
     ROverlay,
+    type RView,
 } from "rlayers";
 
 import { type AppRouter } from "~/server/api/root";
-import { type BoundingBox, zoomLevel } from "~/utils/geometry";
+import {
+    type BoundingBox,
+    boundingBoxEqual,
+    zoomLevel,
+} from "~/utils/geometry";
 
 import classes from "./Map.module.css";
 
@@ -58,6 +63,16 @@ const Map = ({
 }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
+    const [view, setView] = useState<RView>({
+        center: fromLonLat([midpoint.longitude, midpoint.latitude]),
+        zoom: zoomLevel(
+            boundingBox.neLat,
+            boundingBox.neLng,
+            boundingBox.swLat,
+            boundingBox.swLng,
+            map
+        ),
+    });
 
     const handleMove = (rmap: RMap) => {
         const extent = transformExtent(
@@ -71,30 +86,44 @@ const Map = ({
         const swLat = extent[1];
         const swLng = extent[0];
 
+        const round = (num: number, places: number): number =>
+            Math.round(num * 10 ** places + Number.EPSILON) / 10 ** places;
+
         if (neLat && neLng && swLat && swLng) {
-            onMove({
-                neLat,
-                neLng,
-                swLat,
-                swLng,
-            });
+            const newBoundingBox = {
+                neLat: round(neLat, 5),
+                neLng: round(neLng, 5),
+                swLat: round(swLat, 5),
+                swLng: round(swLng, 5),
+            };
+
+            if (!boundingBoxEqual(newBoundingBox, boundingBox)) {
+                console.log("HEREHERE");
+                onMove(newBoundingBox);
+            }
         }
     };
+
+    useEffect(() => {
+        console.log("SET VIEW");
+        setView({
+            center: fromLonLat([midpoint.longitude, midpoint.latitude]),
+            zoom: zoomLevel(
+                boundingBox.neLat,
+                boundingBox.neLng,
+                boundingBox.swLat,
+                boundingBox.swLng,
+                map
+            ),
+        });
+    }, [midpoint, boundingBox, map]);
 
     return (
         <RMap
             width="100%"
             height="100%"
-            initial={{
-                center: fromLonLat([midpoint.longitude, midpoint.latitude]),
-                zoom: zoomLevel(
-                    boundingBox.neLat,
-                    boundingBox.neLng,
-                    boundingBox.swLat,
-                    boundingBox.swLng,
-                    map
-                ),
-            }}
+            initial={view}
+            view={[view, setView]}
             onMoveEnd={handleMove}
             onClick={() => setSelected(null)}
         >
