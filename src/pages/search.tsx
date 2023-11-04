@@ -51,7 +51,7 @@ const Search: FindBasePage = () => {
             boundingBox,
         },
         {
-            enabled: debouncedSearch.length > 3 && mapContainerRef.current,
+            enabled: debouncedSearch.length > 3 && !!mapContainerRef.current,
             refetchOnWindowFocus: false,
             keepPreviousData: search.length > 3,
         }
