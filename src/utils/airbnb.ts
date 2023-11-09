@@ -369,7 +369,7 @@ export const createAirbnbSync = async (
         },
     });
 
-    if (recentSync) return recentSync;
+    if (recentSync && !clientBoundingBox) return recentSync;
 
     const apiKey = await scrapeAirbnbApiKey(search);
     const nominatim = await searchToCoordinates(search);
