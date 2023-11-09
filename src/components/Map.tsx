@@ -39,11 +39,7 @@ type RouterOutput = inferRouterOutputs<AppRouter>;
 interface IMapProps {
     isLoading: boolean;
     data: RouterOutput["home"]["getPage"] | undefined;
-    midpoint: {
-        latitude: number;
-        longitude: number;
-    };
-    boundingBox: BoundingBox;
+    sync: RouterOutput["home"]["createSync"];
     map: {
         width: number;
         height: number;
@@ -52,24 +48,16 @@ interface IMapProps {
     onMove: (_: BoundingBox) => void;
 }
 
-const Map = ({
-    isLoading,
-    data,
-    midpoint,
-    boundingBox,
-    map,
-    page,
-    onMove,
-}: IMapProps) => {
+const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
     const [view, setView] = useState<RView>({
-        center: fromLonLat([midpoint.longitude, midpoint.latitude]),
+        center: fromLonLat([sync.midpoint.longitude, sync.midpoint.latitude]),
         zoom: zoomLevel(
-            boundingBox.neLat,
-            boundingBox.neLng,
-            boundingBox.swLat,
-            boundingBox.swLng,
+            sync.boundingBox.neLat,
+            sync.boundingBox.neLng,
+            sync.boundingBox.swLat,
+            sync.boundingBox.swLng,
             map
         ),
     });
@@ -97,26 +85,29 @@ const Map = ({
                 swLng: round(swLng, 5),
             };
 
-            if (!boundingBoxEqual(newBoundingBox, boundingBox)) {
-                console.log("HEREHERE");
+            if (!boundingBoxEqual(newBoundingBox, sync.boundingBox)) {
                 onMove(newBoundingBox);
             }
         }
     };
 
     useEffect(() => {
-        console.log("SET VIEW");
-        setView({
-            center: fromLonLat([midpoint.longitude, midpoint.latitude]),
-            zoom: zoomLevel(
-                boundingBox.neLat,
-                boundingBox.neLng,
-                boundingBox.swLat,
-                boundingBox.swLng,
-                map
-            ),
-        });
-    }, [midpoint, boundingBox, map]);
+        if (!sync.clientBoundingBox) {
+            setView({
+                center: fromLonLat([
+                    sync.midpoint.longitude,
+                    sync.midpoint.latitude,
+                ]),
+                zoom: zoomLevel(
+                    sync.boundingBox.neLat,
+                    sync.boundingBox.neLng,
+                    sync.boundingBox.swLat,
+                    sync.boundingBox.swLng,
+                    map
+                ),
+            });
+        }
+    }, [sync.clientBoundingBox, sync.boundingBox, sync.midpoint, map]);
 
     return (
         <RMap
