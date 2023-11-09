@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { usePrevious } from "~/hooks/usePrevious";
 import { useQueryParams } from "~/hooks/useQueryParams";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
@@ -61,6 +62,8 @@ const Search: FindBasePage = () => {
         }
     );
 
+    const [previousSyncId, setPreviousId] = usePrevious(sync.data?.id);
+
     const homes = api.home.getPage.useQuery(
         {
             syncId: sync.data?.id as string,
@@ -81,6 +84,7 @@ const Search: FindBasePage = () => {
 
     const handleSearch = (search: string) => {
         setBoundingBox(null);
+        setPreviousId(undefined);
         setQueryParams({ q: search });
     };
 
@@ -144,6 +148,7 @@ const Search: FindBasePage = () => {
                                 isLoading={sync.isFetching || homes.isFetching}
                                 data={homes.data}
                                 sync={sync.data}
+                                previousSyncId={previousSyncId}
                                 map={{
                                     width: mapContainerRef.current.clientWidth,
                                     height: mapContainerRef.current
