@@ -79,6 +79,11 @@ const Search: FindBasePage = () => {
         }
     };
 
+    const handleSearch = (search: string) => {
+        setBoundingBox(null);
+        setQueryParams({ q: search });
+    };
+
     useEffect(() => {
         const timeout = setTimeout(
             () =>
@@ -128,7 +133,7 @@ const Search: FindBasePage = () => {
                         }}
                         ref={mapContainerRef}
                     >
-                        <FilterBar search={search} setSearch={setSearch} />
+                        <FilterBar search={search} setSearch={handleSearch} />
                         {sync.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
