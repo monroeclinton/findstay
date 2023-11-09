@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import FilterBar from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { useQueryParams } from "~/hooks/useQueryParams";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
@@ -33,7 +34,10 @@ const Search: FindBasePage = () => {
     const utils = api.useContext();
     const router = useRouter();
     const [activePage, setPage] = useState(0);
-    const [search, setSearch] = useState((router.query.q as string) || "");
+
+    const [queryParams, setQueryParams] = useQueryParams<{ q: string }>();
+    const search = queryParams.get("q") || "";
+
     const [debouncedSearch] = useDebouncedValue(search, 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
