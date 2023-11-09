@@ -143,8 +143,7 @@ const Search: FindBasePage = () => {
                             <Map
                                 isLoading={sync.isFetching || homes.isFetching}
                                 data={homes.data}
-                                midpoint={sync.data.midpoint}
-                                boundingBox={sync.data.boundingBox}
+                                sync={sync.data}
                                 map={{
                                     width: mapContainerRef.current.clientWidth,
                                     height: mapContainerRef.current
