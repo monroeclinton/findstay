@@ -10,7 +10,6 @@ import { useDebouncedState, useDebouncedValue } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
-import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 
 import FilterBar from "~/components/FilterBar";
@@ -33,11 +32,10 @@ const Map = dynamic(() => import("~/components/Map"), {
 
 const Search: FindBasePage = () => {
     const utils = api.useContext();
-    const router = useRouter();
     const [activePage, setPage] = useState(0);
 
-    const [queryParams, setQueryParams] = useQueryParams<{ q: string }>();
-    const search = queryParams.get("q") || "";
+    const [getQueryParams, setQueryParams] = useQueryParams<{ q: string }>();
+    const [search, setSearch] = useState(getQueryParams("q") || "");
 
     const [debouncedSearch] = useDebouncedValue(search, 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
@@ -82,10 +80,11 @@ const Search: FindBasePage = () => {
         }
     };
 
-    const handleSearch = (search: string) => {
+    const handleSearch = (value: string) => {
         setBoundingBox(null);
         setPreviousId(undefined);
-        setQueryParams({ q: search });
+        setSearch(value);
+        setQueryParams({ q: value });
     };
 
     useEffect(() => {
@@ -100,17 +99,6 @@ const Search: FindBasePage = () => {
 
         return () => clearTimeout(timeout);
     }, [activePage]);
-
-    if (homes.isFetched && router.query.q !== search) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("q", search);
-
-        if (search.length === 0) {
-            url.searchParams.delete("q");
-        }
-
-        window.history.replaceState(null, "", url);
-    }
 
     if (search.length <= 3 && (sync.data || homes.data)) {
         void utils.home.createSync.reset();
