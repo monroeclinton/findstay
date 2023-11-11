@@ -10,7 +10,7 @@ export const homeRouter = createTRPCRouter({
     createSync: protectedProcedure
         .input(
             z.object({
-                search: z.string().min(5),
+                search: z.string().min(3),
                 dimensions: z.object({
                     width: z.number(),
                     height: z.number(),
