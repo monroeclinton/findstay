@@ -14,7 +14,7 @@ export const searchToCoordinates = async (
 ): Promise<NominatimSearch> => {
     const nominatimSearch = await prisma.nominatimSearch.findFirst({
         where: {
-            search,
+            search: search.toLowerCase(),
         },
     });
 
@@ -37,7 +37,7 @@ export const searchToCoordinates = async (
 
     return await prisma.nominatimSearch.create({
         data: {
-            search,
+            search: search.toLowerCase(),
             latitude: Number(result.lat),
             longitude: Number(result.lon),
             neLatitude: Number(result.boundingbox.at(1)),
