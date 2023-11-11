@@ -183,6 +183,25 @@ const Search: FindBasePage = () => {
                             flexBasis: "60%",
                         }}
                     >
+                        {!homes.isInitialLoading &&
+                            homes.data?.locations.length === 0 && (
+                                <Center
+                                    style={{
+                                        flex: 1,
+                                        width: "100%",
+                                        flexDirection: "column",
+                                    }}
+                                >
+                                    <ThemeIcon
+                                        variant="light"
+                                        color="gray"
+                                        size="xl"
+                                    >
+                                        <IconDatabaseOff />
+                                    </ThemeIcon>
+                                    <Text mt="sm">No listings</Text>
+                                </Center>
+                            )}
                         {homes.data?.locations.map((record) => (
                             <HomeCard key={record.id} home={record} />
                         ))}
