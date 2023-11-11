@@ -1,18 +1,20 @@
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+"use client";
+
+import {
+    type ReadonlyURLSearchParams,
+    usePathname,
+    useRouter,
+    useSearchParams,
+} from "next/navigation";
 import { useCallback } from "react";
 
 export const useQueryParams = <T>(): [
-    (_: string) => string | null,
+    ReadonlyURLSearchParams,
     (_: Partial<T>) => void
 ] => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-
-    const getQueryParam = useCallback(
-        (key: string) => searchParams.get(key),
-        [searchParams]
-    );
 
     const setQueryParams = useCallback(
         (params: Partial<T>) => {
@@ -35,5 +37,5 @@ export const useQueryParams = <T>(): [
         [pathname, router, searchParams]
     );
 
-    return [getQueryParam, setQueryParams];
+    return [searchParams, setQueryParams];
 };
