@@ -129,7 +129,7 @@ const Map = ({
         >
             <ROSM />
             {data && (
-                <>
+                <div>
                     <RLayerVector zIndex={100}>
                         {data.locations.map((record) => (
                             <RFeature
@@ -257,7 +257,7 @@ const Map = ({
                             <Loader />
                         </Center>
                     </RControl.RCustom>
-                </>
+                </div>
             )}
         </RMap>
     );
