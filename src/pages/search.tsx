@@ -34,10 +34,11 @@ const Search: FindBasePage = () => {
     const utils = api.useContext();
     const [activePage, setPage] = useState(0);
 
-    const [getQueryParams, setQueryParams] = useQueryParams<{ q: string }>();
-    const [search, setSearch] = useState(getQueryParams("q") || "");
+    const [queryParams, setQueryParams] = useQueryParams<{ q: string }>();
+    const query = queryParams.get("q");
+    const [search, setSearch] = useState<string | null>(null);
 
-    const [debouncedSearch] = useDebouncedValue(search, 200);
+    const [debouncedSearch] = useDebouncedValue(search || "", 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
         100
@@ -46,7 +47,7 @@ const Search: FindBasePage = () => {
 
     const sync = api.home.createSync.useQuery(
         {
-            search: search,
+            search: debouncedSearch,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,
@@ -54,9 +55,9 @@ const Search: FindBasePage = () => {
             boundingBox,
         },
         {
-            enabled: search.length > 3 && !!mapContainerRef.current,
+            enabled: debouncedSearch.length > 3 && !!mapContainerRef.current,
             refetchOnWindowFocus: false,
-            keepPreviousData: search.length > 3,
+            keepPreviousData: debouncedSearch.length > 3,
         }
     );
 
@@ -70,7 +71,7 @@ const Search: FindBasePage = () => {
         {
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
-            keepPreviousData: search.length > 3,
+            keepPreviousData: debouncedSearch.length > 3,
         }
     );
 
@@ -88,6 +89,12 @@ const Search: FindBasePage = () => {
     };
 
     useEffect(() => {
+        if (search === null && query) {
+            setSearch(query);
+        }
+    }, [search, query]);
+
+    useEffect(() => {
         const timeout = setTimeout(
             () =>
                 window.scrollTo({
@@ -100,7 +107,7 @@ const Search: FindBasePage = () => {
         return () => clearTimeout(timeout);
     }, [activePage]);
 
-    if (search.length <= 3 && (sync.data || homes.data)) {
+    if (debouncedSearch.length <= 3 && (sync.data || homes.data)) {
         void utils.home.createSync.reset();
         void utils.home.getPage.reset();
     }
@@ -125,7 +132,10 @@ const Search: FindBasePage = () => {
                         }}
                         ref={mapContainerRef}
                     >
-                        <FilterBar search={search} setSearch={handleSearch} />
+                        <FilterBar
+                            search={search || ""}
+                            setSearch={handleSearch}
+                        />
                         {sync.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
