@@ -468,12 +468,20 @@ export const syncAirbnbPage = async (
             id: syncId,
         },
         include: {
-            pages: true,
+            pages: {
+                include: {
+                    locations: {
+                        include: {
+                            location: true,
+                        },
+                    },
+                },
+            },
         },
     });
 
     const curCursor = cursor || sync.cursors.at(0);
-    if (!curCursor) return null;
+    if (!curCursor) return sync;
 
     if (!sync.pages.map((page) => page.cursor).includes(curCursor)) {
         const locationResults = await scrapeAirbnbLocations(sync, curCursor);

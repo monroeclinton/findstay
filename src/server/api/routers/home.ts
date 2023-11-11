@@ -29,7 +29,7 @@ export const homeRouter = createTRPCRouter({
             const airbnbSync = await createAirbnbSync(
                 input.search,
                 input.dimensions,
-                input.boundingBox,
+                input.boundingBox
             );
 
             if (!airbnbSync) throw new Error("Airbnb sync not successful.");
@@ -77,12 +77,12 @@ export const homeRouter = createTRPCRouter({
                 airbnbSync.pages.find((page) => page.cursor === input.cursor) ||
                 airbnbSync.pages.at(0);
 
-            if (!page) throw new Error("Unable to fetch page of listings");
-
-            const locations = await addComputedFields(
-                page.locations.map((result) => result.location),
-                ctx.session.user.id
-            );
+            const locations = page
+                ? await addComputedFields(
+                      page.locations.map((result) => result.location),
+                      ctx.session.user.id
+                  )
+                : [];
 
             const cursorPos: number = input.cursor
                 ? airbnbSync.cursors.indexOf(input.cursor) || 0
