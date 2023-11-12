@@ -1,6 +1,58 @@
-import { Flex, TextInput } from "@mantine/core";
+import { Button, Flex, Group, Modal, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { useDisclosure } from "@mantine/hooks";
+import { useEffect, useRef, useState } from "react";
+
+import { useQueryParams } from "~/hooks/useQueryParams";
 
 export const FILTER_BAR_HEIGHT = "85px";
+
+export interface FormValues {
+    neighborhood: string;
+    city: string;
+    country: string;
+}
+
+const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
+    const form = useForm<FormValues>({
+        initialValues: {
+            neighborhood: "",
+            city: "",
+            country: "",
+        },
+    });
+
+    return (
+        <form onSubmit={form.onSubmit(onSubmit)}>
+            <TextInput
+                label="Name"
+                placeholder="Mission District"
+                maxLength={30}
+                {...form.getInputProps("neighborhood")}
+            />
+
+            <TextInput
+                mt="md"
+                withAsterisk
+                label="City"
+                placeholder="San Francisco"
+                {...form.getInputProps("city")}
+            />
+
+            <TextInput
+                mt="md"
+                withAsterisk
+                label="Country"
+                placeholder="United States"
+                {...form.getInputProps("country")}
+            />
+
+            <Group mt="md">
+                <Button type="submit">Search</Button>
+            </Group>
+        </form>
+    );
+};
 
 interface IFilterBarProps {
     search: string;
