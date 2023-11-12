@@ -15,6 +15,7 @@ export interface FormValues {
 
 const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
     const [searchParams, setQueryParams] = useQueryParams();
+    const [initalized, setInitialized] = useState(false);
 
     const form = useForm<FormValues>({
         initialValues: {
@@ -30,19 +31,23 @@ const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
     };
 
     useEffect(() => {
-        Object.keys(form.values)
+        if (initalized || searchParams === null) return;
+
+        const values = Object.keys(form.values)
             .filter(
                 (key) =>
                     form.values[key as keyof FormValues].length === 0 &&
                     searchParams.get(key)?.length
             )
-            .forEach((key) => {
-                form.setValues({
-                    ...form.values,
-                    [key]: searchParams.get(key),
-                });
-            });
-    }, [form, searchParams]);
+            .reduce(
+                (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
+                form.values
+            );
+
+        form.setValues(values);
+
+        setInitialized(true);
+    }, [form, searchParams, initalized]);
 
     return (
         <form onSubmit={form.onSubmit(handleSubmit)}>
