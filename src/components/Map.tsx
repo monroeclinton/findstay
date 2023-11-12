@@ -12,6 +12,7 @@ import {
 import { IconStarFilled } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import classNames from "classnames";
+import Link from "next/link";
 import { Point } from "ol/geom";
 import { fromLonLat, transformExtent } from "ol/proj";
 import { useEffect, useState } from "react";
@@ -146,55 +147,63 @@ const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
                                         timingFunction="ease"
                                     >
                                         {(styles) => (
-                                            <Card
+                                            <Link
+                                                href={record.link}
+                                                target="_blank"
                                                 style={styles}
-                                                w={300}
-                                                withBorder
+                                                className={classes.cardLink}
                                             >
-                                                <Card.Section mb="sm">
-                                                    <Image
-                                                        height={200}
-                                                        width="100%"
-                                                        src={record.images.at(
-                                                            0
-                                                        )}
-                                                        alt="Airbnb image"
-                                                    />
-                                                </Card.Section>
-                                                <Flex justify="space-between">
-                                                    <Flex align="center">
-                                                        <ThemeIcon
-                                                            size="xs"
-                                                            color="yellow"
-                                                            variant="light"
-                                                        >
-                                                            <IconStarFilled />
-                                                        </ThemeIcon>
+                                                <Card
+                                                    w={300}
+                                                    withBorder
+                                                    className={classes.card}
+                                                >
+                                                    <Card.Section mb="sm">
+                                                        <Image
+                                                            height={200}
+                                                            width="100%"
+                                                            src={record.images.at(
+                                                                0
+                                                            )}
+                                                            alt="Airbnb image"
+                                                        />
+                                                    </Card.Section>
+                                                    <Flex justify="space-between">
+                                                        <Flex align="center">
+                                                            <ThemeIcon
+                                                                size="xs"
+                                                                color="yellow"
+                                                                variant="light"
+                                                            >
+                                                                <IconStarFilled />
+                                                            </ThemeIcon>
+                                                            <Text
+                                                                fw={600}
+                                                                size="sm"
+                                                                c="gray"
+                                                                style={{
+                                                                    marginLeft:
+                                                                        "6px",
+                                                                }}
+                                                            >
+                                                                {record.ratings
+                                                                    .split(
+                                                                        "out of 5"
+                                                                    )
+                                                                    .at(0)}
+                                                            </Text>
+                                                        </Flex>
                                                         <Text
                                                             fw={600}
-                                                            size="sm"
-                                                            c="gray"
-                                                            style={{
-                                                                marginLeft:
-                                                                    "6px",
-                                                            }}
+                                                            c="green"
+                                                            mt="xs"
                                                         >
-                                                            {record.ratings
-                                                                .split(
-                                                                    "out of 5"
-                                                                )
-                                                                .at(0)}
+                                                            ${record.price} /
+                                                            night
                                                         </Text>
                                                     </Flex>
-                                                    <Text
-                                                        fw={600}
-                                                        c="green"
-                                                        mt="xs"
-                                                    >
-                                                        ${record.price} / night
-                                                    </Text>
-                                                </Flex>
-                                            </Card>
+                                                </Card>
+                                            </Link>
                                         )}
                                     </Transition>
                                 </ROverlay>
