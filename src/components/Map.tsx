@@ -40,7 +40,6 @@ interface IMapProps {
     isLoading: boolean;
     data: RouterOutput["home"]["getPage"] | undefined;
     sync: RouterOutput["home"]["createSync"];
-    previousSyncId: string | undefined;
     map: {
         width: number;
         height: number;
@@ -49,15 +48,7 @@ interface IMapProps {
     onMove: (_: BoundingBox) => void;
 }
 
-const Map = ({
-    isLoading,
-    data,
-    sync,
-    previousSyncId,
-    map,
-    page,
-    onMove,
-}: IMapProps) => {
+const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
     const [selected, setSelected] = useState<null | string>(null);
     const [viewed, setViewed] = useState<Array<string>>([]);
     const [view, setView] = useState<RView>({
@@ -101,7 +92,7 @@ const Map = ({
     };
 
     useEffect(() => {
-        if (!previousSyncId) {
+        if (!sync.clientBoundingBox) {
             setView({
                 center: fromLonLat([
                     sync.midpoint.longitude,
@@ -116,7 +107,7 @@ const Map = ({
                 ),
             });
         }
-    }, [previousSyncId, sync.boundingBox, sync.midpoint, map]);
+    }, [sync.clientBoundingBox, sync.boundingBox, sync.midpoint, map]);
 
     return (
         <RMap
