@@ -44,14 +44,14 @@ const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
     const createFolder = api.favorite.createFolder.useMutation({
         onSuccess: () => {
             setFolderName("");
-            utils.favorite.getFolders.refetch();
+            void utils.favorite.getFolders.refetch();
         },
     });
 
     useEffect(() => {
         const defaultFolder = folders.data?.at(0)?.id;
         if (defaultFolder) onChange(defaultFolder);
-    }, [folders.data]);
+    }, [folders.data, onChange]);
 
     return (
         <>
