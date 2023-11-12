@@ -91,7 +91,9 @@ const FilterBar = ({ onChange }: IFilterBarProps) => {
     const ref = useRef<HTMLInputElement>(null);
 
     const handleSubmit = (values: FormValues): void => {
-        const query = Object.values(values).join(", ");
+        const query = Object.values(values)
+            .filter((value: string) => value.length > 0)
+            .join(", ");
         onChange(query);
         setSearch(query);
         close();
