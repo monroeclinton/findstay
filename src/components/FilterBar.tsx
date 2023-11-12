@@ -14,6 +14,8 @@ export interface FormValues {
 }
 
 const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
+    const [searchParams, setQueryParams] = useQueryParams();
+
     const form = useForm<FormValues>({
         initialValues: {
             neighborhood: "",
@@ -22,8 +24,28 @@ const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
         },
     });
 
+    const handleSubmit = (values: FormValues) => {
+        setQueryParams(values);
+        onSubmit(values);
+    };
+
+    useEffect(() => {
+        Object.keys(form.values)
+            .filter(
+                (key) =>
+                    form.values[key as keyof FormValues].length === 0 &&
+                    searchParams.get(key)?.length
+            )
+            .forEach((key) => {
+                form.setValues({
+                    ...form.values,
+                    [key]: searchParams.get(key),
+                });
+            });
+    }, [form, searchParams]);
+
     return (
-        <form onSubmit={form.onSubmit(onSubmit)}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
             <TextInput
                 label="Name"
                 placeholder="Mission District"
@@ -56,28 +78,19 @@ const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
 
 interface IFilterBarProps {
     onChange: (_: string) => void;
-    values: FormValues;
 }
 
 const FilterBar = ({ onChange }: IFilterBarProps) => {
-    const [queryParams, setQueryParams] = useQueryParams();
-    const [search, setSearch] = useState<string | null>(null);
+    const [search, setSearch] = useState("");
     const [opened, { open, close }] = useDisclosure(false);
     const ref = useRef<HTMLInputElement>(null);
 
     const handleSubmit = (values: FormValues): void => {
         const query = Object.values(values).join(", ");
-        setQueryParams({ q: query });
+        onChange(query);
         setSearch(query);
-        onChange(values);
         close();
     };
-
-    useEffect(() => {
-        if (queryParams.get("q") && !search) {
-            setSearch(queryParams.get("q"));
-        }
-    }, [search, queryParams]);
 
     return (
         <Flex
@@ -98,7 +111,7 @@ const FilterBar = ({ onChange }: IFilterBarProps) => {
                 <TextInput
                     w="100%"
                     label="Location"
-                    value={search || ""}
+                    value={search}
                     readOnly
                     ref={ref}
                     onChange={() => ({})}
