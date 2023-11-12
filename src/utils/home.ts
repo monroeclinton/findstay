@@ -68,7 +68,7 @@ export const addComputedFields = async (
                 (supermarket) => supermarket.airbnbId === location.id
             )?.distance as number,
             images: location.images,
-            link: "https://airbnb.com/rooms/" + location.id,
+            link: "https://airbnb.com/rooms/" + location.airbnbId,
             isFavorited: favoriteIds.includes(location.id),
         });
     }
