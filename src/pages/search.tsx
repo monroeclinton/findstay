@@ -33,18 +33,17 @@ const Search: FindBasePage = () => {
     const [activePage, setPage] = useState(0);
 
     const [searchParams, setQueryParams] = useQueryParams();
-    const [filters, setFilters] = useState<
-        SearchFilters & { initialized: boolean }
-    >({
-        initialized: false,
+    const [initialized, setInitialized] = useState(false);
+    const [filters, setFilters] = useState<SearchFilters>({
         neighborhood: "",
         city: "",
         country: "",
+        maxPrice: null,
     });
     const queryFilters: SearchFilters = Object.keys(filters)
         .filter(
             (key) =>
-                filters[key as keyof SearchFilters].length === 0 &&
+                !filters[key as keyof SearchFilters] &&
                 searchParams.get(key)?.length
         )
         .reduce(
@@ -96,20 +95,15 @@ const Search: FindBasePage = () => {
     const handleSearch = (filters: SearchFilters) => {
         setBoundingBox(null);
         setQueryParams(filters);
-        setFilters({
-            ...filters,
-            initialized: true,
-        });
+        setFilters(filters);
     };
 
     useEffect(() => {
-        if (filters.initialized || !queryFilters) return;
+        if (initialized || !queryFilters) return;
 
-        setFilters({
-            ...queryFilters,
-            initialized: true,
-        });
-    }, [filters, queryFilters]);
+        setFilters(queryFilters);
+        setInitialized(true);
+    }, [filters, queryFilters, initialized]);
 
     useEffect(() => {
         const timeout = setTimeout(

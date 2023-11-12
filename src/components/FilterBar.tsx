@@ -1,6 +1,15 @@
-import { Button, Flex, Group, Modal, TextInput } from "@mantine/core";
+import {
+    ActionIcon,
+    Button,
+    Flex,
+    Group,
+    Modal,
+    NumberInput,
+    TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
+import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
 import { useRef } from "react";
 
 export const FILTER_BAR_HEIGHT = "85px";
@@ -9,6 +18,7 @@ export interface SearchFilters {
     neighborhood: string;
     city: string;
     country: string;
+    maxPrice: number | null;
 }
 
 export const filtersToString = (filters: SearchFilters): string =>
@@ -51,6 +61,16 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                 {...form.getInputProps("country")}
             />
 
+            <NumberInput
+                mt="md"
+                label="Max Price"
+                placeholder="100"
+                leftSection={<IconCurrencyDollar />}
+                decimalScale={2}
+                fixedDecimalScale
+                {...form.getInputProps("maxPrice")}
+            />
+
             <Group mt="md">
                 <Button type="submit">Search</Button>
             </Group>
@@ -87,6 +107,10 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
                 style={{
                     flex: 1,
                 }}
+                onClick={() => {
+                    ref.current?.blur();
+                    open();
+                }}
             >
                 <TextInput
                     w="100%"
@@ -95,10 +119,11 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
                     readOnly
                     ref={ref}
                     onChange={() => ({})}
-                    onFocus={() => {
-                        ref.current?.blur();
-                        open();
-                    }}
+                    rightSection={
+                        <ActionIcon variant="filled">
+                            <IconAdjustments />
+                        </ActionIcon>
+                    }
                 />
             </Flex>
         </Flex>
