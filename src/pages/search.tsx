@@ -12,9 +12,11 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
-import FilterBar, { FormValues } from "~/components/FilterBar";
+import FilterBar, { type SearchFilters } from "~/components/FilterBar";
+import { filtersToString } from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { useQueryParams } from "~/hooks/useQueryParams";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
@@ -30,7 +32,26 @@ const Map = dynamic(() => import("~/components/Map"), {
 const Search: FindBasePage = () => {
     const [activePage, setPage] = useState(0);
 
-    const [search, setSearch] = useState<string>("");
+    const [searchParams, setQueryParams] = useQueryParams();
+    const [filters, setFilters] = useState<
+        SearchFilters & { initialized: boolean }
+    >({
+        initialized: false,
+        neighborhood: "",
+        city: "",
+        country: "",
+    });
+    const queryFilters: SearchFilters = Object.keys(filters)
+        .filter(
+            (key) =>
+                filters[key as keyof SearchFilters].length === 0 &&
+                searchParams.get(key)?.length
+        )
+        .reduce(
+            (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
+            filters
+        );
+    const search = filtersToString(filters);
 
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
@@ -72,10 +93,23 @@ const Search: FindBasePage = () => {
         }
     };
 
-    const handleSearch = (value: string) => {
+    const handleSearch = (filters: SearchFilters) => {
         setBoundingBox(null);
-        setSearch(value);
+        setQueryParams(filters);
+        setFilters({
+            ...filters,
+            initialized: true,
+        });
     };
+
+    useEffect(() => {
+        if (filters.initialized || !queryFilters) return;
+
+        setFilters({
+            ...queryFilters,
+            initialized: true,
+        });
+    }, [filters, queryFilters]);
 
     useEffect(() => {
         const timeout = setTimeout(
@@ -110,7 +144,7 @@ const Search: FindBasePage = () => {
                         }}
                         ref={mapContainerRef}
                     >
-                        <FilterBar onChange={handleSearch} />
+                        <FilterBar onChange={handleSearch} values={filters} />
                         {sync.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
