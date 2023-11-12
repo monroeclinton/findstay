@@ -23,10 +23,13 @@ import {
     IconStarFilled,
 } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import { type AppRouter } from "~/server/api/root";
 import { api } from "~/utils/api";
+
+import classes from "./HomeCard.module.css";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
@@ -145,70 +148,83 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
     };
 
     return (
-        <Card withBorder px="lg" py="xl" key={home.id} {...props}>
-            <ActionIcon
-                onClick={handleFavorite}
-                size="lg"
-                variant="white"
-                color="pink"
-                style={{
-                    position: "absolute",
-                    marginTop: "4px",
-                    marginLeft: "4px",
-                }}
+        <Link href={home.link} target="_blank" className={classes.cardLink}>
+            <Card
+                withBorder
+                px="lg"
+                py="xl"
+                key={home.id}
+                className={classes.card}
+                {...props}
             >
-                {!home.isFavorited && <IconHeart />}
-                {home.isFavorited && <IconHeartFilled />}
-            </ActionIcon>
-            {home.images.length > 0 && (
-                <Card.Section inheritPadding>
-                    <SimpleGrid cols={3}>
-                        {home.images.slice(0, 3).map((image) => (
-                            <Image
-                                alt="Airbnb image"
-                                h={200}
-                                src={image}
-                                key={image}
-                                radius="sm"
-                            />
-                        ))}
-                    </SimpleGrid>
-                </Card.Section>
-            )}
-            <Card.Section inheritPadding mt="md">
-                <Group justify="space-between">
-                    <Flex direction="column">
-                        <Flex align="center">
-                            <ThemeIcon size="xs" color="yellow" variant="light">
-                                <IconStarFilled />
-                            </ThemeIcon>
-                            <Text
-                                fw={600}
-                                size="sm"
-                                c="gray"
-                                style={{
-                                    marginLeft: "6px",
-                                }}
-                            >
-                                {home.ratings.split("out of 5").at(0)}
+                <ActionIcon
+                    onClick={handleFavorite}
+                    size="lg"
+                    variant="white"
+                    color="pink"
+                    style={{
+                        position: "absolute",
+                        marginTop: "4px",
+                        marginLeft: "4px",
+                    }}
+                >
+                    {!home.isFavorited && <IconHeart />}
+                    {home.isFavorited && <IconHeartFilled />}
+                </ActionIcon>
+                {home.images.length > 0 && (
+                    <Card.Section inheritPadding>
+                        <SimpleGrid cols={3}>
+                            {home.images.slice(0, 3).map((image) => (
+                                <Image
+                                    alt="Airbnb image"
+                                    h={200}
+                                    src={image}
+                                    key={image}
+                                    radius="sm"
+                                />
+                            ))}
+                        </SimpleGrid>
+                    </Card.Section>
+                )}
+                <Card.Section inheritPadding mt="md">
+                    <Group justify="space-between">
+                        <Flex direction="column">
+                            <Flex align="center">
+                                <ThemeIcon
+                                    size="xs"
+                                    color="yellow"
+                                    variant="light"
+                                >
+                                    <IconStarFilled />
+                                </ThemeIcon>
+                                <Text
+                                    fw={600}
+                                    size="sm"
+                                    c="gray"
+                                    style={{
+                                        marginLeft: "6px",
+                                    }}
+                                >
+                                    {home.ratings.split("out of 5").at(0)}
+                                </Text>
+                            </Flex>
+                            <Text fw={600} c="green" mt="xs">
+                                ${home.price} / night
                             </Text>
                         </Flex>
-                        <Text fw={600} c="green" mt="xs">
-                            ${home.price} / night
-                        </Text>
-                    </Flex>
-                    <Text fw={500}>{home.name}</Text>
-                </Group>
-            </Card.Section>
-            <Card.Section inheritPadding mt="md">
-                <Text c="dimmed" size="xs" tt="uppercase" fw={700}>
-                    Supermarket
-                </Text>
-                <Text fw={400} size="xl">
-                    {home.supermarket} meters
-                </Text>
-            </Card.Section>
-        </Card>
+                        <Text fw={500}>{home.name}</Text>
+                    </Group>
+                </Card.Section>
+                <Card.Section inheritPadding mt="md">
+                    <Text c="dimmed" size="xs" tt="uppercase" fw={700}>
+                        Supermarket
+                    </Text>
+                    <Text fw={400} size="xl">
+                        {home.supermarket} meters
+                    </Text>
+                </Card.Section>
+            </Card>
+        </Link>
     );
 };
 

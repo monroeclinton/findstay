@@ -1,0 +1,8 @@
+.cardLink {
+    text-decoration: none;
+}
+
+.card:hover {
+    box-shadow: var(--mantine-shadow-sm);
+    transition: ease-in-out 100ms;
+}
