@@ -6,17 +6,15 @@ import {
     Text,
     ThemeIcon,
 } from "@mantine/core";
-import { useDebouncedState, useDebouncedValue } from "@mantine/hooks";
+import { useDebouncedState } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
-import FilterBar from "~/components/FilterBar";
+import FilterBar, { FormValues } from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
-import { usePrevious } from "~/hooks/usePrevious";
-import { useQueryParams } from "~/hooks/useQueryParams";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
@@ -29,16 +27,11 @@ const Map = dynamic(() => import("~/components/Map"), {
     ),
     ssr: false,
 });
-
 const Search: FindBasePage = () => {
-    const utils = api.useContext();
     const [activePage, setPage] = useState(0);
 
-    const [queryParams, setQueryParams] = useQueryParams<{ q: string }>();
-    const query = queryParams.get("q");
-    const [search, setSearch] = useState<string | null>(null);
+    const [search, setSearch] = useState<string>("");
 
-    const [debouncedSearch] = useDebouncedValue(search || "", 200);
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
         100
@@ -47,7 +40,7 @@ const Search: FindBasePage = () => {
 
     const sync = api.home.createSync.useQuery(
         {
-            search: debouncedSearch,
+            search,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,
@@ -55,13 +48,11 @@ const Search: FindBasePage = () => {
             boundingBox,
         },
         {
-            enabled: debouncedSearch.length > 3 && !!mapContainerRef.current,
+            enabled: search.length > 3 && !!mapContainerRef.current,
             refetchOnWindowFocus: false,
-            keepPreviousData: debouncedSearch.length > 3,
+            keepPreviousData: search.length > 3,
         }
     );
-
-    const [previousSyncId, setPreviousId] = usePrevious(sync.data?.id);
 
     const homes = api.home.getPage.useQuery(
         {
@@ -71,7 +62,7 @@ const Search: FindBasePage = () => {
         {
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
-            keepPreviousData: debouncedSearch.length > 3,
+            keepPreviousData: search.length > 3,
         }
     );
 
@@ -83,16 +74,8 @@ const Search: FindBasePage = () => {
 
     const handleSearch = (value: string) => {
         setBoundingBox(null);
-        setPreviousId(undefined);
         setSearch(value);
-        setQueryParams({ q: value });
     };
-
-    useEffect(() => {
-        if (search === null && query) {
-            setSearch(query);
-        }
-    }, [search, query]);
 
     useEffect(() => {
         const timeout = setTimeout(
@@ -106,11 +89,6 @@ const Search: FindBasePage = () => {
 
         return () => clearTimeout(timeout);
     }, [activePage]);
-
-    if (debouncedSearch.length <= 3 && (sync.data || homes.data)) {
-        void utils.home.createSync.reset();
-        void utils.home.getPage.reset();
-    }
 
     return (
         <>
@@ -132,10 +110,7 @@ const Search: FindBasePage = () => {
                         }}
                         ref={mapContainerRef}
                     >
-                        <FilterBar
-                            search={search || ""}
-                            setSearch={handleSearch}
-                        />
+                        <FilterBar onChange={handleSearch} />
                         {sync.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
@@ -146,7 +121,6 @@ const Search: FindBasePage = () => {
                                 isLoading={sync.isFetching || homes.isFetching}
                                 data={homes.data}
                                 sync={sync.data}
-                                previousSyncId={previousSyncId}
                                 map={{
                                     width: mapContainerRef.current.clientWidth,
                                     height: mapContainerRef.current
@@ -156,7 +130,7 @@ const Search: FindBasePage = () => {
                                 onMove={handleMove}
                             />
                         )}
-                        {debouncedSearch.length === 0 && (
+                        {search.length === 0 && (
                             <Center
                                 style={{
                                     flex: 1,
