@@ -55,11 +55,30 @@ const SearchForm = ({ onSubmit }: { onSubmit: (_: FormValues) => void }) => {
 };
 
 interface IFilterBarProps {
-    search: string;
-    setSearch: (_: string) => void;
+    onChange: (_: string) => void;
+    values: FormValues;
 }
 
-const FilterBar = ({ search, setSearch }: IFilterBarProps) => {
+const FilterBar = ({ onChange }: IFilterBarProps) => {
+    const [queryParams, setQueryParams] = useQueryParams();
+    const [search, setSearch] = useState<string | null>(null);
+    const [opened, { open, close }] = useDisclosure(false);
+    const ref = useRef<HTMLInputElement>(null);
+
+    const handleSubmit = (values: FormValues): void => {
+        const query = Object.values(values).join(", ");
+        setQueryParams({ q: query });
+        setSearch(query);
+        onChange(values);
+        close();
+    };
+
+    useEffect(() => {
+        if (queryParams.get("q") && !search) {
+            setSearch(queryParams.get("q"));
+        }
+    }, [search, queryParams]);
+
     return (
         <Flex
             style={{
@@ -67,6 +86,10 @@ const FilterBar = ({ search, setSearch }: IFilterBarProps) => {
                 width: "100%",
             }}
         >
+            <Modal opened={opened} onClose={close} title="Search" centered>
+                <SearchForm onSubmit={handleSubmit} />
+            </Modal>
+
             <Flex
                 style={{
                     flex: 1,
@@ -75,8 +98,14 @@ const FilterBar = ({ search, setSearch }: IFilterBarProps) => {
                 <TextInput
                     w="100%"
                     label="Location"
-                    value={search}
-                    onChange={(event) => setSearch(event.currentTarget.value)}
+                    value={search || ""}
+                    readOnly
+                    ref={ref}
+                    onChange={() => ({})}
+                    onFocus={() => {
+                        ref.current?.blur();
+                        open();
+                    }}
                 />
             </Flex>
         </Flex>
