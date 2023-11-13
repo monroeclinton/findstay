@@ -43,7 +43,7 @@ const Search: FindBasePage = () => {
         neighborhood: "",
         city: "",
         country: "",
-        maxPrice: null,
+        priceMax: null,
     });
     const queryFilters: SearchFilters = Object.keys(filters)
         .filter(
@@ -73,6 +73,7 @@ const Search: FindBasePage = () => {
     const sync = api.home.createSync.useQuery(
         {
             search,
+            priceMax: filters.priceMax ? parseInt(filters.priceMax) : null,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,

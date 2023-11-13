@@ -75,6 +75,7 @@ const headers = {
 const fetchAirbnbApi = async (
     apiKey: string,
     search: string,
+    priceMax: number | undefined | null,
     neLatitude: number,
     neLongitude: number,
     swLatitude: number,
@@ -136,6 +137,12 @@ const fetchAirbnbApi = async (
                             filterName: "query",
                             filterValues: [search],
                         },
+                        priceMax
+                            ? {
+                                  filterName: "priceMax",
+                                  filterValues: [priceMax.toString()],
+                              }
+                            : {},
                         {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
@@ -217,6 +224,12 @@ const fetchAirbnbApi = async (
                             filterName: "query",
                             filterValues: [search],
                         },
+                        priceMax
+                            ? {
+                                  filterName: "priceMax",
+                                  filterValues: [priceMax.toString()],
+                              }
+                            : {},
                         {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
@@ -291,6 +304,7 @@ const scrapeAirbnbLocations = async (
     const scrape = await fetchAirbnbApi(
         sync.apiKey,
         sync.search,
+        sync.priceMax,
         sync.neLatitude.toNumber(),
         sync.neLongitude.toNumber(),
         sync.swLatitude.toNumber(),
@@ -343,6 +357,7 @@ const scrapeAirbnbApiKey = async (search: string) => {
 
 export const createAirbnbSync = async (
     search: string,
+    priceMax: number | undefined | null,
     dimensions: { width: number; height: number },
     clientBoundingBox: BoundingBox | undefined | null
 ): Promise<AirbnbLocationSync | null> => {
@@ -350,6 +365,7 @@ export const createAirbnbSync = async (
         where: {
             AND: [
                 { search: search },
+                { priceMax: priceMax },
                 {
                     createdAt: {
                         gte: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
@@ -394,6 +410,7 @@ export const createAirbnbSync = async (
     const locationResults = await fetchAirbnbApi(
         apiKey,
         search,
+        priceMax,
         boundingBox.neLat,
         boundingBox.neLng,
         boundingBox.swLat,
@@ -410,6 +427,7 @@ export const createAirbnbSync = async (
                 INSERT INTO airbnb_location_sync (
                     id,
                     search,
+                    "priceMax",
                     "apiKey",
                     cursors,
                     "neBBox",
@@ -423,6 +441,7 @@ export const createAirbnbSync = async (
                 VALUES (
                     ${createId()},
                     ${search},
+                    ${priceMax},
                     ${apiKey},
                     ${cursors},
                     ST_POINT(
