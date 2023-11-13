@@ -50,6 +50,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                 withAsterisk
                 label="City"
                 placeholder="San Francisco"
+                required={true}
                 {...form.getInputProps("city")}
             />
 
@@ -58,6 +59,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                 withAsterisk
                 label="Country"
                 placeholder="United States"
+                required={true}
                 {...form.getInputProps("country")}
             />
 
