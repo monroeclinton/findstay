@@ -3,6 +3,8 @@ import {
     Flex,
     Loader,
     Pagination,
+    Pill,
+    PillGroup,
     Text,
     ThemeIcon,
 } from "@mantine/core";
@@ -53,7 +55,14 @@ const Search: FindBasePage = () => {
             (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
             filters
         );
-    const search = filtersToString(filters);
+    const search = filtersToGeoString(filters);
+    const filterPills = Object.entries(filters)
+        .filter(([_, value]) => value !== null && value !== "")
+        .map(([key, value]) => (
+            <Pill style={{ textTransform: "capitalize" }} key={key}>
+                {key}: {value}
+            </Pill>
+        ));
 
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
@@ -188,6 +197,9 @@ const Search: FindBasePage = () => {
                             flexBasis: "60%",
                         }}
                     >
+                        {filterPills.length > 0 && (
+                            <PillGroup>{filterPills}</PillGroup>
+                        )}
                         {!homes.isInitialLoading &&
                             homes.data?.locations.length === 0 && (
                                 <Center
