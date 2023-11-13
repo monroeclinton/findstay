@@ -234,7 +234,7 @@ const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
                                                 ? "black"
                                                 : viewed.includes(record.id)
                                                 ? "gray"
-                                                : "pink"
+                                                : "indigo"
                                         }
                                         onClick={() => {
                                             setSelected(record.id);
