@@ -37,11 +37,14 @@ model AirbnbApi {
     apiKey      String
     createdAt   DateTime                             @default(now())
     updatedAt   DateTime                             @updatedAt
+
+    @@map("airbnb_api")
 }
 
 model AirbnbLocationSync {
     id          String                               @id @default(cuid())
     search      String
+    priceMax    Int?
     apiKey      String
     cursors     String[]
     pages       AirbnbLocationSyncPage[]
