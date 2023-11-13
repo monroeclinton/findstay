@@ -115,7 +115,7 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
                 <TextInput
                     w="100%"
                     label="Location"
-                    value={filtersToString(values)}
+                    value={filtersToGeoString(values)}
                     readOnly
                     ref={ref}
                     onChange={() => ({})}

@@ -12,8 +12,11 @@ import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
-import FilterBar, { type SearchFilters } from "~/components/FilterBar";
-import { filtersToString } from "~/components/FilterBar";
+import FilterBar, {
+    FILTER_BAR_HEIGHT,
+    type SearchFilters,
+} from "~/components/FilterBar";
+import { filtersToGeoString } from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { useQueryParams } from "~/hooks/useQueryParams";
