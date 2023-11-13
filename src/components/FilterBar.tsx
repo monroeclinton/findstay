@@ -18,10 +18,10 @@ export interface SearchFilters {
     neighborhood: string;
     city: string;
     country: string;
-    maxPrice: number | null;
+    priceMax: string | null;
 }
 
-export const filtersToString = (filters: SearchFilters): string =>
+export const filtersToGeoString = (filters: SearchFilters): string =>
     [filters.neighborhood, filters.city, filters.country]
         .filter((value: string) => value.length > 0)
         .join(", ");
@@ -66,9 +66,9 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                 label="Max Price"
                 placeholder="100"
                 leftSection={<IconCurrencyDollar />}
-                decimalScale={2}
+                decimalScale={0}
                 fixedDecimalScale
-                {...form.getInputProps("maxPrice")}
+                {...form.getInputProps("priceMax")}
             />
 
             <Group mt="md">
