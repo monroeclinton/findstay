@@ -1,4 +1,5 @@
-import { AppShell, Center, Flex, Title } from "@mantine/core";
+import { AppShell, Center, CloseButton, Flex, Title } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconAdjustments, IconHeart, IconHome } from "@tabler/icons-react";
 
 import UserButton from "~/components/Button/UserButton";
@@ -18,15 +19,16 @@ const items: Item[] = [
     { label: "Settings", icon: IconAdjustments, link: "/settings" },
 ];
 
-const Side = () => {
+const Side = ({ toggleHeader }: { toggleHeader: () => void }) => {
+    const isMobile = useMediaQuery(`(max-width: ${SIDE_BREAKPOINT}px)`);
     const links = items.map((item) => <Link {...item} key={item.label} />);
 
     return (
-        <AppShell.Navbar
-            w={{ base: SIDE_WIDTH }}
-            p="md"
-            className={classes.navbar}
-        >
+        <AppShell.Navbar p="md" className={classes.navbar}>
+            {isMobile && (
+                <CloseButton size="xl" ml="auto" onClick={toggleHeader} />
+            )}
+
             <div className={classes.header}>
                 <Center>
                     <Title>FindBase</Title>
