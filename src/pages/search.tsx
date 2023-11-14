@@ -5,10 +5,11 @@ import {
     Pagination,
     Pill,
     PillGroup,
+    SegmentedControl,
     Text,
     ThemeIcon,
 } from "@mantine/core";
-import { useDebouncedState } from "@mantine/hooks";
+import { useDebouncedState, useMediaQuery } from "@mantine/hooks";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -18,6 +19,7 @@ import FilterBar, { type SearchFilters } from "~/components/FilterBar";
 import { filtersToGeoString } from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
+import { SIDE_BREAKPOINT } from "~/components/Side";
 import { useQueryParams } from "~/hooks/useQueryParams";
 import { type FindBasePage } from "~/types/next";
 import { api } from "~/utils/api";
@@ -31,8 +33,16 @@ const Map = dynamic(() => import("~/components/Map"), {
     ),
     ssr: false,
 });
+
+const CONTROL = {
+    LIST: "LIST",
+    MAP: "MAP",
+};
+
 const Search: FindBasePage = () => {
+    const isMobile = useMediaQuery(`(max-width: ${SIDE_BREAKPOINT}px)`);
     const [activePage, setPage] = useState(0);
+    const [control, setControl] = useState<string>(CONTROL.LIST);
 
     const [searchParams, setQueryParams] = useQueryParams();
     const [initialized, setInitialized] = useState(false);
@@ -136,10 +146,34 @@ const Search: FindBasePage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout container={false}>
+                {isMobile && sync.data && (
+                    <>
+                        <FilterBar onChange={handleSearch} values={filters} />
+
+                        {filterPills.length > 0 && (
+                            <PillGroup mb="md">{filterPills}</PillGroup>
+                        )}
+
+                        <SegmentedControl
+                            value={control}
+                            onChange={setControl}
+                            data={[
+                                { label: "List", value: CONTROL.LIST },
+                                { label: "Map", value: CONTROL.MAP },
+                            ]}
+                        />
+                    </>
+                )}
+
                 <Flex columnGap="sm">
                     <Flex
                         direction="column"
                         align="start"
+                        display={
+                            isMobile && control !== CONTROL.MAP
+                                ? "none"
+                                : "flex"
+                        }
                         style={{
                             height: `calc(100vh - var(--mantine-spacing-sm) * 2)`,
                             flex: 1,
@@ -148,7 +182,13 @@ const Search: FindBasePage = () => {
                         }}
                         ref={mapContainerRef}
                     >
-                        <FilterBar onChange={handleSearch} values={filters} />
+                        {!isMobile && (
+                            <FilterBar
+                                onChange={handleSearch}
+                                values={filters}
+                            />
+                        )}
+
                         {sync.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>
                                 <Loader />
@@ -191,11 +231,16 @@ const Search: FindBasePage = () => {
                         direction="column"
                         rowGap="sm"
                         my="md"
+                        display={
+                            isMobile && control !== CONTROL.LIST
+                                ? "none"
+                                : "flex"
+                        }
                         style={{
-                            flexBasis: "60%",
+                            flexBasis: isMobile ? "100%" : "60%",
                         }}
                     >
-                        {filterPills.length > 0 && (
+                        {!isMobile && filterPills.length > 0 && (
                             <PillGroup>{filterPills}</PillGroup>
                         )}
                         {!homes.isInitialLoading &&
