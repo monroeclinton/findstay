@@ -12,7 +12,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
 import { useRef } from "react";
 
-export const FILTER_BAR_HEIGHT = "85px";
+export const FILTER_BAR_HEIGHT = "75px";
 
 export interface SearchFilters {
     neighborhood: string;
