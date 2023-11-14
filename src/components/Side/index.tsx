@@ -45,7 +45,10 @@ const Side = ({ toggleHeader }: { toggleHeader: () => void }) => {
             </Flex>
 
             <div className={classes.footer}>
-                <UserButton w="100%" />
+                <UserButton
+                    w="100%"
+                    position={isMobile ? "top-start" : "right-end"}
+                />
             </div>
         </AppShell.Navbar>
     );
