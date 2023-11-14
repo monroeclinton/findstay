@@ -1,6 +1,7 @@
 import {
     Avatar,
     Box,
+    type FloatingPosition,
     Group,
     Menu,
     rem,
@@ -17,17 +18,18 @@ import { signOut, useSession } from "next-auth/react";
 import classes from "./UserButton.module.css";
 
 interface UserButtonProps extends UnstyledButtonProps {
+    position: FloatingPosition;
     icon?: React.ReactNode;
 }
 
-const UserButton = ({ icon, ...others }: UserButtonProps) => {
+const UserButton = ({ position, icon, ...others }: UserButtonProps) => {
     const { data: sessionData } = useSession();
 
     return (
         <Menu
             width={250}
             transitionProps={{ transition: "rotate-right", duration: 100 }}
-            position="right-end"
+            position={position}
         >
             <Menu.Target>
                 <UnstyledButton className={classes.user} {...others}>
