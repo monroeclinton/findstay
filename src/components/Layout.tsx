@@ -43,7 +43,18 @@ const Layout = ({ children, container = true, ...props }: ILayoutProps) => {
             }}
             {...props}
         >
-            <Side />
+            <AppShell.Header hiddenFrom="sm">
+                <Group h="100%" px="lg">
+                    <Burger
+                        opened={opened}
+                        onClick={toggle}
+                        hiddenFrom="sm"
+                        size="sm"
+                    />
+                    <Title order={3}>FindBase</Title>
+                </Group>
+            </AppShell.Header>
+            <Side toggleHeader={toggle} />
             <AppShell.Main mx="sm">
                 {container === true ? (
                     <Container
