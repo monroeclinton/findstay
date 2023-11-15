@@ -146,7 +146,7 @@ const Search: FindBasePage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout container={false}>
-                {isMobile && sync.data && (
+                {isMobile && (
                     <>
                         <FilterBar onChange={handleSearch} values={filters} />
 
@@ -154,14 +154,16 @@ const Search: FindBasePage = () => {
                             <PillGroup mb="md">{filterPills}</PillGroup>
                         )}
 
-                        <SegmentedControl
-                            value={control}
-                            onChange={setControl}
-                            data={[
-                                { label: "List", value: CONTROL.LIST },
-                                { label: "Map", value: CONTROL.MAP },
-                            ]}
-                        />
+                        {sync.data && (
+                            <SegmentedControl
+                                value={control}
+                                onChange={setControl}
+                                data={[
+                                    { label: "List", value: CONTROL.LIST },
+                                    { label: "Map", value: CONTROL.MAP },
+                                ]}
+                            />
+                        )}
                     </>
                 )}
 
