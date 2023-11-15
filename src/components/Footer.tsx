@@ -4,7 +4,6 @@ import classes from "./Footer.module.css";
 
 const links = [
     { link: "mailto:support@findstay.io", label: "Support" },
-    { link: "/faq", label: "FAQ" },
     { link: "https://youtube.com/@monroeprograms", label: "YouTube" },
 ];
 

@@ -33,7 +33,10 @@ const Favorites: FindStayPage = () => {
                             Your payment was successful, you can now sign in
                             with the email you used to pay. If you have a
                             problem signing in,{" "}
-                            <Link href="/faq#no-login">read the FAQ</Link>.
+                            <Link href="mailto:support@findstay.io">
+                                contact support
+                            </Link>
+                            .
                         </Text>
                         <Button
                             size="md"
