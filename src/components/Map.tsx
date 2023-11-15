@@ -13,9 +13,10 @@ import { IconStarFilled } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import classNames from "classnames";
 import Link from "next/link";
+import { type MapBrowserEvent } from "ol";
 import { Point } from "ol/geom";
 import { fromLonLat, transformExtent } from "ol/proj";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     RControl,
     RFeature,
@@ -23,8 +24,8 @@ import {
     RMap,
     ROSM,
     ROverlay,
-    type RView,
 } from "rlayers";
+import type { RView } from "rlayers/RMap";
 
 import { type AppRouter } from "~/server/api/root";
 import {
@@ -63,34 +64,37 @@ const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
         ),
     });
 
-    const handleMove = (rmap: RMap) => {
-        const extent = transformExtent(
-            rmap.map.getView().calculateExtent(rmap.map.getSize()),
-            rmap.map.getView().getProjection(),
-            "EPSG:4326"
-        );
+    const handleMove = useCallback(
+        (e: MapBrowserEvent<UIEvent>) => {
+            const extent = transformExtent(
+                e.map.getView().calculateExtent(e.map.getSize()),
+                e.map.getView().getProjection(),
+                "EPSG:4326"
+            );
 
-        const neLat = extent[3];
-        const neLng = extent[2];
-        const swLat = extent[1];
-        const swLng = extent[0];
+            const neLat = extent[3];
+            const neLng = extent[2];
+            const swLat = extent[1];
+            const swLng = extent[0];
 
-        const round = (num: number, places: number): number =>
-            Math.round(num * 10 ** places + Number.EPSILON) / 10 ** places;
+            const round = (num: number, places: number): number =>
+                Math.round(num * 10 ** places + Number.EPSILON) / 10 ** places;
 
-        if (neLat && neLng && swLat && swLng) {
-            const newBoundingBox = {
-                neLat: round(neLat, 5),
-                neLng: round(neLng, 5),
-                swLat: round(swLat, 5),
-                swLng: round(swLng, 5),
-            };
+            if (neLat && neLng && swLat && swLng) {
+                const newBoundingBox = {
+                    neLat: round(neLat, 5),
+                    neLng: round(neLng, 5),
+                    swLat: round(swLat, 5),
+                    swLng: round(swLng, 5),
+                };
 
-            if (!boundingBoxEqual(newBoundingBox, sync.boundingBox)) {
-                onMove(newBoundingBox);
+                if (!boundingBoxEqual(newBoundingBox, sync.boundingBox)) {
+                    onMove(newBoundingBox);
+                }
             }
-        }
-    };
+        },
+        [onMove, sync.boundingBox]
+    );
 
     useEffect(() => {
         if (!sync.clientBoundingBox) {
