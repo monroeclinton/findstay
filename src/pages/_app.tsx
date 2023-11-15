@@ -9,10 +9,10 @@ import { SessionProvider } from "next-auth/react";
 import React from "react";
 
 import AuthGuard from "~/components/AuthGuard";
-import { type FindBaseAppProps } from "~/types/next";
+import { type FindStayAppProps } from "~/types/next";
 import { api } from "~/utils/api";
 
-const MyApp: React.FC<FindBaseAppProps> = ({
+const MyApp: React.FC<FindStayAppProps> = ({
     Component,
     pageProps: { session, ...pageProps },
 }) => {

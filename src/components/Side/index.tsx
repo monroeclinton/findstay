@@ -31,7 +31,7 @@ const Side = ({ toggleHeader }: { toggleHeader: () => void }) => {
 
             <div className={classes.header}>
                 <Center>
-                    <Title>FindBase</Title>
+                    <Title>FindStay</Title>
                 </Center>
             </div>
 

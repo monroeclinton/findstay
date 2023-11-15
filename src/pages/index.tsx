@@ -24,7 +24,7 @@ import { getSession } from "next-auth/react";
 
 import Footer from "~/components/Footer";
 import Header from "~/components/Header";
-import { type FindBasePage } from "~/types/next";
+import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 
 import classes from "./index.module.css";
@@ -82,7 +82,7 @@ const features = [
     },
 ];
 
-const Home: FindBasePage = () => {
+const Home: FindStayPage = () => {
     const createInvoice = api.invoice.create.useMutation({
         onSuccess: (data) => {
             window.location.href = data.url;
@@ -103,7 +103,7 @@ const Home: FindBasePage = () => {
     return (
         <>
             <Head>
-                <title>FindBase - Find your perfect stay</title>
+                <title>FindStay - Find your perfect stay</title>
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>

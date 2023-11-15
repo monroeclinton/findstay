@@ -18,7 +18,7 @@ import { type Session } from "next-auth";
 import { signIn, useSession } from "next-auth/react";
 
 import Layout from "~/components/Layout";
-import { type FindBasePage } from "~/types/next";
+import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 
 interface FormValues {
@@ -140,13 +140,13 @@ const SettingsForm = ({ sessionData }: { sessionData: Session }) => {
     );
 };
 
-const Settings: FindBasePage = () => {
+const Settings: FindStayPage = () => {
     const { status, data: sessionData } = useSession();
 
     return (
         <>
             <Head>
-                <title>FindBase - Settings</title>
+                <title>FindStay - Settings</title>
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>

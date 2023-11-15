@@ -12,13 +12,13 @@ import Head from "next/head";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-import { type FindBasePage } from "~/types/next";
+import { type FindStayPage } from "~/types/next";
 
-const Favorites: FindBasePage = () => {
+const Favorites: FindStayPage = () => {
     return (
         <>
             <Head>
-                <title>FindBase - Successful Purchase</title>
+                <title>FindStay - Successful Purchase</title>
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>

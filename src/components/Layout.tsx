@@ -51,7 +51,7 @@ const Layout = ({ children, container = true, ...props }: ILayoutProps) => {
                         hiddenFrom="sm"
                         size="sm"
                     />
-                    <Title order={3}>FindBase</Title>
+                    <Title order={3}>FindStay</Title>
                 </Group>
             </AppShell.Header>
             <Side toggleHeader={toggle} />

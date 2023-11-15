@@ -1,21 +1,21 @@
 version: "3"
 
 services:
-    database-findbase:
-        container_name: database-findbase
+    database-findstay:
+        container_name: findstay-database
         build:
             context: ./
             dockerfile: ./docker/postgresql/Dockerfile
         environment:
-            POSTGRES_DB: ${POSTGRES_DB:-findbase}
+            POSTGRES_DB: ${POSTGRES_DB:-findstay}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
-            POSTGRES_USER: ${POSTGRES_USER:-findbase}
+            POSTGRES_USER: ${POSTGRES_USER:-findstay}
         ports:
             - "5432:5432"
         volumes:
-            - db-findbase:/var/lib/postgresql/data:rw
+            - db-findstay:/var/lib/postgresql/data:rw
     node:
-        container_name: node-findbase
+        container_name: findstay-node
         user: node
         build:
             context: ./
@@ -27,10 +27,10 @@ services:
         ports:
             - "3000:3000"
         environment:
-            - DATABASE_URL=postgres://${POSTGRES_USER:-findbase}:${POSTGRES_PASSWORD:-password}@database-findbase/${POSTGRES_DB:-findbase}
+            - DATABASE_URL=postgres://${POSTGRES_USER:-findstay}:${POSTGRES_PASSWORD:-password}@findstay-database/${POSTGRES_DB:-findstay}
         depends_on:
-            - database-findbase
+            - findstay-database
 
 volumes:
     # postgres data
-    db-findbase:
+    db-findstay:

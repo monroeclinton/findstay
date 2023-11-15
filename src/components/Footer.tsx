@@ -3,7 +3,7 @@ import { Anchor, Container, Group, Text, Title } from "@mantine/core";
 import classes from "./Footer.module.css";
 
 const links = [
-    { link: "mailto:support@findbase.io", label: "Support" },
+    { link: "mailto:support@findstay.io", label: "Support" },
     { link: "/faq", label: "FAQ" },
     { link: "https://youtube.com/@monroeprograms", label: "YouTube" },
 ];
@@ -23,7 +23,7 @@ const Footer = () => {
     return (
         <nav className={classes.footer}>
             <Container className={classes.inner}>
-                <Title order={2}>FindBase</Title>
+                <Title order={2}>FindStay</Title>
 
                 <Group className={classes.links} ml="auto">
                     {items}
@@ -32,7 +32,7 @@ const Footer = () => {
 
             <Container className={classes.afterFooter}>
                 <Text c="dimmed" size="sm" m="auto">
-                    © 2023 FindBase. All rights reserved. - Built by{" "}
+                    © 2023 FindStay. All rights reserved. - Built by{" "}
                     <Anchor href="https://monroeclinton.com">Monroe</Anchor>
                 </Text>
             </Container>

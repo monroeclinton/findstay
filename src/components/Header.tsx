@@ -7,7 +7,7 @@ const Header = () => {
     return (
         <header className={classes.header}>
             <Container size="md" className={classes.inner}>
-                <Title order={2}>FindBase</Title>
+                <Title order={2}>FindStay</Title>
 
                 <Button
                     ml="auto"

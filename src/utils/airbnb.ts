@@ -368,7 +368,7 @@ export const createAirbnbSync = async (
                 { priceMax: priceMax },
                 {
                     createdAt: {
-                        gte: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+                        gte: new Date(Date.now() - 1000 * 60).toISOString(),
                     },
                 },
             ],

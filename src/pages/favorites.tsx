@@ -5,10 +5,10 @@ import { useState } from "react";
 
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
-import { type FindBasePage } from "~/types/next";
+import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 
-const Favorites: FindBasePage = () => {
+const Favorites: FindStayPage = () => {
     const [folder, setFolder] = useState<string | null>(null);
     const folders = api.favorite.getFolders.useQuery();
     const homes = api.favorite.getAll.useQuery({
@@ -18,7 +18,7 @@ const Favorites: FindBasePage = () => {
     return (
         <>
             <Head>
-                <title>FindBase - Favorites</title>
+                <title>FindStay - Favorites</title>
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>

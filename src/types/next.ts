@@ -6,19 +6,19 @@ import {
 import { type AppProps } from "next/app";
 import { type Session } from "next-auth";
 
-export type FindBasePage<P = any, IP = P> = NextPage<P, IP> & {
+export type FindStayPage<P = any, IP = P> = NextPage<P, IP> & {
     authRequired?: boolean;
 };
 
-export type FindBaseComponent = NextComponentType<
+export type FindStayComponent = NextComponentType<
     NextPageContext,
     any,
     object
 > &
-    Partial<FindBasePage>;
+    Partial<FindStayPage>;
 
-export type FindBaseAppProps<P = object> = AppProps<
+export type FindStayAppProps<P = object> = AppProps<
     P & { session: Session | null }
 > & {
-    Component: FindBaseComponent;
+    Component: FindStayComponent;
 };

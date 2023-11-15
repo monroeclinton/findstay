@@ -21,7 +21,7 @@ import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { SIDE_BREAKPOINT } from "~/components/Side";
 import { useQueryParams } from "~/hooks/useQueryParams";
-import { type FindBasePage } from "~/types/next";
+import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
 
@@ -39,7 +39,7 @@ const CONTROL = {
     MAP: "MAP",
 };
 
-const Search: FindBasePage = () => {
+const Search: FindStayPage = () => {
     const isMobile = useMediaQuery(`(max-width: ${SIDE_BREAKPOINT}px)`);
     const [activePage, setPage] = useState(0);
     const [control, setControl] = useState<string>(CONTROL.LIST);
@@ -141,7 +141,7 @@ const Search: FindBasePage = () => {
     return (
         <>
             <Head>
-                <title>FindBase</title>
+                <title>FindStay</title>
                 <meta name="description" content="Find the perfect stay." />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
