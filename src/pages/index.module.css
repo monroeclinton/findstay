@@ -8,6 +8,11 @@
     width: 400px;
     background-color: var(--mantine-color-gray-1);
     z-index: -1;
+
+    @media (max-width: $mantine-breakpoint-sm) {
+        height: 100px;
+        width: 100px;
+    }
 }
 
 .imageContainer .overlay:nth-child(1) {
