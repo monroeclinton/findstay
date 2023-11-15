@@ -15,6 +15,10 @@
     }
 }
 
+.imageContainer.mobile img {
+    max-width: 550px;
+}
+
 .imageContainer .overlay:nth-child(1) {
     top: -10px;
     left: -10px;
@@ -32,4 +36,18 @@
 
 .feature .icon {
     color: var(--mantine-color-indigo-filled);
+}
+
+.mobile {
+    display: none;
+}
+
+@media (max-width: $mantine-breakpoint-sm) {
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: block;
+    }
 }

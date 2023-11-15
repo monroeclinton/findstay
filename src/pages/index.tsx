@@ -1,3 +1,4 @@
+import { Carousel } from "@mantine/carousel";
 import {
     Box,
     Button,
@@ -12,12 +13,14 @@ import {
     Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { modals } from "@mantine/modals";
 import {
     IconAdjustments,
     IconArrowRight,
     IconNotes,
     IconRoute,
 } from "@tabler/icons-react";
+import classNames from "classnames";
 import { type GetServerSidePropsContext } from "next";
 import Head from "next/head";
 import { getSession } from "next-auth/react";
@@ -112,7 +115,15 @@ const Home: FindStayPage = () => {
 
             <Container>
                 <Title>Find your perfect Airbnb stay</Title>
-                <Box className={classes.imageContainer} p="md" my="xl">
+
+                <Box
+                    className={classNames(
+                        classes.imageContainer,
+                        classes.desktop
+                    )}
+                    p="md"
+                    my="xl"
+                >
                     <div className={classes.overlay} />
                     <div className={classes.overlay} />
 
@@ -121,6 +132,59 @@ const Home: FindStayPage = () => {
                             src="/assets/search.png"
                             alt="Image of the search page."
                         />
+                    </Card>
+                </Box>
+
+                <Box
+                    className={classNames(
+                        classes.imageContainer,
+                        classes.mobile
+                    )}
+                    p="md"
+                    my="xl"
+                >
+                    <div className={classes.overlay} />
+                    <div className={classes.overlay} />
+
+                    <Card shadow="sm" withBorder p="sm">
+                        <Carousel withIndicators slideGap="sm" slideSize="50%">
+                            <Carousel.Slide
+                                onClick={() =>
+                                    modals.open({
+                                        fullScreen: true,
+                                        children: (
+                                            <Image
+                                                src="/assets/search-mobile-listings.png"
+                                                alt="Image of the mobile search listings page."
+                                            />
+                                        ),
+                                    })
+                                }
+                            >
+                                <Image
+                                    src="/assets/search-mobile-listings.png"
+                                    alt="Image of the mobile search listings page."
+                                />
+                            </Carousel.Slide>
+                            <Carousel.Slide
+                                onClick={() =>
+                                    modals.open({
+                                        fullScreen: true,
+                                        children: (
+                                            <Image
+                                                src="/assets/search-mobile-map.png"
+                                                alt="Image of the mobile search map page."
+                                            />
+                                        ),
+                                    })
+                                }
+                            >
+                                <Image
+                                    src="/assets/search-mobile-map.png"
+                                    alt="Image of the mobile search map page."
+                                />
+                            </Carousel.Slide>
+                        </Carousel>
                     </Card>
                 </Box>
 
