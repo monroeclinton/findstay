@@ -1,6 +1,5 @@
 import { buffer } from "micro";
 import { type NextApiRequest, type NextApiResponse } from "next";
-import { NextResponse } from "next/server";
 import type { Stripe } from "stripe";
 
 import { env } from "~/env.mjs";

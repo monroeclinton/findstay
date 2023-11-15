@@ -42,7 +42,6 @@ const Feature = ({
     icon: Icon,
     title,
     description,
-    className,
     ...others
 }: FeatureProps) => {
     return (
