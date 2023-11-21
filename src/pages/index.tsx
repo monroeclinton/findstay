@@ -1,5 +1,6 @@
 import { Carousel } from "@mantine/carousel";
 import {
+    Alert,
     Box,
     Button,
     Card,
@@ -17,6 +18,7 @@ import { modals } from "@mantine/modals";
 import {
     IconAdjustments,
     IconArrowRight,
+    IconInfoCircle,
     IconNotes,
     IconRoute,
 } from "@tabler/icons-react";
@@ -211,6 +213,16 @@ const Home: FindStayPage = () => {
                             </Button>
                         </Group>
                     </form>
+                    {createInvoice.error?.message && (
+                        <Alert
+                            mt="md"
+                            variant="light"
+                            title="Could not sign up"
+                            icon={<IconInfoCircle />}
+                        >
+                            {createInvoice.error?.message}
+                        </Alert>
+                    )}
                 </Box>
 
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={50} my="xl">
