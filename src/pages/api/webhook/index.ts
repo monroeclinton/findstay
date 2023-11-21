@@ -44,8 +44,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     data = event.data.object;
 
                     if (data.customer_email) {
-                        await prisma.invoice.create({
-                            data: {
+                        await prisma.invoice.upsert({
+                            where: {
+                                txId: data.id,
+                            },
+                            update: {
+                                email: data.customer_email,
+                                paid: true,
+                            },
+                            create: {
                                 email: data.customer_email,
                                 paid: true,
                                 txId: data.id,
