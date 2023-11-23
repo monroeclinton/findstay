@@ -1,3 +1,5 @@
+import round from "~/utils/round";
+
 export type BoundingBox = {
     neLat: number;
     neLng: number;
@@ -10,10 +12,10 @@ export const boundingBoxEqual = (
     bBox2: BoundingBox
 ): boolean => {
     return (
-        bBox1.neLat === bBox2.neLat &&
-        bBox1.neLng === bBox2.neLng &&
-        bBox1.swLat === bBox2.swLat &&
-        bBox1.swLng === bBox2.swLng
+        round(bBox1.neLat, 2) === round(bBox2.neLat, 2) &&
+        round(bBox1.neLng, 2) === round(bBox2.neLng, 2) &&
+        round(bBox1.swLat, 2) === round(bBox2.swLat, 2) &&
+        round(bBox1.swLng, 2) === round(bBox2.swLng, 2)
     );
 };
 
