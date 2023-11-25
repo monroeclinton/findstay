@@ -33,6 +33,7 @@ import {
     boundingBoxEqual,
     zoomLevel,
 } from "~/utils/geometry";
+import round from "~/utils/round";
 
 import classes from "./Map.module.css";
 
@@ -76,9 +77,6 @@ const Map = ({ isLoading, data, sync, map, page, onMove }: IMapProps) => {
             const neLng = extent[2];
             const swLat = extent[1];
             const swLng = extent[0];
-
-            const round = (num: number, places: number): number =>
-                Math.round(num * 10 ** places + Number.EPSILON) / 10 ** places;
 
             if (neLat && neLng && swLat && swLng) {
                 const newBoundingBox = {
