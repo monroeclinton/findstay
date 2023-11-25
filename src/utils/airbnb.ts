@@ -8,7 +8,7 @@ import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
 
-import { type BoundingBox, zoomLevel } from "./geometry";
+import { type BoundingBox, latLngToBounds, zoomLevel } from "./geometry";
 import { searchToCoordinates } from "./nominatim";
 
 interface Coordinate {
@@ -390,7 +390,7 @@ export const createAirbnbSync = async (
     const apiKey = await scrapeAirbnbApiKey(search);
     const nominatim = await searchToCoordinates(search);
 
-    const boundingBox: BoundingBox = clientBoundingBox
+    let boundingBox: BoundingBox = clientBoundingBox
         ? clientBoundingBox
         : {
               neLat: nominatim.neLatitude.toNumber(),
@@ -399,13 +399,25 @@ export const createAirbnbSync = async (
               swLng: nominatim.swLongitude.toNumber(),
           };
 
-    zoomLevel(
+    let zoom = zoomLevel(
         boundingBox.neLat,
         boundingBox.neLng,
         boundingBox.swLat,
         boundingBox.swLng,
         { width: dimensions.width, height: dimensions.height }
     );
+
+    if (zoom < 12) {
+        zoom = 12;
+
+        boundingBox = latLngToBounds(
+            nominatim.latitude.toNumber(),
+            nominatim.longitude.toNumber(),
+            zoom,
+            dimensions.width,
+            dimensions.height
+        );
+    }
 
     const locationResults = await fetchAirbnbApi(
         apiKey,
