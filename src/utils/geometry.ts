@@ -7,6 +7,9 @@ export type BoundingBox = {
     swLng: number;
 };
 
+const EARTH_CIR_METERS = 40075016.686;
+const degreesPerMeter = 360 / EARTH_CIR_METERS;
+
 export const boundingBoxEqual = (
     bBox1: BoundingBox,
     bBox2: BoundingBox
@@ -43,6 +46,32 @@ export const zoomLevel = (
     const lngZoom = zoom(map.width, WORLD_DIM.width, lngFraction);
 
     return Math.min(latZoom, lngZoom, ZOOM_MAX);
+};
+
+// https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon./lat._to_bbox_2
+export const latLngToBounds = (
+    lat: number,
+    lng: number,
+    zoom: number,
+    width: number,
+    height: number
+) => {
+    const metersPerPixelEW = EARTH_CIR_METERS / Math.pow(2, zoom + 8);
+    const metersPerPixelNS =
+        (EARTH_CIR_METERS / Math.pow(2, zoom + 8)) * Math.cos(deg2rad(lat));
+
+    const shiftMetersEW = (width / 2) * metersPerPixelEW;
+    const shiftMetersNS = (height / 2) * metersPerPixelNS;
+
+    const shiftDegreesEW = shiftMetersEW * degreesPerMeter;
+    const shiftDegreesNS = shiftMetersNS * degreesPerMeter;
+
+    return {
+        swLat: lat - shiftDegreesNS,
+        swLng: lng - shiftDegreesEW,
+        neLat: lat + shiftDegreesNS,
+        neLng: lng + shiftDegreesEW,
+    };
 };
 
 // https://stackoverflow.com/q/18883601
