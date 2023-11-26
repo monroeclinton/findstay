@@ -106,6 +106,7 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
             </Modal>
 
             <Flex
+                id="filter-bar"
                 style={{
                     flex: 1,
                 }}
