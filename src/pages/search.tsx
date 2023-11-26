@@ -54,16 +54,7 @@ const Search: FindStayPage = () => {
         country: "",
         priceMax: null,
     });
-    const queryFilters: SearchFilters = Object.keys(filters)
-        .filter(
-            (key) =>
-                !filters[key as keyof SearchFilters] &&
-                searchParams.get(key)?.length
-        )
-        .reduce(
-            (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
-            filters
-        );
+
     const search = filtersToGeoString(filters);
     const filterPills = Object.entries(filters)
         .filter(([_, value]) => value !== null && value !== "")
@@ -135,11 +126,26 @@ const Search: FindStayPage = () => {
     }, [sync.data, sync.error]);
 
     useEffect(() => {
-        if (initialized || !queryFilters) return;
+        const isReady = Object.keys(filters).some((key) =>
+            searchParams.has(key)
+        );
+
+        if (initialized || !isReady) return;
+
+        const queryFilters: SearchFilters = Object.keys(filters)
+            .filter(
+                (key) =>
+                    !filters[key as keyof SearchFilters] &&
+                    searchParams.get(key)?.length
+            )
+            .reduce(
+                (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
+                structuredClone(filters)
+            );
 
         setFilters(queryFilters);
         setInitialized(true);
-    }, [filters, queryFilters, initialized]);
+    }, [filters, searchParams, initialized]);
 
     useEffect(() => {
         const timeout = setTimeout(
