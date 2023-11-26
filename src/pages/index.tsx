@@ -117,6 +117,42 @@ const Home: FindStayPage = () => {
             <Container>
                 <Title>Find your perfect Airbnb stay</Title>
 
+                <Box py="xl">
+                    <form
+                        onSubmit={form.onSubmit((values) =>
+                            createInvoice.mutate({
+                                email: values.email,
+                            })
+                        )}
+                    >
+                        <TextInput
+                            label="Your email"
+                            {...form.getInputProps("email")}
+                            onBlur={() => form.validate()}
+                        />
+
+                        <Group mt="md">
+                            <Button
+                                type="submit"
+                                rightSection={<IconArrowRight />}
+                                loading={createInvoice.isLoading}
+                            >
+                                Find your stay
+                            </Button>
+                        </Group>
+                    </form>
+                    {createInvoice.error?.message && (
+                        <Alert
+                            mt="md"
+                            variant="light"
+                            title="Could not sign up"
+                            icon={<IconInfoCircle />}
+                        >
+                            {createInvoice.error?.message}
+                        </Alert>
+                    )}
+                </Box>
+
                 <Box
                     className={classNames(
                         classes.imageContainer,
@@ -187,42 +223,6 @@ const Home: FindStayPage = () => {
                             </Carousel.Slide>
                         </Carousel>
                     </Card>
-                </Box>
-
-                <Box py="xl">
-                    <form
-                        onSubmit={form.onSubmit((values) =>
-                            createInvoice.mutate({
-                                email: values.email,
-                            })
-                        )}
-                    >
-                        <TextInput
-                            label="Your email"
-                            {...form.getInputProps("email")}
-                            onBlur={() => form.validate()}
-                        />
-
-                        <Group mt="md">
-                            <Button
-                                type="submit"
-                                rightSection={<IconArrowRight />}
-                                loading={createInvoice.isLoading}
-                            >
-                                Find your stay
-                            </Button>
-                        </Group>
-                    </form>
-                    {createInvoice.error?.message && (
-                        <Alert
-                            mt="md"
-                            variant="light"
-                            title="Could not sign up"
-                            icon={<IconInfoCircle />}
-                        >
-                            {createInvoice.error?.message}
-                        </Alert>
-                    )}
                 </Box>
 
                 <SimpleGrid cols={{ base: 1, sm: 3 }} spacing={50} my="xl">
