@@ -1,4 +1,5 @@
 import {
+    Alert,
     Center,
     Flex,
     Loader,
@@ -10,7 +11,8 @@ import {
     ThemeIcon,
 } from "@mantine/core";
 import { useDebouncedState, useMediaQuery } from "@mantine/hooks";
-import { IconDatabaseOff } from "@tabler/icons-react";
+import { modals } from "@mantine/modals";
+import { IconDatabaseOff, IconInfoCircle } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
@@ -119,6 +121,20 @@ const Search: FindStayPage = () => {
     };
 
     useEffect(() => {
+        if (!sync.error) return;
+
+        modals.closeAll();
+        modals.openConfirmModal({
+            title: "Error with search",
+            children: (
+                <Alert icon={<IconInfoCircle />}>{sync.error.message}</Alert>
+            ),
+            labels: { confirm: "Edit Filters", cancel: "Close" },
+            onConfirm: () => document.getElementById("filter-bar")?.click(),
+        });
+    }, [sync.data, sync.error]);
+
+    useEffect(() => {
         if (initialized || !queryFilters) return;
 
         setFilters(queryFilters);
@@ -210,7 +226,8 @@ const Search: FindStayPage = () => {
                                 onMove={handleMove}
                             />
                         )}
-                        {search.length === 0 && (
+                        {(search.length === 0 ||
+                            (!sync.data && !sync.isInitialLoading)) && (
                             <Center
                                 style={{
                                     flex: 1,

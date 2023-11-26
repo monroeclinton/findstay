@@ -4,6 +4,7 @@ import {
     Prisma,
     type Prisma as PrismaType,
 } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
@@ -389,6 +390,13 @@ export const createAirbnbSync = async (
 
     const apiKey = await scrapeAirbnbApiKey(search);
     const nominatim = await searchToCoordinates(search);
+
+    if (!nominatim) {
+        throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This location does not exist.",
+        });
+    }
 
     let boundingBox: BoundingBox = clientBoundingBox
         ? clientBoundingBox

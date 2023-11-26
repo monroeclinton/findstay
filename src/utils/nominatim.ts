@@ -11,7 +11,7 @@ interface NominatimSearchResponse {
 
 export const searchToCoordinates = async (
     search: string
-): Promise<NominatimSearch> => {
+): Promise<NominatimSearch | null> => {
     const nominatimSearch = await prisma.nominatimSearch.findFirst({
         where: {
             search: search.toLowerCase(),
@@ -33,7 +33,7 @@ export const searchToCoordinates = async (
 
     const places = res.data;
     const result = places.at(0);
-    if (!result) throw new Error("Could not locate search request");
+    if (!result) return null;
 
     return await prisma.nominatimSearch.create({
         data: {
