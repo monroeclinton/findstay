@@ -13,9 +13,10 @@ interface SearchResponse {
     }>;
 }
 
-const useGeoAutocomplete = (query: string) => {
-    const [locations, setLocations] =
-        useState<Array<SearchResponse["features"][0]["properties"]>>();
+export type GeoAutocomplete = SearchResponse["features"][0]["properties"];
+
+const useGeoAutocomplete = (query: string): Array<GeoAutocomplete> => {
+    const [locations, setLocations] = useState<Array<GeoAutocomplete>>([]);
 
     const fetchLocations = async (query: string) => {
         const res: AxiosResponse<SearchResponse> = await axios.get(
