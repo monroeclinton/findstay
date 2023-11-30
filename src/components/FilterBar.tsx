@@ -5,61 +5,131 @@ import {
     Group,
     Modal,
     NumberInput,
+    Select,
+    type SelectProps,
     TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
+import useGeoAutocomplete, {
+    type GeoAutocompleteOptions,
+} from "~/hooks/useGeoAutocomplete";
 
 export const FILTER_BAR_HEIGHT = "75px";
 
-export interface SearchFilters {
+// TODO: Make generic across app
+export interface GeoStringFilters {
     neighborhood: string;
     city: string;
     country: string;
+}
+
+export interface SearchFilters extends GeoStringFilters {
     priceMax: string | null;
 }
 
-export const filtersToGeoString = (filters: SearchFilters): string =>
+export const filtersToGeoString = (filters: GeoStringFilters): string =>
     [filters.neighborhood, filters.city, filters.country]
         .filter((value: string) => value.length > 0)
         .join(", ");
+
+const geoAutoCompleteToFilters = (
+    autocomplete: GeoAutocompleteOptions
+): Array<GeoStringFilters> =>
+    autocomplete.map((option) => ({
+        neighborhood: ["district", "locality"].includes(option.type)
+            ? option.name
+            : "",
+        city: option.type === "city" ? option.name : option.city || "",
+        country: option.country,
+    }));
 
 interface ISearchFormProps {
     onSubmit: (_: SearchFilters) => void;
     values: SearchFilters;
 }
 
+const GeoAutocomplete = ({
+    autocomplete,
+    handleAutocomplete,
+    ...props
+}: SelectProps & {
+    autocomplete: GeoAutocompleteOptions;
+    handleAutocomplete: (_: GeoStringFilters) => void;
+}) => {
+    const locations = geoAutoCompleteToFilters(autocomplete);
+
+    const map = locations.map((location) => ({
+        label: filtersToGeoString(location),
+        value: location,
+    }));
+
+    return (
+        <Select
+            onOptionSubmit={(label) => {
+                const location = map.find((option) => option.label === label);
+                if (location) handleAutocomplete(location.value);
+            }}
+            data={[
+                ...new Set([
+                    props.value as string,
+                    ...locations.map((location) =>
+                        filtersToGeoString(location)
+                    ),
+                ]),
+            ]}
+            {...props}
+        />
+    );
+};
+
 const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
     const form = useForm<SearchFilters>({
         initialValues: values,
     });
 
+    const autocomplete = useGeoAutocomplete(filtersToGeoString(form.values));
+
+    const handleAutocomplete = (filters: GeoStringFilters) => {
+        form.setValues(filters);
+    };
+
     return (
         <form onSubmit={form.onSubmit(onSubmit)}>
-            <TextInput
-                label="Name"
+            <GeoAutocomplete
+                key="neighborhood"
+                label="Neighborhood"
                 placeholder="Mission District"
                 maxLength={30}
+                autocomplete={autocomplete}
+                handleAutocomplete={handleAutocomplete}
                 {...form.getInputProps("neighborhood")}
             />
 
-            <TextInput
+            <GeoAutocomplete
                 mt="md"
                 withAsterisk
+                key="city"
                 label="City"
                 placeholder="San Francisco"
                 required={true}
+                autocomplete={autocomplete}
+                handleAutocomplete={handleAutocomplete}
                 {...form.getInputProps("city")}
             />
 
-            <TextInput
+            <GeoAutocomplete
                 mt="md"
                 withAsterisk
+                key="country"
                 label="Country"
                 placeholder="United States"
                 required={true}
+                autocomplete={autocomplete}
+                handleAutocomplete={handleAutocomplete}
                 {...form.getInputProps("country")}
             />
 
