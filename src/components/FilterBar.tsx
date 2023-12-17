@@ -69,6 +69,10 @@ const GeoAutocomplete = ({
 
     return (
         <Select
+            searchable
+            withCheckIcon={false}
+            nothingFoundMessage="No location found."
+            onSearchChange={(e) => { if (props.onChange) props.onChange(e) }}
             onOptionSubmit={(label) => {
                 const location = map.find((option) => option.label === label);
                 if (location) handleAutocomplete(location.value);
