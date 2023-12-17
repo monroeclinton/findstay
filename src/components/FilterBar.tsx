@@ -83,7 +83,7 @@ const GeoAutocomplete = ({
                     ...locations.map((location) =>
                         filtersToGeoString(location)
                     ),
-                ]),
+                ].filter(Boolean)),
             ]}
             {...props}
         />
