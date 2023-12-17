@@ -67,12 +67,15 @@ const GeoAutocomplete = ({
         value: location,
     }));
 
+    const { onChange, value, ...formProps } = props;
+
     return (
         <Select
             searchable
+            searchValue={value || ""}
+            onSearchChange={onChange}
             withCheckIcon={false}
             nothingFoundMessage="No location found."
-            onSearchChange={(e) => { if (props.onChange) props.onChange(e) }}
             onOptionSubmit={(label) => {
                 const location = map.find((option) => option.label === label);
                 if (location) handleAutocomplete(location.value);
@@ -85,7 +88,7 @@ const GeoAutocomplete = ({
                     ),
                 ].filter(Boolean)),
             ]}
-            {...props}
+            {...formProps}
         />
     );
 };
