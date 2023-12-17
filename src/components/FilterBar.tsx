@@ -12,7 +12,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 
 import useGeoAutocomplete, {
     type GeoAutocompleteOptions,
