@@ -12,7 +12,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import useGeoAutocomplete, {
     type GeoAutocompleteOptions,
@@ -53,10 +53,12 @@ interface ISearchFormProps {
 }
 
 const GeoAutocomplete = ({
+    geoFilter,
     autocomplete,
     handleAutocomplete,
     ...props
 }: SelectProps & {
+    geoFilter: keyof GeoStringFilters,
     autocomplete: GeoAutocompleteOptions;
     handleAutocomplete: (_: GeoStringFilters) => void;
 }) => {
@@ -69,10 +71,23 @@ const GeoAutocomplete = ({
 
     const { onChange, value, ...formProps } = props;
 
+    // TODO: Replace with combobox
+    let searchValue = value || "";
+    const location = map.find((option) => option.label === value);
+    if (searchValue.includes(",") && location) {
+        searchValue = location.value[geoFilter];
+    }
+
+    useEffect(() => {
+        if (value !== searchValue && location) {
+            handleAutocomplete(location.value);
+        }
+    }, [value, searchValue]);
+
     return (
         <Select
             searchable
-            searchValue={value || ""}
+            searchValue={searchValue}
             onSearchChange={onChange}
             withCheckIcon={false}
             nothingFoundMessage="No location found."
@@ -107,6 +122,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
     return (
         <form onSubmit={form.onSubmit(onSubmit)}>
             <GeoAutocomplete
+                geoFilter="neighborhood"
                 key="neighborhood"
                 label="Neighborhood"
                 placeholder="Mission District"
@@ -119,6 +135,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
             <GeoAutocomplete
                 mt="md"
                 withAsterisk
+                geoFilter="city"
                 key="city"
                 label="City"
                 placeholder="San Francisco"
@@ -131,6 +148,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
             <GeoAutocomplete
                 mt="md"
                 withAsterisk
+                geoFilter="country"
                 key="country"
                 label="Country"
                 placeholder="United States"
