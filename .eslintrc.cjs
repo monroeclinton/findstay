@@ -18,7 +18,7 @@ const config = {
     parserOptions: {
         project: path.join(__dirname, "tsconfig.json"),
     },
-    plugins: ["@typescript-eslint", "simple-import-sort"],
+    plugins: ["@typescript-eslint", "simple-import-sort", "@stylistic/js"],
     extends: ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
     rules: {
         "@typescript-eslint/consistent-type-imports": [
@@ -30,13 +30,14 @@ const config = {
         ],
         "@typescript-eslint/no-unused-vars": [
             "warn",
-            { argsIgnorePattern: "^_" },
+            {argsIgnorePattern: "^_"},
         ],
         "simple-import-sort/imports": "error",
         "simple-import-sort/exports": "error",
         "import/first": "error",
         "import/newline-after-import": "error",
-        "import/no-duplicates": "error"
+        "import/no-duplicates": "error",
+        "object-curly-spacing": ["error", "always"],
     },
 };
 
