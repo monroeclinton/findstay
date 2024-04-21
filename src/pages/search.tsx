@@ -27,7 +27,7 @@ import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
 
-const Map = dynamic(() => import("~/components/Map"), {
+const Map = dynamic(() => import("~/components/HomeMap"), {
     loading: () => (
         <Center style={{ flex: 1, width: "100%" }}>
             <Loader />
@@ -223,7 +223,7 @@ const Search: FindStayPage = () => {
                                 isLoading={sync.isFetching || homes.isFetching}
                                 data={homes.data}
                                 sync={sync.data}
-                                map={{
+                                dimensions={{
                                     width: mapContainerRef.current.clientWidth,
                                     height: mapContainerRef.current
                                         .clientHeight,
