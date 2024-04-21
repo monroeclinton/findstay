@@ -46,6 +46,7 @@
         "zod": "^3.21.4"
     },
     "devDependencies": {
+        "@stylistic/eslint-plugin-js": "^1.7.2",
         "@types/eslint": "^8.21.3",
         "@types/node": "^18.15.5",
         "@types/ol": "^7.0.0",
