@@ -79,6 +79,10 @@ const Map = ({
         [onMove, sync.boundingBox]
     );
 
+    const handleClick = () => {
+        setSelected(null);
+    };
+
     useEffect(() => {
         if (!sync.clientBoundingBox) {
             map?.setView(
@@ -104,9 +108,11 @@ const Map = ({
 
     useEffect(() => {
         map?.on("moveend", handleMove);
+        map?.on("click", handleClick);
 
         return () => {
             map?.un("moveend", handleMove);
+            map?.on("click", handleClick);
         };
     }, [map, handleMove, sync, dimensions]);
 
