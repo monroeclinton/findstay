@@ -5,10 +5,10 @@ import { MousePosition, OverviewMap, Zoom } from "ol/control";
 import { type Coordinate } from "ol/coordinate";
 import { type FeatureLike } from "ol/Feature";
 import { type SimpleGeometry } from "ol/geom";
-import { type Layer } from "ol/layer";
+import { type Layer, Vector as VectorLayer } from "ol/layer";
 import TileLayer from "ol/layer/Tile";
 import { fromLonLat, useGeographic } from "ol/proj";
-import { OSM } from "ol/source";
+import { OSM, Vector as VectorSource } from "ol/source";
 import { type FitOptions } from "ol/View";
 import * as React from "react";
 import {
@@ -39,7 +39,6 @@ const MapContextProvider = ({
     zoom: number;
 }) => {
     const mapRef = useRef() as MutableRefObject<HTMLDivElement>;
-    const overlayRef = useRef() as MutableRefObject<HTMLDivElement>;
 
     const [featureLayers, setFeatureLayers] = useState<Layer[]>([]);
     const [baseLayer, setBaseLayer] = useState<Layer>(
@@ -48,62 +47,45 @@ const MapContextProvider = ({
                 source: new OSM(),
             })
     );
+    const vectorSource = new VectorSource();
+
+    const vectorLayer = new VectorLayer({
+        source: vectorSource,
+    });
 
     const layers = useMemo(
-        () => [baseLayer, ...featureLayers],
+        () => [baseLayer, vectorLayer, ...featureLayers],
         [featureLayers, baseLayer]
     );
-
-    const overlay = useMemo(() => new Overlay({}), []);
 
     const map = useMemo(
         () =>
             new Map({
                 layers,
-                overlays: [overlay],
                 controls: [new Zoom()],
                 view: new View({
                     center,
                     zoom,
                 }),
             }),
-        [overlay]
+        []
     );
-
-    const [overlayPosition, setOverlayPosition] = useState<
-        number[] | undefined
-    >();
-    const [overlayContent, setOverlayContent] = useState<
-        ReactNode | undefined
-    >();
-
-    useEffect(() => {
-        overlay.setPosition(overlayPosition);
-    }, [overlay, overlayPosition]);
 
     useEffect(() => {
         map.setTarget(mapRef.current);
-        overlay.setElement(overlayRef.current);
-    }, [map, mapRef, overlay, overlayRef]);
+    }, [map, mapRef]);
 
     return (
         <MapContext.Provider
             value={{
                 map,
-                overlay,
                 setBaseLayer,
                 setFeatureLayers,
-                setOverlayPosition,
-                setOverlayContent,
-                overlayContent,
             }}
         >
             <>
                 {children}
                 <div id="map" ref={mapRef} className={classes.map} />
-                <div id="overlay" ref={overlayRef}>
-                    {overlayContent}
-                </div>
             </>
         </MapContext.Provider>
     );
