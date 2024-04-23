@@ -83,10 +83,10 @@ const MapContextProvider = ({
                 setFeatureLayers,
             }}
         >
-            <>
+            <div className={classes.mapContainer}>
                 {children}
                 <div id="map" ref={mapRef} className={classes.map} />
-            </>
+            </div>
         </MapContext.Provider>
     );
 };

@@ -13,23 +13,9 @@ import { IconStarFilled } from "@tabler/icons-react";
 import type { inferRouterOutputs } from "@trpc/server";
 import classNames from "classnames";
 import Link from "next/link";
-import { Feature, type MapEvent, Overlay } from "ol";
-import { Point } from "ol/geom";
-import { Vector as LayerVector } from "ol/layer";
-import TileLayer from "ol/layer/Tile.js";
-import OpenLayersMap from "ol/Map.js";
-import { fromLonLat, transformExtent } from "ol/proj";
-import { Vector as SourceVector } from "ol/source";
-import OSM from "ol/source/OSM.js";
+import { type MapEvent, Overlay } from "ol";
 import View from "ol/View.js";
-import {
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { type AppRouter } from "~/server/api/root";
 import {
@@ -174,9 +160,25 @@ const Map = ({
         );
     };
 
-    return data?.locations.map((record) => (
-        <MapBadge key={record.id} record={record} />
-    ));
+    return (
+        <>
+            {data?.locations.map((record) => (
+                <MapBadge key={record.id} record={record} />
+            ))}
+            <div
+                key="ol-loader"
+                className={classNames(classes.olSpinner, {
+                    [classes.olHidden as string]: !isLoading,
+                })}
+            >
+                <Center>
+                    <Card shadow="sm" withBorder>
+                        <Loader />
+                    </Card>
+                </Center>
+            </div>
+        </>
+    );
 };
 
 const HomeMap = (props: IMapProps) => {

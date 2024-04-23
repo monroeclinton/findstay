@@ -1,7 +1,9 @@
 .olSpinner {
+    position: absolute;
     margin-top: var(--mantine-spacing-md);
     padding: var(--mantine-spacing-sm);
     width: 100%;
+    z-index: 1;
 }
 
 .olHidden {
