@@ -22,6 +22,7 @@ services:
         volumes:
             - ./:/home/node/web
             - /home/node/web/node_modules
+            - findstay-node:/home
         ports:
             - "3000:3000"
         environment:
@@ -32,3 +33,4 @@ services:
 volumes:
     # postgres data
     db-findstay:
+    findstay-node:
