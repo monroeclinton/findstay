@@ -15,7 +15,15 @@ import classNames from "classnames";
 import Link from "next/link";
 import { type MapEvent, Overlay } from "ol";
 import View from "ol/View.js";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+    useCallback,
+    useContext,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 import { type AppRouter } from "~/server/api/root";
 import {
@@ -41,6 +49,98 @@ interface IMapProps {
     page: number;
     onMove: (_: BoundingBox) => void;
 }
+
+const MapCard = ({
+    record,
+    selected,
+}: {
+    record: RouterOutput["home"]["getPage"]["locations"][0];
+    selected: string | null;
+    viewed: string[];
+}) => {
+    const { map } = useContext(MapContext);
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (!cardRef.current) return;
+
+        const marker = new Overlay({
+            id: record.id + "-card",
+            position: [record.longitude, record.latitude],
+            positioning: "top-center",
+            offset: [0, 25],
+            element: cardRef.current,
+        });
+
+        if (marker) {
+            map?.addOverlay(marker);
+        }
+
+        return () => {
+            map?.removeOverlay(marker);
+        };
+    }, [cardRef, map]);
+
+    return (
+        <div>
+            <div ref={cardRef}>
+                <Transition
+                    mounted={selected === record.id}
+                    transition="fade"
+                    duration={100}
+                    timingFunction="ease"
+                    keepMounted={true}
+                >
+                    {(styles) => (
+                        <Link
+                            href={record.link}
+                            target="_blank"
+                            style={styles}
+                            className={classes.cardLink}
+                        >
+                            <Card w={300} withBorder className={classes.card}>
+                                <Card.Section mb="sm">
+                                    <Image
+                                        height={200}
+                                        width="100%"
+                                        src={record.images.at(0)}
+                                        alt="Airbnb image"
+                                    />
+                                </Card.Section>
+                                <Flex justify="space-between">
+                                    <Flex align="center">
+                                        <ThemeIcon
+                                            size="xs"
+                                            color="yellow"
+                                            variant="light"
+                                        >
+                                            <IconStarFilled />
+                                        </ThemeIcon>
+                                        <Text
+                                            fw={600}
+                                            size="sm"
+                                            c="gray"
+                                            style={{
+                                                marginLeft: "6px",
+                                            }}
+                                        >
+                                            {record.ratings
+                                                .split("out of 5")
+                                                .at(0)}
+                                        </Text>
+                                    </Flex>
+                                    <Text fw={600} c="green" mt="xs">
+                                        ${record.price} / night
+                                    </Text>
+                                </Flex>
+                            </Card>
+                        </Link>
+                    )}
+                </Transition>
+            </div>
+        </div>
+    );
+};
 
 const Map = ({
     isLoading,
@@ -106,29 +206,25 @@ const Map = ({
         dimensions,
     ]);
 
-    useEffect(() => {
-        map?.on("moveend", handleMove);
-        map?.on("click", handleClick);
-
-        return () => {
-            map?.un("moveend", handleMove);
-            map?.on("click", handleClick);
-        };
-    }, [map, handleMove, sync, dimensions]);
-
     const MapBadge = ({
         record,
     }: {
         record: RouterOutput["home"]["getPage"]["locations"][0];
     }) => {
+        const { map } = useContext(MapContext);
         const badgeRef = useRef<HTMLDivElement>(null);
 
-        useEffect(() => {
-            const marker = new Overlay({
-                position: [record.longitude, record.latitude],
-                positioning: "center-center",
-            });
+        const marker = useMemo(
+            () =>
+                new Overlay({
+                    id: record.id + "-badge",
+                    position: [record.longitude, record.latitude],
+                    positioning: "center-center",
+                }),
+            [record.id, record.longitude, record.latitude]
+        );
 
+        useLayoutEffect(() => {
             if (badgeRef.current) {
                 marker.setElement(badgeRef.current);
                 map?.addOverlay(marker);
@@ -137,7 +233,7 @@ const Map = ({
             return () => {
                 map?.removeOverlay(marker);
             };
-        }, [badgeRef, record.longitude, record.latitude]);
+        }, [badgeRef, marker, map]);
 
         return (
             <div>
@@ -166,11 +262,36 @@ const Map = ({
         );
     };
 
+    useEffect(() => {
+        map?.on("moveend", handleMove);
+        map?.on("click", handleClick);
+
+        return () => {
+            map?.un("moveend", handleMove);
+            map?.on("click", handleClick);
+        };
+    }, [map, handleMove, sync, dimensions]);
+
     return (
         <>
-            {data?.locations.map((record) => (
-                <MapBadge key={record.id} record={record} />
-            ))}
+            {data && (
+                <>
+                    {data.locations.map((record) => (
+                        <MapCard
+                            key={record.id + "-card-" + page.toString()}
+                            record={record}
+                            selected={selected}
+                            viewed={viewed}
+                        />
+                    ))}
+                    {data.locations.map((record) => (
+                        <MapBadge
+                            key={record.id + "-badge-" + page.toString()}
+                            record={record}
+                        />
+                    ))}
+                </>
+            )}
             <div
                 key="ol-loader"
                 className={classNames(classes.olSpinner, {
