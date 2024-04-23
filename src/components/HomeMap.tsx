@@ -22,7 +22,14 @@ import { fromLonLat, transformExtent } from "ol/proj";
 import { Vector as SourceVector } from "ol/source";
 import OSM from "ol/source/OSM.js";
 import View from "ol/View.js";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 
 import { type AppRouter } from "~/server/api/root";
 import {
@@ -88,18 +95,18 @@ const Map = ({
 
     useEffect(() => {
         if (!sync.clientBoundingBox) {
-            //map?.setView(
-            //    new View({
-            //        center: [sync.midpoint.longitude, sync.midpoint.latitude],
-            //        zoom: zoomLevel(
-            //            sync.boundingBox.neLat,
-            //            sync.boundingBox.neLng,
-            //            sync.boundingBox.swLat,
-            //            sync.boundingBox.swLng,
-            //            dimensions
-            //        ),
-            //    })
-            //);
+            map?.setView(
+                new View({
+                    center: [sync.midpoint.longitude, sync.midpoint.latitude],
+                    zoom: zoomLevel(
+                        sync.boundingBox.neLat,
+                        sync.boundingBox.neLng,
+                        sync.boundingBox.swLat,
+                        sync.boundingBox.swLng,
+                        dimensions
+                    ),
+                })
+            );
         }
     }, [
         map,
@@ -122,56 +129,54 @@ const Map = ({
     }: {
         record: RouterOutput["home"]["getPage"]["locations"][0];
     }) => {
-        const olRef = useRef<Overlay>();
         const badgeRef = useRef<HTMLDivElement>(null);
 
         useEffect(() => {
-            if (!olRef.current && badgeRef.current) {
-                olRef.current = new Overlay({
-                    positioning: "center-center",
-                });
-                //map?.addOverlay(olRef.current);
-                //const position = fromLonLat([
-                //    record.longitude,
-                //    record.latitude,
-                //]);
-                //olRef.current.setPosition(position);
-                olRef.current.setElement(badgeRef.current);
+            const marker = new Overlay({
+                position: [record.longitude, record.latitude],
+                positioning: "center-center",
+            });
+
+            if (badgeRef.current) {
+                marker.setElement(badgeRef.current);
+                map?.addOverlay(marker);
             }
 
             return () => {
-                if (olRef.current) {
-                    //map.current?.removeOverlay(olRef.current);
-                }
+                map?.removeOverlay(marker);
             };
-        }, [record, badgeRef]);
+        }, [badgeRef, record.longitude, record.latitude]);
 
         return (
-            <Badge
-                style={{
-                    position: "absolute",
-                    userSelect: "none",
-                    cursor: "pointer",
-                }}
-                ref={badgeRef}
-                color={
-                    selected === record.id
-                        ? "black"
-                        : viewed.includes(record.id)
-                        ? "gray"
-                        : "indigo"
-                }
-                onClick={() => {
-                    setSelected(record.id);
-                    setViewed([record.id, ...viewed]);
-                }}
-            >
-                ${record.price}
-            </Badge>
+            <div>
+                <Badge
+                    ref={badgeRef}
+                    style={{
+                        position: "absolute",
+                        userSelect: "none",
+                        cursor: "pointer",
+                    }}
+                    color={
+                        selected === record.id
+                            ? "black"
+                            : viewed.includes(record.id)
+                            ? "gray"
+                            : "indigo"
+                    }
+                    onClick={() => {
+                        setSelected(record.id);
+                        setViewed([record.id, ...viewed]);
+                    }}
+                >
+                    ${record.price}
+                </Badge>
+            </div>
         );
     };
 
-    return null;
+    return data?.locations.map((record) => (
+        <MapBadge key={record.id} record={record} />
+    ));
 };
 
 const HomeMap = (props: IMapProps) => {
