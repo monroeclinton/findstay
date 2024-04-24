@@ -356,12 +356,86 @@ const scrapeAirbnbApiKey = async (search: string) => {
     return apiKey;
 };
 
+const createAirbnbPage = async (
+    sync: AirbnbLocationSync,
+    curCursor: string,
+    locationResults: MapSearchResponse["data"]["presentation"]["staysSearch"]["results"]["searchResults"]
+) => {
+    await prisma.$transaction(async (tx) => {
+        const locations = [];
+        for (const location of locationResults.filter(
+            (result) => result.listing !== undefined
+        )) {
+            const record = await tx.airbnbLocation.upsert({
+                where: {
+                    airbnbId: location.listing.id,
+                },
+                update: {
+                    name: location.listing.name,
+                    price: location.pricingQuote.rate.amount,
+                    images: location.listing.contextualPictures.map(
+                        (ctx) => ctx.picture
+                    ),
+                    rating: location.listing.avgRatingA11yLabel || "None",
+                    latitude: location.listing.coordinate.latitude,
+                    longitude: location.listing.coordinate.longitude,
+                },
+                create: {
+                    airbnbId: location.listing.id,
+                    name: location.listing.name,
+                    price: location.pricingQuote.rate.amount,
+                    images: location.listing.contextualPictures.map(
+                        (ctx) => ctx.picture
+                    ),
+                    rating: location.listing.avgRatingA11yLabel || "None",
+                    latitude: location.listing.coordinate.latitude,
+                    longitude: location.listing.coordinate.longitude,
+                },
+            });
+
+            locations.push(record);
+        }
+
+        const page = await tx.airbnbLocationSyncPage.create({
+            data: {
+                cursor: curCursor,
+                syncId: sync.id,
+            },
+        });
+
+        await tx.airbnbLocationsOnPages.createMany({
+            data: locations.map((location) => ({
+                locationId: location.id,
+                pageId: page.id,
+            })),
+        });
+    });
+};
+
 export const createAirbnbSync = async (
     search: string,
     priceMax: number | undefined | null,
     dimensions: { width: number; height: number },
     clientBoundingBox: BoundingBox | undefined | null
 ): Promise<AirbnbLocationSync | null> => {
+    const nominatim = await searchToCoordinates(search);
+
+    if (!nominatim) {
+        throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "This location does not exist.",
+        });
+    }
+
+    let boundingBox: BoundingBox = clientBoundingBox
+        ? clientBoundingBox
+        : {
+              neLat: nominatim.neLatitude.toNumber(),
+              neLng: nominatim.neLongitude.toNumber(),
+              swLat: nominatim.swLatitude.toNumber(),
+              swLng: nominatim.swLongitude.toNumber(),
+          };
+
     const recentSync = await prisma.airbnbLocationSync.findFirst({
         where: {
             AND: [
@@ -371,6 +445,12 @@ export const createAirbnbSync = async (
                     createdAt: {
                         gte: new Date(Date.now() - 1000 * 60).toISOString(),
                     },
+                },
+                {
+                    neLatitude: boundingBox.neLat,
+                    neLongitude: boundingBox.neLng,
+                    swLatitude: boundingBox.swLat,
+                    swLongitude: boundingBox.swLng,
                 },
             ],
         },
@@ -389,23 +469,6 @@ export const createAirbnbSync = async (
     if (recentSync && !clientBoundingBox) return recentSync;
 
     const apiKey = await scrapeAirbnbApiKey(search);
-    const nominatim = await searchToCoordinates(search);
-
-    if (!nominatim) {
-        throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This location does not exist.",
-        });
-    }
-
-    let boundingBox: BoundingBox = clientBoundingBox
-        ? clientBoundingBox
-        : {
-              neLat: nominatim.neLatitude.toNumber(),
-              neLng: nominatim.neLongitude.toNumber(),
-              swLat: nominatim.swLatitude.toNumber(),
-              swLng: nominatim.swLongitude.toNumber(),
-          };
 
     let zoom = zoomLevel(
         boundingBox.neLat,
