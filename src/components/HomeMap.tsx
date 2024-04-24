@@ -183,29 +183,6 @@ const Map = ({
         setSelected(null);
     };
 
-    useEffect(() => {
-        if (!sync.clientBoundingBox) {
-            map?.setView(
-                new View({
-                    center: [sync.midpoint.longitude, sync.midpoint.latitude],
-                    zoom: zoomLevel(
-                        sync.boundingBox.neLat,
-                        sync.boundingBox.neLng,
-                        sync.boundingBox.swLat,
-                        sync.boundingBox.swLng,
-                        dimensions
-                    ),
-                })
-            );
-        }
-    }, [
-        map,
-        sync.clientBoundingBox,
-        sync.boundingBox,
-        sync.midpoint,
-        dimensions,
-    ]);
-
     const MapBadge = ({
         record,
     }: {
