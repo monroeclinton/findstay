@@ -68,7 +68,7 @@ const Search: FindStayPage = () => {
 
     const [boundingBox, setBoundingBox] = useDebouncedState<BoundingBox | null>(
         null,
-        100
+        250
     );
     const mapContainerRef = useRef<HTMLDivElement>(null);
 
