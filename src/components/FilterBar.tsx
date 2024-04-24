@@ -33,6 +33,7 @@ export interface SearchFilters extends GeoStringFilters {
 
 export const filtersToGeoString = (filters: GeoStringFilters): string =>
     [filters.neighborhood, filters.city, filters.country]
+        .filter((value: unknown) => value)
         .filter((value: string) => value.length > 0)
         .join(", ");
 
