@@ -240,8 +240,11 @@ const Map = ({
     };
 
     useEffect(() => {
-        map?.on("moveend", handleMove);
-        map?.on("click", handleClick);
+        // For some reason OpenLayers sends a moveend event onload
+        setTimeout(() => {
+            map?.on("moveend", handleMove);
+            map?.on("click", handleClick);
+        }, 500);
 
         return () => {
             map?.un("moveend", handleMove);
