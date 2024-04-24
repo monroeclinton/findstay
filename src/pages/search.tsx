@@ -97,7 +97,7 @@ const Search: FindStayPage = () => {
         {
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
-            keepPreviousData: search.length > 3,
+            keepPreviousData: search.length > 3 && boundingBox !== null,
         }
     );
 
