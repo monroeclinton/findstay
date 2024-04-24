@@ -42,6 +42,8 @@ const CONTROL = {
 };
 
 const Search: FindStayPage = () => {
+    const utils = api.useContext();
+
     const isMobile = useMediaQuery(`(max-width: ${SIDE_BREAKPOINT}px)`);
     const [activePage, setPage] = useState(0);
     const [control, setControl] = useState<string>(CONTROL.LIST);
@@ -105,10 +107,13 @@ const Search: FindStayPage = () => {
         }
     };
 
-    const handleSearch = (filters: SearchFilters) => {
+    const handleSearch = async (filters: SearchFilters) => {
         setBoundingBox(null);
         setQueryParams(filters);
         setFilters(filters);
+
+        await utils.home.createSync.reset();
+        await utils.home.getPage.reset();
     };
 
     useEffect(() => {
