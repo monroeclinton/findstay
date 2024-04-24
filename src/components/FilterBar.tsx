@@ -59,9 +59,10 @@ const GeoAutocomplete = ({
     handleAutocomplete,
     ...props
 }: SelectProps & {
-    geoFilter: keyof GeoStringFilters,
+    geoFilter: keyof GeoStringFilters;
     autocomplete: GeoAutocompleteOptions;
     handleAutocomplete: (_: GeoStringFilters) => void;
+    onChange: (_: string) => void;
 }) => {
     const locations = geoAutoCompleteToFilters(autocomplete);
 
@@ -97,12 +98,14 @@ const GeoAutocomplete = ({
                 if (location) handleAutocomplete(location.value);
             }}
             data={[
-                ...new Set([
-                    props.value as string,
-                    ...locations.map((location) =>
-                        filtersToGeoString(location)
-                    ),
-                ].filter(Boolean)),
+                ...new Set(
+                    [
+                        props.value as string,
+                        ...locations.map((location) =>
+                            filtersToGeoString(location)
+                        ),
+                    ].filter(Boolean)
+                ),
             ]}
             {...formProps}
         />
