@@ -504,7 +504,7 @@ export const createAirbnbSync = async (
         locationResults.data.presentation.staysSearch.results.paginationInfo
             .pageCursors;
 
-    const sync = (
+    const inserted = (
         await prisma.$queryRaw<[{ id: string }]>(
             Prisma.sql`
                 INSERT INTO airbnb_location_sync (
@@ -547,9 +547,9 @@ export const createAirbnbSync = async (
         )
     ).at(0);
 
-    return await prisma.airbnbLocationSync.findUniqueOrThrow({
+    const sync = await prisma.airbnbLocationSync.findUniqueOrThrow({
         where: {
-            id: sync?.id,
+            id: inserted?.id,
         },
         include: {
             pages: {
@@ -559,6 +559,16 @@ export const createAirbnbSync = async (
             },
         },
     });
+
+    if (cursors.length > 0) {
+        await createAirbnbPage(
+            sync,
+            cursors.at(0) as string,
+            locationResults.data.presentation.staysSearch.results.searchResults
+        );
+    }
+
+    return sync;
 };
 
 export const syncAirbnbPage = async (
@@ -587,54 +597,7 @@ export const syncAirbnbPage = async (
 
     if (!sync.pages.map((page) => page.cursor).includes(curCursor)) {
         const locationResults = await scrapeAirbnbLocations(sync, curCursor);
-
-        await prisma.$transaction(async (tx) => {
-            const locations = [];
-            for (const location of locationResults) {
-                const record = await tx.airbnbLocation.upsert({
-                    where: {
-                        airbnbId: location.listing.id,
-                    },
-                    update: {
-                        name: location.listing.name,
-                        price: location.pricingQuote.rate.amount,
-                        images: location.listing.contextualPictures.map(
-                            (ctx) => ctx.picture
-                        ),
-                        rating: location.listing.avgRatingA11yLabel || "None",
-                        latitude: location.listing.coordinate.latitude,
-                        longitude: location.listing.coordinate.longitude,
-                    },
-                    create: {
-                        airbnbId: location.listing.id,
-                        name: location.listing.name,
-                        price: location.pricingQuote.rate.amount,
-                        images: location.listing.contextualPictures.map(
-                            (ctx) => ctx.picture
-                        ),
-                        rating: location.listing.avgRatingA11yLabel || "None",
-                        latitude: location.listing.coordinate.latitude,
-                        longitude: location.listing.coordinate.longitude,
-                    },
-                });
-
-                locations.push(record);
-            }
-
-            const page = await tx.airbnbLocationSyncPage.create({
-                data: {
-                    cursor: curCursor,
-                    syncId: sync.id,
-                },
-            });
-
-            await tx.airbnbLocationsOnPages.createMany({
-                data: locations.map((location) => ({
-                    locationId: location.id,
-                    pageId: page.id,
-                })),
-            });
-        });
+        await createAirbnbPage(sync, curCursor, locationResults);
     }
 
     return await prisma.airbnbLocationSync.findUniqueOrThrow({
