@@ -62,7 +62,6 @@ const MapContextProvider = ({
         () =>
             new Map({
                 layers,
-                controls: [new Zoom()],
                 view: new View({
                     center,
                     zoom,
