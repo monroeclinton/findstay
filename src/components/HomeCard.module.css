@@ -1,8 +1,5 @@
-.cardLink {
-    text-decoration: none;
-}
-
 .card:hover {
+    cursor: pointer;
     box-shadow: var(--mantine-shadow-sm);
     transition: ease-in-out 100ms;
 }
