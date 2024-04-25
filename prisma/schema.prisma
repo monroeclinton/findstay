@@ -21,7 +21,9 @@ model AirbnbLocation {
     name            String
     price           Int
     images          String[]
-    rating          String
+    rating          Decimal?
+    ratingCount     Decimal?
+    ratingLocalized String
     latitude        Decimal
     longitude       Decimal
     pages           AirbnbLocationsOnPages[]
