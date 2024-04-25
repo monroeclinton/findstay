@@ -81,7 +81,7 @@ const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
                     onChange={(event) =>
                         setFolderName(event.currentTarget.value)
                     }
-                    placeholder="Folder name"
+                    placeholder="New folder name"
                     rightSection={
                         <ActionIcon
                             disabled={folderName.length === 0}
