@@ -1,4 +1,14 @@
-import { Center, Loader, Select, Text, ThemeIcon, Title } from "@mantine/core";
+import {
+    Button,
+    Center,
+    Flex,
+    Loader,
+    Select,
+    Text,
+    ThemeIcon,
+    Title,
+} from "@mantine/core";
+import { modals } from "@mantine/modals";
 import { IconDatabaseOff } from "@tabler/icons-react";
 import Head from "next/head";
 import { useState } from "react";
@@ -14,6 +24,27 @@ const Favorites: FindStayPage = () => {
     const homes = api.favorite.getAll.useQuery({
         folderId: folder,
     });
+    const deleteFolder = api.favorite.deleteFolder.useMutation({
+        onSuccess: async () => {
+            setFolder(null);
+            await folders.refetch();
+            await homes.refetch();
+        },
+    });
+
+    const confirmDelete = () =>
+        modals.openConfirmModal({
+            title: "Confirm deletion",
+            children: (
+                <Text size="sm">
+                    This will delete{" "}
+                    {folders.data?.find((f) => f.id === folder)?.name} and your
+                    favorites in it.
+                </Text>
+            ),
+            labels: { confirm: "Confirm", cancel: "Cancel" },
+            onConfirm: () => folder && deleteFolder.mutate({ id: folder }),
+        });
 
     return (
         <>
@@ -26,19 +57,27 @@ const Favorites: FindStayPage = () => {
                 <Title order={2} mb="sm">
                     Favorites
                 </Title>
-                <Select
-                    placeholder="Folder"
-                    mb="md"
-                    value={folder}
-                    onChange={setFolder}
-                    data={
-                        folders.data?.map((folder) => ({
-                            value: folder.id,
-                            label: folder.name,
-                        })) || []
-                    }
-                    clearable
-                />
+                <Flex>
+                    <Select
+                        style={{ flexGrow: 1 }}
+                        placeholder="Folder"
+                        mb="md"
+                        value={folder}
+                        onChange={setFolder}
+                        data={
+                            folders.data?.map((folder) => ({
+                                value: folder.id,
+                                label: folder.name,
+                            })) || []
+                        }
+                        clearable
+                    />
+                    {folder && (
+                        <Button onClick={confirmDelete} ml="md">
+                            Delete
+                        </Button>
+                    )}
+                </Flex>
                 {homes.data?.length === 0 && (
                     <Center
                         style={{

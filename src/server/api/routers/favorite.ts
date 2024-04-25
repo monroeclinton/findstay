@@ -88,6 +88,22 @@ export const favoriteRouter = createTRPCRouter({
                 },
             });
         }),
+    deleteFolder: protectedProcedure
+        .input(
+            z.object({
+                id: z.string(),
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const session = ctx.session;
+
+            return await ctx.prisma.airbnbLocationFavoriteFolder.deleteMany({
+                where: {
+                    id: input.id,
+                    userId: session.user.id,
+                },
+            });
+        }),
     getFolders: protectedProcedure.query(async ({ ctx }) => {
         const session = ctx.session;
 
