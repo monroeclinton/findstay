@@ -124,9 +124,7 @@ const MapCard = ({
                                                 marginLeft: "6px",
                                             }}
                                         >
-                                            {record.ratings
-                                                .split("out of 5")
-                                                .at(0)}
+                                            {record.ratingLocalized}
                                         </Text>
                                     </Flex>
                                     <Text fw={600} c="green" mt="xs">

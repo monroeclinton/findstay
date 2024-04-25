@@ -6,7 +6,9 @@ export type Location = {
     id: string;
     name: string;
     price: number;
-    ratings: string;
+    rating?: number;
+    ratingCount?: number;
+    ratingLocalized: string;
     longitude: number;
     latitude: number;
     supermarket: number;
@@ -41,9 +43,9 @@ export const addComputedFields = async (
                 airbnb_location
             AS
                 airbnb
-            CROSS JOIN LATERAL 
+            CROSS JOIN LATERAL
                 (SELECT
-                    id, 
+                    id,
                     ST_Distance(ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography) as distance
                     FROM google_maps_location
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
@@ -61,7 +63,9 @@ export const addComputedFields = async (
             id: location.id,
             name: location.name,
             price: location.price,
-            ratings: location.rating,
+            rating: location.rating?.toNumber(),
+            ratingCount: location.ratingCount?.toNumber(),
+            ratingLocalized: location.ratingLocalized,
             longitude: location.longitude.toNumber(),
             latitude: location.latitude.toNumber(),
             supermarket: supermarkets.find(

@@ -37,7 +37,7 @@ interface MapSearchResponse {
                             id: string;
                             coordinate: Coordinate;
                             name: string;
-                            avgRatingA11yLabel: string;
+                            avgRatingLocalized: string | null;
                             contextualPictures: Array<{
                                 picture: string;
                             }>;
@@ -361,11 +361,31 @@ const createAirbnbPage = async (
     curCursor: string,
     locationResults: MapSearchResponse["data"]["presentation"]["staysSearch"]["results"]["searchResults"]
 ) => {
+    const parseRating = (
+        airbnbRating: string | null
+    ): { rating: number; count: number } | null => {
+        if (typeof airbnbRating === "string") {
+            const split = airbnbRating.split(" ");
+
+            const rating = Number.parseFloat(split.at(0) as string);
+            const count = Number.parseInt(split.at(0) as string);
+
+            if (split.length < 2 || !rating || !count) {
+                return null;
+            }
+
+            return { rating, count };
+        }
+
+        return null;
+    };
+
     await prisma.$transaction(async (tx) => {
         const locations = [];
         for (const location of locationResults.filter(
             (result) => result.listing !== undefined
         )) {
+            const ratings = parseRating(location.listing.avgRatingLocalized);
             const record = await tx.airbnbLocation.upsert({
                 where: {
                     airbnbId: location.listing.id,
@@ -376,7 +396,10 @@ const createAirbnbPage = async (
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
-                    rating: location.listing.avgRatingA11yLabel || "None",
+                    rating: ratings?.rating,
+                    ratingCount: ratings?.count,
+                    ratingLocalized:
+                        location.listing.avgRatingLocalized || "New",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
                 },
@@ -387,7 +410,10 @@ const createAirbnbPage = async (
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
-                    rating: location.listing.avgRatingA11yLabel || "None",
+                    rating: ratings?.rating,
+                    ratingCount: ratings?.count,
+                    ratingLocalized:
+                        location.listing.avgRatingLocalized || "New",
                     latitude: location.listing.coordinate.latitude,
                     longitude: location.listing.coordinate.longitude,
                 },
