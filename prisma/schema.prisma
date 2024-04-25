@@ -92,9 +92,9 @@ model AirbnbLocationFavorite {
     locationId String
     user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     String
-    folder     AirbnbLocationFavoriteFolder @relation(fields: [folderId], references: [id])
+    folder     AirbnbLocationFavoriteFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
     folderId String
- 
+
     @@map("airbnb_location_favorite")
     @@unique([locationId, userId, folderId])
 }
