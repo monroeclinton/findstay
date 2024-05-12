@@ -18,7 +18,6 @@ import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
 import FilterBar, { type SearchFilters } from "~/components/FilterBar";
-import { filtersToGeoString } from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { SIDE_BREAKPOINT } from "~/components/Side";
@@ -51,13 +50,10 @@ const Search: FindStayPage = () => {
     const [searchParams, setQueryParams] = useQueryParams();
     const [initialized, setInitialized] = useState(false);
     const [filters, setFilters] = useState<SearchFilters>({
-        neighborhood: "",
-        city: "",
-        country: "",
+        location: "",
         priceMax: null,
     });
 
-    const search = filtersToGeoString(filters);
     const filterPills = Object.entries(filters)
         .filter(([_, value]) => value !== null && value !== "")
         .map(([key, value]) => (
@@ -74,7 +70,7 @@ const Search: FindStayPage = () => {
 
     const sync = api.home.createSync.useQuery(
         {
-            search,
+            location: filters.location,
             priceMax: filters.priceMax ? parseInt(filters.priceMax) : null,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
@@ -83,9 +79,9 @@ const Search: FindStayPage = () => {
             boundingBox,
         },
         {
-            enabled: search.length > 3 && !!mapContainerRef.current,
+            enabled: filters.location.length > 3 && !!mapContainerRef.current,
             refetchOnWindowFocus: false,
-            keepPreviousData: search.length > 3,
+            keepPreviousData: filters.location.length > 3,
         }
     );
 
@@ -97,7 +93,8 @@ const Search: FindStayPage = () => {
         {
             enabled: sync.data?.id !== undefined,
             refetchOnWindowFocus: false,
-            keepPreviousData: search.length > 3 && boundingBox !== null,
+            keepPreviousData:
+                filters.location.length > 3 && boundingBox !== null,
         }
     );
 
@@ -107,13 +104,14 @@ const Search: FindStayPage = () => {
         }
     };
 
-    const handleSearch = async (filters: SearchFilters) => {
+    const handleSearch = (filters: SearchFilters) => {
+        console.log(filters);
         setBoundingBox(null);
         setQueryParams(filters);
         setFilters(filters);
 
-        await utils.home.createSync.reset();
-        await utils.home.getPage.reset();
+        void utils.home.createSync.reset();
+        void utils.home.getPage.reset();
     };
 
     useEffect(() => {
@@ -237,7 +235,7 @@ const Search: FindStayPage = () => {
                                 onMove={handleMove}
                             />
                         )}
-                        {(search.length === 0 ||
+                        {(filters.location.length === 0 ||
                             (!sync.data && !sync.isInitialLoading)) && (
                             <Center
                                 style={{

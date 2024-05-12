@@ -10,7 +10,7 @@ export const homeRouter = createTRPCRouter({
     createSync: protectedProcedure
         .input(
             z.object({
-                search: z.string().min(3),
+                location: z.string().min(3),
                 priceMax: z.number().int().nullish(),
                 dimensions: z.object({
                     width: z.number(),
@@ -28,7 +28,7 @@ export const homeRouter = createTRPCRouter({
         )
         .query(async ({ input }) => {
             const airbnbSync = await createAirbnbSync(
-                input.search,
+                input.location,
                 input.priceMax,
                 input.dimensions,
                 input.boundingBox
