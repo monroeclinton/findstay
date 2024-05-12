@@ -12,7 +12,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import useGeoAutocomplete, {
     type GeoAutocompleteOptions,
@@ -27,7 +27,8 @@ export interface GeoStringFilters {
     country: string;
 }
 
-export interface SearchFilters extends GeoStringFilters {
+export interface SearchFilters {
+    location: string;
     priceMax: string | null;
 }
 
@@ -54,53 +55,28 @@ interface ISearchFormProps {
 }
 
 const GeoAutocomplete = ({
-    geoFilter,
-    autocomplete,
     handleAutocomplete,
     ...props
 }: SelectProps & {
-    geoFilter: keyof GeoStringFilters;
-    autocomplete: GeoAutocompleteOptions;
-    handleAutocomplete: (_: GeoStringFilters) => void;
+    handleAutocomplete: (_: string) => void;
     onChange: (_: string) => void;
 }) => {
-    const locations = geoAutoCompleteToFilters(autocomplete);
-
-    const map = locations.map((location) => ({
-        label: filtersToGeoString(location),
-        value: location,
-    }));
-
     const { onChange, value, ...formProps } = props;
-
-    // TODO: Replace with combobox
-    let searchValue = value || "";
-    const location = map.find((option) => option.label === value);
-    if (searchValue.includes(",") && location) {
-        searchValue = location.value[geoFilter];
-    }
-
-    useEffect(() => {
-        if (value !== searchValue && location) {
-            handleAutocomplete(location.value);
-        }
-    }, [value, searchValue]);
+    const autocomplete = useGeoAutocomplete(value || "");
+    const locations = geoAutoCompleteToFilters(autocomplete);
 
     return (
         <Select
             searchable
-            searchValue={searchValue}
-            onSearchChange={onChange}
+            searchValue={value || ""}
             withCheckIcon={false}
+            onSearchChange={onChange}
             nothingFoundMessage="No location found."
-            onOptionSubmit={(label) => {
-                const location = map.find((option) => option.label === label);
-                if (location) handleAutocomplete(location.value);
-            }}
+            onOptionSubmit={(label) => handleAutocomplete(label)}
             data={[
                 ...new Set(
                     [
-                        props.value as string,
+                        value as string,
                         ...locations.map((location) =>
                             filtersToGeoString(location)
                         ),
@@ -114,52 +90,25 @@ const GeoAutocomplete = ({
 
 const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
     const form = useForm<SearchFilters>({
-        initialValues: values,
+        initialValues: {
+            ...values,
+        },
     });
 
-    const autocomplete = useGeoAutocomplete(filtersToGeoString(form.values));
-
-    const handleAutocomplete = (filters: GeoStringFilters) => {
-        form.setValues(filters);
+    const handleAutocomplete = (location: string) => {
+        form.setValues({
+            location,
+        });
     };
 
     return (
         <form onSubmit={form.onSubmit(onSubmit)}>
             <GeoAutocomplete
-                geoFilter="neighborhood"
-                key="neighborhood"
-                label="Neighborhood"
-                placeholder="Mission District"
-                maxLength={30}
-                autocomplete={autocomplete}
+                key="location"
+                label="Location"
+                placeholder="Mission District, San Francisco, United States"
                 handleAutocomplete={handleAutocomplete}
-                {...form.getInputProps("neighborhood")}
-            />
-
-            <GeoAutocomplete
-                mt="md"
-                withAsterisk
-                geoFilter="city"
-                key="city"
-                label="City"
-                placeholder="San Francisco"
-                required={true}
-                autocomplete={autocomplete}
-                handleAutocomplete={handleAutocomplete}
-                {...form.getInputProps("city")}
-            />
-
-            <GeoAutocomplete
-                mt="md"
-                withAsterisk
-                geoFilter="country"
-                key="country"
-                label="Country"
-                placeholder="United States"
-                required={true}
-                autocomplete={autocomplete}
-                handleAutocomplete={handleAutocomplete}
-                {...form.getInputProps("country")}
+                {...form.getInputProps("location")}
             />
 
             <NumberInput
@@ -217,7 +166,7 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
                 <TextInput
                     w="100%"
                     label="Location"
-                    value={filtersToGeoString(values)}
+                    value={values.location}
                     readOnly
                     ref={ref}
                     onChange={() => ({})}
