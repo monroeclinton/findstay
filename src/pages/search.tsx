@@ -51,7 +51,7 @@ const Search: FindStayPage = () => {
     const [initialized, setInitialized] = useState(false);
     const [filters, setFilters] = useState<SearchFilters>({
         location: "",
-        priceMax: null,
+        maxPrice: null,
     });
 
     const filterPills = Object.entries(filters)
@@ -71,7 +71,7 @@ const Search: FindStayPage = () => {
     const sync = api.home.createSync.useQuery(
         {
             location: filters.location,
-            priceMax: filters.priceMax ? parseInt(filters.priceMax) : null,
+            maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : null,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,
@@ -87,7 +87,7 @@ const Search: FindStayPage = () => {
 
     const homes = api.home.getPage.useQuery(
         {
-            syncId: sync.data?.id as string,
+            syncId: sync.data?.id ,
             cursor: sync.data?.cursors.at(activePage),
         },
         {

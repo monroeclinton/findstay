@@ -29,7 +29,7 @@ export interface GeoStringFilters {
 
 export interface SearchFilters {
     location: string;
-    priceMax: string | null;
+    maxPrice: string | null;
 }
 
 export const filtersToGeoString = (filters: GeoStringFilters): string =>
@@ -118,7 +118,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                 leftSection={<IconCurrencyDollar />}
                 decimalScale={0}
                 fixedDecimalScale
-                {...form.getInputProps("priceMax")}
+                {...form.getInputProps("maxPrice")}
             />
 
             <Group mt="md">
