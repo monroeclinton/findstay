@@ -50,7 +50,7 @@ interface IMapProps {
     onMove: (_: BoundingBox) => void;
 }
 
-const MapCard = ({
+const StayCard = ({
     record,
     selected,
 }: {
@@ -181,7 +181,7 @@ const Map = ({
         setSelected(null);
     };
 
-    const MapBadge = ({
+    const StayBadge = ({
         record,
     }: {
         record: RouterOutput["home"]["getPage"]["stays"][0];
@@ -255,7 +255,7 @@ const Map = ({
             {data && (
                 <>
                     {data.stays.map((record) => (
-                        <MapCard
+                        <StayCard
                             key={record.id + "-card-" + page.toString()}
                             record={record}
                             selected={selected}
@@ -263,7 +263,7 @@ const Map = ({
                         />
                     ))}
                     {data.stays.map((record) => (
-                        <MapBadge
+                        <StayBadge
                             key={record.id + "-badge-" + page.toString()}
                             record={record}
                         />
