@@ -1,6 +1,12 @@
-import { type AirbnbLocation, Prisma } from "@prisma/client";
+import {
+    type AirbnbLocation,
+    type GoogleMapsLocation,
+    Prisma,
+} from "@prisma/client";
 
 import { prisma } from "~/server/db";
+
+import { type BoundingBox } from "./geometry";
 
 export type Location = {
     id: string;
@@ -15,6 +21,40 @@ export type Location = {
     images: string[];
     link: string;
     isFavorited: boolean;
+};
+
+export const getPointsOfInterest = async (
+    boundingBox: BoundingBox
+): Promise<GoogleMapsLocation[]> => {
+    return await prisma.$queryRaw<GoogleMapsLocation[]>(
+        Prisma.sql`
+            SELECT
+                id,
+                "syncId",
+                name,
+                type,
+                reviews,
+                stars,
+                hex,
+                uri,
+                link,
+                latitude,
+                longitude,
+                "updatedAt",
+                "createdAt"
+            FROM google_maps_location gml
+            WHERE ST_Contains(
+                ST_MakeEnvelope(
+                    ${boundingBox.swLng},
+                    ${boundingBox.swLat},
+                    ${boundingBox.neLng},
+                    ${boundingBox.neLat},
+                    4326
+                ),
+                gml.coordinate
+            )
+        `
+    );
 };
 
 export const addComputedFields = async (

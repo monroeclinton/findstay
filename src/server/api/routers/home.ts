@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
 import { getMidPoint } from "~/utils/geometry";
 import { syncSuperMarkets } from "~/utils/gmm";
-import { addComputedFields } from "~/utils/home";
+import { addComputedFields, getPointsOfInterest } from "~/utils/home";
 
 export const homeRouter = createTRPCRouter({
     createSync: protectedProcedure
@@ -44,11 +44,19 @@ export const homeRouter = createTRPCRouter({
             );
             await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
 
+            const poi = await getPointsOfInterest({
+                neLat: airbnbSync.neLatitude.toNumber(),
+                neLng: airbnbSync.neLongitude.toNumber(),
+                swLat: airbnbSync.swLatitude.toNumber(),
+                swLng: airbnbSync.swLongitude.toNumber(),
+            });
+
             return {
                 id: airbnbSync.id,
                 cursors: airbnbSync.cursors,
                 midpoint,
                 clientBoundingBox: input.boundingBox,
+                poi,
                 boundingBox: {
                     neLat: airbnbSync.neLatitude.toNumber(),
                     neLng: airbnbSync.neLongitude.toNumber(),
