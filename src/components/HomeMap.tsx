@@ -140,6 +140,90 @@ const StayCard = ({
     );
 };
 
+const POICard = ({
+    record,
+    selected,
+}: {
+    record: RouterOutput["home"]["createSync"]["poi"][0];
+    selected: string | null;
+    viewed: string[];
+}) => {
+    const { map } = useContext(MapContext);
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    useLayoutEffect(() => {
+        if (!cardRef.current) return;
+
+        const marker = new Overlay({
+            id: record.id + "-poi-card",
+            position: [record.longitude, record.latitude],
+            positioning: "top-center",
+            offset: [0, 25],
+            element: cardRef.current,
+        });
+
+        if (marker) {
+            map?.addOverlay(marker);
+        }
+
+        return () => {
+            map?.removeOverlay(marker);
+        };
+    }, [cardRef, map]);
+
+    return (
+        <div>
+            <div ref={cardRef}>
+                <Transition
+                    mounted={selected === record.id}
+                    transition="fade"
+                    duration={100}
+                    timingFunction="ease"
+                    keepMounted={true}
+                >
+                    {(styles) => (
+                        <Link
+                            href={record.link}
+                            target="_blank"
+                            style={styles}
+                            className={classes.cardLink}
+                        >
+                            <Card w={300} withBorder className={classes.card}>
+                                <Text>{record.name}</Text>
+
+                                <Flex justify="space-between">
+                                    <Flex align="center" mt="xs">
+                                        <ThemeIcon
+                                            size="xs"
+                                            color="yellow"
+                                            variant="light"
+                                        >
+                                            <IconStarFilled />
+                                        </ThemeIcon>
+                                        <Text
+                                            fw={600}
+                                            size="sm"
+                                            c="gray"
+                                            style={{
+                                                marginLeft: "6px",
+                                            }}
+                                        >
+                                            {record.stars}
+                                        </Text>
+                                    </Flex>
+                                    <Text mt="xs">
+                                        {record.reviews} reviews
+                                    </Text>
+                                </Flex>
+                            </Card>
+                        </Link>
+                    )}
+                </Transition>
+            </div>
+        </div>
+    );
+};
+
 const Map = ({
     isLoading,
     data,
@@ -179,6 +263,57 @@ const Map = ({
 
     const handleClick = () => {
         setSelected(null);
+    };
+
+    const POIBadge = ({
+        record,
+    }: {
+        record: RouterOutput["home"]["createSync"]["poi"][0];
+    }) => {
+        const { map } = useContext(MapContext);
+        const badgeRef = useRef<HTMLDivElement>(null);
+
+        const marker = useMemo(
+            () =>
+                new Overlay({
+                    id: record.id + "-poi-badge",
+                    position: [record.longitude, record.latitude],
+                    positioning: "center-center",
+                }),
+            [record.id, record.longitude, record.latitude]
+        );
+
+        useLayoutEffect(() => {
+            if (badgeRef.current) {
+                marker.setElement(badgeRef.current);
+                map?.addOverlay(marker);
+            }
+
+            return () => {
+                map?.removeOverlay(marker);
+            };
+        }, [badgeRef, marker, map]);
+
+        return (
+            <div>
+                <Badge
+                    ref={badgeRef}
+                    style={{
+                        position: "absolute",
+                        userSelect: "none",
+                        cursor: "pointer",
+                    }}
+                    variant="outline"
+                    color={selected === record.id ? "black" : "green"}
+                    onClick={() => {
+                        setSelected(record.id);
+                        setViewed([record.id, ...viewed]);
+                    }}
+                >
+                    🛒
+                </Badge>
+            </div>
+        );
     };
 
     const StayBadge = ({
@@ -266,6 +401,20 @@ const Map = ({
                         <StayBadge
                             key={record.id + "-badge-" + page.toString()}
                             record={record}
+                        />
+                    ))}
+                    {sync.poi.map((record) => (
+                        <POIBadge
+                            key={record.id + "-card-" + page.toString()}
+                            record={record}
+                        />
+                    ))}
+                    {sync.poi.map((record) => (
+                        <POICard
+                            key={record.id + "-card-" + page.toString()}
+                            record={record}
+                            selected={selected}
+                            viewed={viewed}
                         />
                     ))}
                 </>
