@@ -56,7 +56,12 @@ export const homeRouter = createTRPCRouter({
                 cursors: airbnbSync.cursors,
                 midpoint,
                 clientBoundingBox: input.boundingBox,
-                poi,
+                poi: poi.map((point) => ({
+                    ...point,
+                    longitude: point.longitude.toNumber(),
+                    latitude: point.latitude.toNumber(),
+                    stars: point.stars.toNumber(),
+                })),
                 boundingBox: {
                     neLat: airbnbSync.neLatitude.toNumber(),
                     neLng: airbnbSync.neLongitude.toNumber(),
