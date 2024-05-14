@@ -54,7 +54,7 @@ const MapCard = ({
     record,
     selected,
 }: {
-    record: RouterOutput["home"]["getPage"]["locations"][0];
+    record: RouterOutput["home"]["getPage"]["stays"][0];
     selected: string | null;
     viewed: string[];
 }) => {
@@ -184,7 +184,7 @@ const Map = ({
     const MapBadge = ({
         record,
     }: {
-        record: RouterOutput["home"]["getPage"]["locations"][0];
+        record: RouterOutput["home"]["getPage"]["stays"][0];
     }) => {
         const { map } = useContext(MapContext);
         const badgeRef = useRef<HTMLDivElement>(null);
@@ -254,7 +254,7 @@ const Map = ({
         <>
             {data && (
                 <>
-                    {data.locations.map((record) => (
+                    {data.stays.map((record) => (
                         <MapCard
                             key={record.id + "-card-" + page.toString()}
                             record={record}
@@ -262,7 +262,7 @@ const Map = ({
                             viewed={viewed}
                         />
                     ))}
-                    {data.locations.map((record) => (
+                    {data.stays.map((record) => (
                         <MapBadge
                             key={record.id + "-badge-" + page.toString()}
                             record={record}

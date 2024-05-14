@@ -87,7 +87,7 @@ const Search: FindStayPage = () => {
 
     const homes = api.home.getPage.useQuery(
         {
-            syncId: sync.data?.id ,
+            syncId: sync.data?.id as string,
             cursor: sync.data?.cursors.at(activePage),
         },
         {
@@ -272,7 +272,7 @@ const Search: FindStayPage = () => {
                             <PillGroup>{filterPills}</PillGroup>
                         )}
                         {!homes.isInitialLoading &&
-                            homes.data?.locations.length === 0 && (
+                            homes.data?.stays.length === 0 && (
                                 <Center
                                     style={{
                                         flex: 1,
@@ -290,7 +290,7 @@ const Search: FindStayPage = () => {
                                     <Text mt="sm">No listings</Text>
                                 </Center>
                             )}
-                        {homes.data?.locations.map((record) => (
+                        {homes.data?.stays.map((record) => (
                             <HomeCard key={record.id} home={record} />
                         ))}
                         {homes.isInitialLoading && (

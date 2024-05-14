@@ -79,7 +79,7 @@ export const homeRouter = createTRPCRouter({
                 airbnbSync.pages.find((page) => page.cursor === input.cursor) ||
                 airbnbSync.pages.at(0);
 
-            const locations = page
+            const stays = page
                 ? await addComputedFields(
                       page.locations.map((result) => result.location),
                       ctx.session.user.id
@@ -98,7 +98,7 @@ export const homeRouter = createTRPCRouter({
             return {
                 syncId: airbnbSync.id,
                 midpoint,
-                locations,
+                stays,
                 cursor: input.cursor as string,
                 nextCursor,
             };
