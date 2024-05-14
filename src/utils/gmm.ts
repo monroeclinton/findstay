@@ -180,8 +180,8 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
                     ${location.uri},
                     ${location.link},
                     ST_POINT(
-                        ${location.latitude},
-                        ${location.longitude}
+                        ${location.longitude},
+                        ${location.latitude}
                     ),
                     ${location.latitude},
                     ${location.longitude},
