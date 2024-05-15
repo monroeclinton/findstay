@@ -24,7 +24,8 @@ export type Location = {
 };
 
 export const getPointsOfInterest = async (
-    boundingBox: BoundingBox
+    boundingBox: BoundingBox,
+    minRating: number | null
 ): Promise<GoogleMapsLocation[]> => {
     return await prisma.$queryRaw<GoogleMapsLocation[]>(
         Prisma.sql`
@@ -52,14 +53,15 @@ export const getPointsOfInterest = async (
                     4326
                 ),
                 gml.coordinate
-            )
+            ) AND stars >= (${minRating || 0})::numeric
         `
     );
 };
 
 export const addComputedFields = async (
     airbnbLocations: AirbnbLocation[],
-    userId: string
+    userId: string,
+    minRating: number | null
 ): Promise<Location[]> => {
     if (airbnbLocations.length === 0) return [];
 
@@ -88,6 +90,9 @@ export const addComputedFields = async (
                     id,
                     ST_Distance(ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography) as distance
                     FROM google_maps_location
+                    WHERE google_maps_location.stars >= (${
+                        minRating || 0
+                    })::numeric
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
                 LIMIT 1) AS supermarket
             WHERE

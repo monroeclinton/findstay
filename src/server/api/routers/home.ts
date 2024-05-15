@@ -12,6 +12,7 @@ export const homeRouter = createTRPCRouter({
             z.object({
                 location: z.string().min(3),
                 maxPrice: z.number().int().nullish(),
+                poiMinRating: z.number().nullish(),
                 dimensions: z.object({
                     width: z.number(),
                     height: z.number(),
@@ -42,14 +43,18 @@ export const homeRouter = createTRPCRouter({
                 airbnbSync.swLatitude.toNumber(),
                 airbnbSync.swLongitude.toNumber()
             );
+
             await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
 
-            const poi = await getPointsOfInterest({
-                neLat: airbnbSync.neLatitude.toNumber(),
-                neLng: airbnbSync.neLongitude.toNumber(),
-                swLat: airbnbSync.swLatitude.toNumber(),
-                swLng: airbnbSync.swLongitude.toNumber(),
-            });
+            const poi = await getPointsOfInterest(
+                {
+                    neLat: airbnbSync.neLatitude.toNumber(),
+                    neLng: airbnbSync.neLongitude.toNumber(),
+                    swLat: airbnbSync.swLatitude.toNumber(),
+                    swLng: airbnbSync.swLongitude.toNumber(),
+                },
+                input.poiMinRating
+            );
 
             return {
                 id: airbnbSync.id,
@@ -75,6 +80,7 @@ export const homeRouter = createTRPCRouter({
             z.object({
                 syncId: z.string(),
                 cursor: z.string().nullish(),
+                poiMinRating: z.number().nullish(),
             })
         )
         .query(async ({ ctx, input }) => {
@@ -95,7 +101,8 @@ export const homeRouter = createTRPCRouter({
             const stays = page
                 ? await addComputedFields(
                       page.locations.map((result) => result.location),
-                      ctx.session.user.id
+                      ctx.session.user.id,
+                      input.poiMinRating
                   )
                 : [];
 
