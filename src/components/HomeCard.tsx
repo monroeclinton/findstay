@@ -217,7 +217,7 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
                     Supermarket
                 </Text>
                 <Text fw={400} size="xl">
-                    {home.supermarket} meters
+                    {home.supermarket} {home.supermarket ? "meters" : "None"}
                 </Text>
             </Card.Section>
         </Card>
