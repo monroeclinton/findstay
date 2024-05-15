@@ -52,6 +52,7 @@ const Search: FindStayPage = () => {
     const [filters, setFilters] = useState<SearchFilters>({
         location: "",
         maxPrice: null,
+        poiMinRating: null,
     });
 
     const filterPills = Object.entries(filters)

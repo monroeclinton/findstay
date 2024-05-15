@@ -1,17 +1,23 @@
 import {
     ActionIcon,
     Button,
+    Divider,
     Flex,
     Group,
     Modal,
     NumberInput,
     Select,
     type SelectProps,
+    Text,
     TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { IconAdjustments, IconCurrencyDollar } from "@tabler/icons-react";
+import {
+    IconAdjustments,
+    IconCurrencyDollar,
+    IconStarHalf,
+} from "@tabler/icons-react";
 import { useRef } from "react";
 
 import useGeoAutocomplete, {
@@ -30,6 +36,7 @@ export interface GeoStringFilters {
 export interface SearchFilters {
     location: string;
     maxPrice: string | null;
+    poiMinRating: string | null;
 }
 
 export const filtersToGeoString = (filters: GeoStringFilters): string =>
@@ -103,23 +110,51 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
 
     return (
         <form onSubmit={form.onSubmit(onSubmit)}>
-            <GeoAutocomplete
-                key="location"
-                label="Location"
-                placeholder="Mission District, San Francisco, United States"
-                handleAutocomplete={handleAutocomplete}
-                {...form.getInputProps("location")}
-            />
+            <Flex
+                direction={{ base: "column", sm: "row" }}
+                gap={{ base: "xl" }}
+            >
+                <Flex direction="column" flex={1}>
+                    <Text fw={700}>Stays</Text>
 
-            <NumberInput
-                mt="md"
-                label="Max Price"
-                placeholder="100"
-                leftSection={<IconCurrencyDollar />}
-                decimalScale={0}
-                fixedDecimalScale
-                {...form.getInputProps("maxPrice")}
-            />
+                    <Divider />
+
+                    <GeoAutocomplete
+                        mt="md"
+                        key="location"
+                        label="Location"
+                        placeholder="Mission District, San Francisco, United States"
+                        handleAutocomplete={handleAutocomplete}
+                        {...form.getInputProps("location")}
+                    />
+
+                    <NumberInput
+                        mt="md"
+                        label="Max Price"
+                        placeholder="100"
+                        leftSection={<IconCurrencyDollar />}
+                        decimalScale={0}
+                        fixedDecimalScale
+                        {...form.getInputProps("maxPrice")}
+                    />
+                </Flex>
+                <Flex direction="column" flex={1}>
+                    <Text fw={700}>Interests</Text>
+
+                    <Divider />
+
+                    <NumberInput
+                        mt="md"
+                        label="Minimum Rating"
+                        placeholder="4 / 5"
+                        leftSection={<IconStarHalf />}
+                        decimalScale={1}
+                        max={5}
+                        fixedDecimalScale
+                        {...form.getInputProps("poiMinRating")}
+                    />
+                </Flex>
+            </Flex>
 
             <Group mt="md">
                 <Button type="submit">Search</Button>
@@ -149,7 +184,13 @@ const FilterBar = ({ onChange, values }: IFilterBarProps) => {
                 width: "100%",
             }}
         >
-            <Modal opened={opened} onClose={close} title="Search" centered>
+            <Modal
+                opened={opened}
+                onClose={close}
+                title="Search"
+                size="xl"
+                centered
+            >
                 <SearchForm onSubmit={handleSubmit} values={values} />
             </Modal>
 
