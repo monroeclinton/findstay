@@ -96,6 +96,7 @@ export const addComputedFields = async (
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
                 LIMIT 1) AS supermarket
             WHERE
+                supermarket.distance < 5000 AND
                 airbnb.id IN (${Prisma.join(
                     airbnbLocations.map((location) => location.id)
                 )})
