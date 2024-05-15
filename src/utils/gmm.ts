@@ -48,7 +48,7 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
                     ST_DistanceSphere(
                         coordinate,
                         ST_MakePoint(${longitude}, ${latitude})
-                    ) <= 200
+                    ) <= 400
             `
         )
     ).at(0);

@@ -106,6 +106,10 @@ export const homeRouter = createTRPCRouter({
                   )
                 : [];
 
+            for (const stay of stays) {
+                await syncSuperMarkets(stay.latitude, stay.longitude);
+            }
+
             const cursorPos: number = input.cursor
                 ? airbnbSync.cursors.indexOf(input.cursor) || 0
                 : 0;
