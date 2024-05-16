@@ -15,6 +15,37 @@ datasource db {
     relationMode = "prisma"
 }
 
+model StaySync {
+    id           String             @id @default(cuid())
+    airbnbSync   AirbnbLocationSync @relation(fields: [airbnbSyncId], references: [id])
+    airbnbSyncId String
+    params       StaySyncParams     @relation(fields: [paramsId], references: [id])
+    paramsId     String             @unique
+    createdAt    DateTime           @default(now())
+    updatedAt    DateTime           @updatedAt
+
+    @@map("stay_sync")
+}
+
+model StaySyncParams {
+    id            String   @id @default(cuid())
+    location      String
+    stayMaxPrice  String
+    poiMinRating  String
+    poiMinReviews String
+    neBBox        Unsupported("geometry(Point, 4326)")
+    neLatitude    Decimal
+    neLongitude   Decimal
+    swBBox        Unsupported("geometry(Point, 4326)")
+    swLatitude    Decimal
+    swLongitude   Decimal
+    sync          StaySync?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    @@map("stay_sync_params")
+}
+
 model AirbnbLocation {
     id              String                   @id @default(cuid())
     airbnbId        String                   @unique
@@ -56,6 +87,7 @@ model AirbnbLocationSync {
     swBBox      Unsupported("geometry(Point, 4326)")
     swLatitude  Decimal
     swLongitude Decimal
+    syncs       StaySync[]
     createdAt   DateTime                             @default(now())
     updatedAt   DateTime                             @updatedAt
 
