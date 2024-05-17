@@ -1,16 +1,20 @@
 import { createId } from "@paralleldrive/cuid2";
 import {
     type AirbnbLocationSync,
+    type AirbnbLocationSyncPage,
     Prisma,
     type Prisma as PrismaType,
 } from "@prisma/client";
-import { TRPCError } from "@trpc/server";
 import axios, { type AxiosResponse } from "axios";
 
 import { prisma } from "~/server/db";
 
-import { type BoundingBox, latLngToBounds, zoomLevel } from "./geometry";
-import { searchToCoordinates } from "./nominatim";
+import {
+    type BoundingBox,
+    getMidPoint,
+    latLngToBounds,
+    zoomLevel,
+} from "./geometry";
 
 interface Coordinate {
     longitude: number;
@@ -54,19 +58,16 @@ interface MapSearchResponse {
     };
 }
 
-type AirbnbLocationSyncWithPages = PrismaType.AirbnbLocationSyncGetPayload<{
-    include: {
-        pages: {
-            include: {
-                locations: {
-                    include: {
-                        location: true;
-                    };
+type AirbnbLocationSyncPageWithLocations =
+    PrismaType.AirbnbLocationSyncPageGetPayload<{
+        include: {
+            locations: {
+                include: {
+                    location: true;
                 };
             };
         };
-    };
-}>;
+    }>;
 
 const headers = {
     "Content-Type": "text/html",
@@ -442,26 +443,8 @@ export const createAirbnbSync = async (
     search: string,
     priceMax: number | undefined | null,
     dimensions: { width: number; height: number },
-    clientBoundingBox: BoundingBox | undefined | null
+    boundingBox: BoundingBox
 ): Promise<AirbnbLocationSync | null> => {
-    const nominatim = await searchToCoordinates(search);
-
-    if (!nominatim) {
-        throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "This location does not exist.",
-        });
-    }
-
-    let boundingBox: BoundingBox = clientBoundingBox
-        ? clientBoundingBox
-        : {
-              neLat: nominatim.neLatitude.toNumber(),
-              neLng: nominatim.neLongitude.toNumber(),
-              swLat: nominatim.swLatitude.toNumber(),
-              swLng: nominatim.swLongitude.toNumber(),
-          };
-
     const recentSync = await prisma.airbnbLocationSync.findFirst({
         where: {
             AND: [
@@ -492,7 +475,7 @@ export const createAirbnbSync = async (
         },
     });
 
-    if (recentSync && !clientBoundingBox) return recentSync;
+    if (recentSync) return recentSync;
 
     const apiKey = await scrapeAirbnbApiKey(search);
 
@@ -507,9 +490,16 @@ export const createAirbnbSync = async (
     if (zoom < 12) {
         zoom = 12;
 
+        const { latitude, longitude } = getMidPoint(
+            boundingBox.neLat,
+            boundingBox.neLng,
+            boundingBox.swLat,
+            boundingBox.swLng
+        );
+
         boundingBox = latLngToBounds(
-            nominatim.latitude.toNumber(),
-            nominatim.longitude.toNumber(),
+            latitude,
+            longitude,
             zoom,
             dimensions.width,
             dimensions.height
@@ -599,8 +589,8 @@ export const createAirbnbSync = async (
 
 export const syncAirbnbPage = async (
     syncId: string,
-    cursor: string | undefined | null = undefined
-): Promise<AirbnbLocationSyncWithPages | null> => {
+    page: number
+): Promise<AirbnbLocationSyncPageWithLocations | null> => {
     const sync = await prisma.airbnbLocationSync.findUniqueOrThrow({
         where: {
             id: syncId,
@@ -618,28 +608,19 @@ export const syncAirbnbPage = async (
         },
     });
 
-    const curCursor = cursor || sync.cursors.at(0);
-    if (!curCursor) return sync;
+    const curCursor = sync.cursors.at(page);
+    if (!curCursor) return null;
 
-    if (!sync.pages.map((page) => page.cursor).includes(curCursor)) {
-        const locationResults = await scrapeAirbnbLocations(sync, curCursor);
-        await createAirbnbPage(sync, curCursor, locationResults);
-    }
+    const locationResults = await scrapeAirbnbLocations(sync, curCursor);
+    await createAirbnbPage(sync, curCursor, locationResults);
 
-    return await prisma.airbnbLocationSync.findUniqueOrThrow({
+    return prisma.airbnbLocationSyncPage.findFirst({
         where: {
-            id: sync.id,
+            syncId,
+            cursor: curCursor,
         },
         include: {
-            pages: {
-                include: {
-                    locations: {
-                        include: {
-                            location: true,
-                        },
-                    },
-                },
-            },
+            locations: true,
         },
     });
 };

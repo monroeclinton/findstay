@@ -2,11 +2,10 @@ import {
     type AirbnbLocation,
     type GoogleMapsLocation,
     Prisma,
+    type StaySyncParams,
 } from "@prisma/client";
 
 import { prisma } from "~/server/db";
-
-import { type BoundingBox } from "./geometry";
 
 export type Location = {
     id: string;
@@ -24,8 +23,7 @@ export type Location = {
 };
 
 export const getPointsOfInterest = async (
-    boundingBox: BoundingBox,
-    minRating: number | null
+    params: StaySyncParams
 ): Promise<GoogleMapsLocation[]> => {
     return await prisma.$queryRaw<GoogleMapsLocation[]>(
         Prisma.sql`
@@ -44,24 +42,27 @@ export const getPointsOfInterest = async (
                 "updatedAt",
                 "createdAt"
             FROM google_maps_location gml
-            WHERE ST_Contains(
-                ST_MakeEnvelope(
-                    ${boundingBox.swLng},
-                    ${boundingBox.swLat},
-                    ${boundingBox.neLng},
-                    ${boundingBox.neLat},
-                    4326
-                ),
-                gml.coordinate
-            ) AND stars >= (${minRating || 0})::numeric
+            WHERE
+                ST_Contains(
+                    ST_MakeEnvelope(
+                        ${params.swLongitude.toNumber()},
+                        ${params.swLatitude.toNumber()},
+                        ${params.neLongitude.toNumber()},
+                        ${params.neLatitude.toNumber()},
+                        4326
+                    ),
+                    gml.coordinate
+                )
+                AND stars >= (${params.poiMinRating || 0})::numeric
+                AND reviews >= (${params.poiMinReviews || 0})::numeric
         `
     );
 };
 
 export const addComputedFields = async (
     airbnbLocations: AirbnbLocation[],
-    userId: string,
-    minRating: number | null
+    params: StaySyncParams,
+    userId: string
 ): Promise<Location[]> => {
     if (airbnbLocations.length === 0) return [];
 
@@ -91,7 +92,7 @@ export const addComputedFields = async (
                     ST_Distance(ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography) as distance
                     FROM google_maps_location
                     WHERE google_maps_location.stars >= (${
-                        minRating || 0
+                        params.poiMinRating || 0
                     })::numeric
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
                 LIMIT 1) AS supermarket
