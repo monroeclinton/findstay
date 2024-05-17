@@ -1,18 +1,26 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { createAirbnbSync, syncAirbnbPage } from "~/utils/airbnb";
+import { syncAirbnbPage } from "~/utils/airbnb";
 import { getMidPoint } from "~/utils/geometry";
 import { syncSuperMarkets } from "~/utils/gmm";
 import { addComputedFields, getPointsOfInterest } from "~/utils/home";
+import { createSync, getSyncById } from "~/utils/sync";
 
-export const homeRouter = createTRPCRouter({
+export const stayRouter = createTRPCRouter({
     createSync: protectedProcedure
         .input(
             z.object({
-                location: z.string().min(3),
-                maxPrice: z.number().int().nullish(),
-                poiMinRating: z.number().nullish(),
+                params: z.object({
+                    location: z.string().min(3),
+                    stay: z.object({
+                        maxPrice: z.number().int().nullable(),
+                    }),
+                    poi: z.object({
+                        minRating: z.number().nullable(),
+                        minReviews: z.number().nullable(),
+                    }),
+                }),
                 dimensions: z.object({
                     width: z.number(),
                     height: z.number(),
@@ -24,41 +32,32 @@ export const homeRouter = createTRPCRouter({
                         swLat: z.number(),
                         swLng: z.number(),
                     })
-                    .nullish(),
+                    .nullable(),
             })
         )
         .query(async ({ input }) => {
-            const airbnbSync = await createAirbnbSync(
-                input.location,
-                input.maxPrice,
+            const sync = await createSync(
                 input.dimensions,
-                input.boundingBox
+                input.boundingBox,
+                input.params
             );
 
-            if (!airbnbSync) throw new Error("Airbnb sync not successful.");
+            if (!sync) throw new Error("Sync not successful.");
 
             const midpoint = getMidPoint(
-                airbnbSync.neLatitude.toNumber(),
-                airbnbSync.neLongitude.toNumber(),
-                airbnbSync.swLatitude.toNumber(),
-                airbnbSync.swLongitude.toNumber()
+                sync.params.neLatitude.toNumber(),
+                sync.params.neLongitude.toNumber(),
+                sync.params.swLatitude.toNumber(),
+                sync.params.swLongitude.toNumber()
             );
 
             await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
 
-            const poi = await getPointsOfInterest(
-                {
-                    neLat: airbnbSync.neLatitude.toNumber(),
-                    neLng: airbnbSync.neLongitude.toNumber(),
-                    swLat: airbnbSync.swLatitude.toNumber(),
-                    swLng: airbnbSync.swLongitude.toNumber(),
-                },
-                input.poiMinRating
-            );
+            const poi = await getPointsOfInterest(sync.params);
 
             return {
-                id: airbnbSync.id,
-                cursors: airbnbSync.cursors,
+                id: sync.id,
+                cursors: sync.airbnbSync.cursors,
                 midpoint,
                 clientBoundingBox: input.boundingBox,
                 poi: poi.map((point) => ({
@@ -68,10 +67,10 @@ export const homeRouter = createTRPCRouter({
                     stars: point.stars.toNumber(),
                 })),
                 boundingBox: {
-                    neLat: airbnbSync.neLatitude.toNumber(),
-                    neLng: airbnbSync.neLongitude.toNumber(),
-                    swLat: airbnbSync.swLatitude.toNumber(),
-                    swLng: airbnbSync.swLongitude.toNumber(),
+                    neLat: sync.params.neLatitude.toNumber(),
+                    neLng: sync.params.neLongitude.toNumber(),
+                    swLat: sync.params.swLatitude.toNumber(),
+                    swLng: sync.params.swLongitude.toNumber(),
                 },
             };
         }),
@@ -79,52 +78,39 @@ export const homeRouter = createTRPCRouter({
         .input(
             z.object({
                 syncId: z.string(),
-                cursor: z.string().nullish(),
-                poiMinRating: z.number().nullish(),
+                page: z.number(),
             })
         )
         .query(async ({ ctx, input }) => {
-            const airbnbSync = await syncAirbnbPage(input.syncId, input.cursor);
-            if (!airbnbSync) throw new Error("Airbnb sync not successful.");
+            const sync = await getSyncById(input.syncId);
 
-            const midpoint = getMidPoint(
-                airbnbSync.neLatitude.toNumber(),
-                airbnbSync.neLongitude.toNumber(),
-                airbnbSync.swLatitude.toNumber(),
-                airbnbSync.swLongitude.toNumber()
+            const airbnbPage = await syncAirbnbPage(
+                sync.airbnbSyncId,
+                input.page
             );
 
-            const page =
-                airbnbSync.pages.find((page) => page.cursor === input.cursor) ||
-                airbnbSync.pages.at(0);
+            if (!airbnbPage) throw new Error("Airbnb sync not successful.");
 
-            const stays = page
-                ? await addComputedFields(
-                      page.locations.map((result) => result.location),
-                      ctx.session.user.id,
-                      input.poiMinRating
-                  )
-                : [];
+            const midpoint = getMidPoint(
+                sync.params.neLatitude.toNumber(),
+                sync.params.neLongitude.toNumber(),
+                sync.params.swLatitude.toNumber(),
+                sync.params.swLongitude.toNumber()
+            );
+
+            const stays = await addComputedFields(
+                airbnbPage.locations.map((result) => result.location),
+                sync.params,
+                ctx.session.user.id
+            );
 
             for (const stay of stays) {
                 await syncSuperMarkets(stay.latitude, stay.longitude);
             }
 
-            const cursorPos: number = input.cursor
-                ? airbnbSync.cursors.indexOf(input.cursor) || 0
-                : 0;
-
-            const nextCursor: string | null =
-                airbnbSync.cursors.length - 1 > cursorPos
-                    ? airbnbSync.cursors.at(cursorPos + 1) || null
-                    : null;
-
             return {
-                syncId: airbnbSync.id,
                 midpoint,
                 stays,
-                cursor: input.cursor as string,
-                nextCursor,
             };
         }),
 });
