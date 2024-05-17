@@ -53,6 +53,7 @@ const Search: FindStayPage = () => {
         location: "",
         maxPrice: null,
         poiMinRating: null,
+        poiMinReviews: null,
     });
 
     const filterPills = Object.entries(filters)
@@ -76,6 +77,9 @@ const Search: FindStayPage = () => {
             poiMinRating: filters.poiMinRating
                 ? parseFloat(filters.poiMinRating)
                 : null,
+            poiMinReviews: filters.poiMinReviews
+                ? parseFloat(filters.poiMinReviews)
+                : null,
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,
@@ -91,10 +95,13 @@ const Search: FindStayPage = () => {
 
     const homes = api.home.getPage.useQuery(
         {
-            syncId: sync.data?.id as string,
+            syncId: sync.data?.id,
             cursor: sync.data?.cursors.at(activePage),
             poiMinRating: filters.poiMinRating
                 ? parseFloat(filters.poiMinRating)
+                : null,
+            poiMinReviews: filters.poiMinReviews
+                ? parseFloat(filters.poiMinReviews)
                 : null,
         },
         {

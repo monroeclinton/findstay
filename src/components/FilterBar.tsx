@@ -37,6 +37,7 @@ export interface SearchFilters {
     location: string;
     maxPrice: string | null;
     poiMinRating: string | null;
+    poiMinReviews: string | null;
 }
 
 export const filtersToGeoString = (filters: GeoStringFilters): string =>
@@ -134,6 +135,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                         placeholder="100"
                         leftSection={<IconCurrencyDollar />}
                         decimalScale={0}
+                        min={0}
                         fixedDecimalScale
                         {...form.getInputProps("maxPrice")}
                     />
@@ -150,8 +152,20 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                         leftSection={<IconStarHalf />}
                         decimalScale={1}
                         max={5}
+                        min={0}
                         fixedDecimalScale
                         {...form.getInputProps("poiMinRating")}
+                    />
+
+                    <NumberInput
+                        mt="md"
+                        label="Minimum Reviews"
+                        placeholder="5 reviews"
+                        leftSection={<IconStarHalf />}
+                        decimalScale={0}
+                        min={0}
+                        fixedDecimalScale
+                        {...form.getInputProps("poiMinReviews")}
                     />
                 </Flex>
             </Flex>
