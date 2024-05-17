@@ -1,6 +1,6 @@
 import { favoriteRouter } from "~/server/api/routers/favorite";
-import { homeRouter } from "~/server/api/routers/home";
 import { invoiceRouter } from "~/server/api/routers/invoice";
+import { stayRouter } from "~/server/api/routers/stay";
 import { userRouter } from "~/server/api/routers/user";
 import { createTRPCRouter } from "~/server/api/trpc";
 
@@ -11,7 +11,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
  */
 export const appRouter = createTRPCRouter({
     favorite: favoriteRouter,
-    home: homeRouter,
+    stay: stayRouter,
     invoice: invoiceRouter,
     user: userRouter,
 });
