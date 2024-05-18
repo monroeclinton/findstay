@@ -1,6 +1,7 @@
 import { createId } from "@paralleldrive/cuid2";
 import { Prisma } from "@prisma/client";
 import axios, { type AxiosResponse } from "axios";
+import sql, { bulk } from "sql-template-tag";
 
 import { prisma } from "~/server/db";
 
@@ -36,7 +37,7 @@ const getLink = (
     return `https://www.google.com/maps/place/@${latitude},${longitude},15z/data=!4m6!3m5!1s${hex}!8m2!3d${latitude}!4d${longitude}!16s${uri}`;
 };
 
-export const syncSuperMarkets = async (latitude: number, longitude: number) => {
+const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
     const isSynced = (
         await prisma.$queryRaw<[{ count: number }]>(
             Prisma.sql`
@@ -73,11 +74,11 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
     const searchProtoBufString = (
         getArray(initializationState, [3, 2], "") as string
     ).substring(5);
-    if (searchProtoBufString.length === 0) return null;
+    if (searchProtoBufString.length === 0) return;
     const searchProtoBuf: unknown = JSON.parse(searchProtoBufString);
 
     const locationResults = getArray(searchProtoBuf, [0, 1]);
-    if (!Array.isArray(locationResults)) return null;
+    if (!Array.isArray(locationResults)) return;
     locationResults.shift();
 
     await prisma.$transaction(async (tx) => {
@@ -110,7 +111,7 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
             )
         ).at(0);
 
-        if (!sync) return null;
+        if (!sync) return;
 
         for (const store of locationResults) {
             const name = getArray(store, [14, 11]);
@@ -193,4 +194,34 @@ export const syncSuperMarkets = async (latitude: number, longitude: number) => {
             );
         }
     });
+};
+
+export const syncSuperMarkets = async (
+    coordinates: Array<{ latitude: number; longitude: number }>
+) => {
+    const notSynced = await prisma.$queryRaw<
+        [{ latitude: number; longitude: number }]
+    >(
+        sql`
+            WITH coordinates (longitude, latitude) AS (
+                VALUES ${bulk(
+                    coordinates.map((c) => [c.longitude, c.latitude])
+                )}
+            )
+            SELECT
+                c.latitude, c.longitude
+            FROM
+                coordinates c
+            LEFT JOIN google_maps_sync gms
+            ON ST_DistanceSphere(
+                coordinate,
+                ST_MakePoint(c.longitude, c.latitude)
+            ) <= 400
+            WHERE gms.id IS NULL
+        `
+    );
+
+    for (const { latitude, longitude } of notSynced) {
+        await scrapeSuperMarkets(latitude, longitude);
+    }
 };

@@ -51,7 +51,7 @@ export const stayRouter = createTRPCRouter({
                 sync.params.swLongitude.toNumber()
             );
 
-            await syncSuperMarkets(midpoint.latitude, midpoint.longitude);
+            await syncSuperMarkets([midpoint]);
 
             const poi = await getPointsOfInterest(sync.params);
 
@@ -104,9 +104,15 @@ export const stayRouter = createTRPCRouter({
                 ctx.session.user.id
             );
 
+            const coordinates = [];
             for (const stay of stays) {
-                await syncSuperMarkets(stay.latitude, stay.longitude);
+                coordinates.push({
+                    latitude: stay.latitude,
+                    longitude: stay.longitude,
+                });
             }
+
+            await syncSuperMarkets(coordinates);
 
             return {
                 midpoint,
