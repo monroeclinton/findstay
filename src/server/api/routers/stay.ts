@@ -85,7 +85,7 @@ export const stayRouter = createTRPCRouter({
             const sync = await getSyncById(input.syncId);
 
             const airbnbPage = await syncAirbnbPage(
-                sync.airbnbSyncId,
+                sync.airbnbSync,
                 input.page
             );
 

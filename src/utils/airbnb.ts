@@ -69,6 +69,20 @@ type AirbnbLocationSyncPageWithLocations =
         };
     }>;
 
+type AirbnbLocationSyncWithPages = PrismaType.AirbnbLocationSyncGetPayload<{
+    include: {
+        pages: {
+            include: {
+                locations: {
+                    include: {
+                        location: true;
+                    };
+                };
+            };
+        };
+    };
+}>;
+
 const headers = {
     "Content-Type": "text/html",
     "User-Agent": "curl/7.72.0",
@@ -588,36 +602,25 @@ export const createAirbnbSync = async (
 };
 
 export const syncAirbnbPage = async (
-    syncId: string,
+    sync: AirbnbLocationSyncWithPages,
     page: number
 ): Promise<AirbnbLocationSyncPageWithLocations | null> => {
-    const sync = await prisma.airbnbLocationSync.findUniqueOrThrow({
-        where: {
-            id: syncId,
-        },
-        include: {
-            pages: {
-                include: {
-                    locations: {
-                        include: {
-                            location: true,
-                        },
-                    },
-                },
-            },
-        },
-    });
+    const cursor = sync.cursors.at(page);
+    if (!cursor) return null;
 
-    const curCursor = sync.cursors.at(page);
-    if (!curCursor) return null;
+    const existing = sync.pages.find((p) => p.cursor === cursor);
 
-    const locationResults = await scrapeAirbnbLocations(sync, curCursor);
-    await createAirbnbPage(sync, curCursor, locationResults);
+    if (existing) {
+        return existing;
+    }
+
+    const locationResults = await scrapeAirbnbLocations(sync, cursor);
+    await createAirbnbPage(sync, cursor, locationResults);
 
     return prisma.airbnbLocationSyncPage.findFirstOrThrow({
         where: {
-            syncId,
-            cursor: curCursor,
+            syncId: sync.id,
+            cursor,
         },
         include: {
             locations: {

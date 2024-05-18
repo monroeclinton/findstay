@@ -44,7 +44,11 @@ export const getSyncById = async (
                 include: {
                     pages: {
                         include: {
-                            locations: true,
+                            locations: {
+                                include: {
+                                    location: true,
+                                },
+                            },
                         },
                     },
                 },
