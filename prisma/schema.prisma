@@ -125,7 +125,7 @@ model AirbnbLocationFavorite {
     user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId     String
     folder     AirbnbLocationFavoriteFolder @relation(fields: [folderId], references: [id], onDelete: Cascade)
-    folderId String
+    folderId   String
 
     @@map("airbnb_location_favorite")
     @@unique([locationId, userId, folderId])
@@ -175,16 +175,16 @@ model GoogleMapsSync {
 }
 
 model NominatimSearch {
-    id         String   @id @default(cuid())
-    search     String
-    latitude   Decimal
-    longitude  Decimal
+    id          String   @id @default(cuid())
+    search      String
+    latitude    Decimal
+    longitude   Decimal
     neLatitude  Decimal
     neLongitude Decimal
     swLatitude  Decimal
     swLongitude Decimal
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
 
     @@map("nominatim_search")
 }
