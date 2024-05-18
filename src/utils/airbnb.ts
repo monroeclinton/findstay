@@ -614,13 +614,17 @@ export const syncAirbnbPage = async (
     const locationResults = await scrapeAirbnbLocations(sync, curCursor);
     await createAirbnbPage(sync, curCursor, locationResults);
 
-    return prisma.airbnbLocationSyncPage.findFirst({
+    return prisma.airbnbLocationSyncPage.findFirstOrThrow({
         where: {
             syncId,
             cursor: curCursor,
         },
         include: {
-            locations: true,
+            locations: {
+                include: {
+                    location: true,
+                },
+            },
         },
     });
 };
