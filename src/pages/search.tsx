@@ -70,16 +70,24 @@ const Search: FindStayPage = () => {
     );
     const mapContainerRef = useRef<HTMLDivElement>(null);
 
-    const sync = api.home.createSync.useQuery(
+    const sync = api.stay.createSync.useQuery(
         {
-            location: filters.location,
-            maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : null,
-            poiMinRating: filters.poiMinRating
-                ? parseFloat(filters.poiMinRating)
-                : null,
-            poiMinReviews: filters.poiMinReviews
-                ? parseFloat(filters.poiMinReviews)
-                : null,
+            params: {
+                location: filters.location,
+                stay: {
+                    maxPrice: filters.maxPrice
+                        ? parseInt(filters.maxPrice)
+                        : null,
+                },
+                poi: {
+                    minRating: filters.poiMinRating
+                        ? parseFloat(filters.poiMinRating)
+                        : null,
+                    minReviews: filters.poiMinReviews
+                        ? parseFloat(filters.poiMinReviews)
+                        : null,
+                },
+            },
             dimensions: {
                 width: mapContainerRef.current?.clientWidth as number,
                 height: mapContainerRef.current?.clientHeight as number,
@@ -93,16 +101,10 @@ const Search: FindStayPage = () => {
         }
     );
 
-    const homes = api.home.getPage.useQuery(
+    const homes = api.stay.getPage.useQuery(
         {
-            syncId: sync.data?.id,
-            cursor: sync.data?.cursors.at(activePage),
-            poiMinRating: filters.poiMinRating
-                ? parseFloat(filters.poiMinRating)
-                : null,
-            poiMinReviews: filters.poiMinReviews
-                ? parseFloat(filters.poiMinReviews)
-                : null,
+            syncId: sync.data?.id as string,
+            page: activePage,
         },
         {
             enabled: sync.data?.id !== undefined,
@@ -124,8 +126,8 @@ const Search: FindStayPage = () => {
         setQueryParams(filters);
         setFilters(filters);
 
-        void utils.home.createSync.reset();
-        void utils.home.getPage.reset();
+        void utils.stay.createSync.reset();
+        void utils.stay.getPage.reset();
     };
 
     useEffect(() => {
