@@ -41,6 +41,7 @@
         "react-dom": "18.2.0",
         "rlayers": "^2.1.0",
         "snakecase-keys": "^5.4.5",
+        "sql-template-tag": "^5.2.1",
         "stripe": "^14.1.0",
         "superjson": "1.12.2",
         "zod": "^3.21.4"
