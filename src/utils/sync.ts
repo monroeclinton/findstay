@@ -103,45 +103,6 @@ export const createSync = async (
         });
     }
 
-    console.log(`
-        INSERT INTO stay_sync_params (
-            id,
-            location,
-            "stayMaxPrice",
-            "poiMinRating",
-            "poiMinReviews",
-            "neBBox",
-            "neLatitude",
-            "neLongitude",
-            "swBBox",
-            "swLatitude",
-            "swLongitude",
-            "updatedAt"
-        )
-        VALUES (
-            ${createId()},
-            ${params.location || "null"},
-            ${params.stay.maxPrice || "null"},
-            ${params.poi.minRating || "null"},
-            ${params.poi.minReviews || "null"},
-            ST_POINT(
-                ${boundingBox.neLng},
-                ${boundingBox.neLat}
-            ),
-            ${boundingBox.neLat},
-            ${boundingBox.neLng},
-            ST_POINT(
-                ${boundingBox.swLng},
-                ${boundingBox.swLat}
-            ),
-            ${boundingBox.swLat},
-            ${boundingBox.swLng},
-            CURRENT_TIMESTAMP
-        )
-        ON CONFLICT (id) DO NOTHING
-        RETURNING id
-    `);
-
     const inserted = (
         await prisma.$queryRaw<[{ id: string }]>(
             Prisma.sql`
