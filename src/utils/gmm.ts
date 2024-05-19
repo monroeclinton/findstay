@@ -57,7 +57,7 @@ const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
     if (!isSynced || isSynced.count > 0) return null;
 
     const res: AxiosResponse<string> = await axios.get(
-        `https://www.google.com/maps/search/supermarket/@${latitude},${longitude},16z?entry=ttu`,
+        `https://www.google.com/maps/search/super+market/@${latitude},${longitude},16z?entry=ttu`,
         {
             headers,
         }
