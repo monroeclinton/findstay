@@ -49,7 +49,7 @@ const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
                     ST_DistanceSphere(
                         coordinate,
                         ST_MakePoint(${longitude}, ${latitude})
-                    ) <= 400
+                    ) <= 1000
             `
         )
     ).at(0);
