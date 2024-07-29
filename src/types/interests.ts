@@ -1,10 +1,10 @@
-export const INTEREST_TYPES = [
-    "supermarket",
-    "gym",
-    "laundromat",
-    "cafe",
-    "coworking space",
-];
+export enum InterestType {
+    Supermarket = "supermarket",
+    Gym = "gym",
+    Laundromat = "laundromat",
+    Cafe = "cafe",
+    CoworkingSpace = "coworking space",
+}
 
 export const LANGUAGES = [
     "es",
@@ -43,13 +43,13 @@ export const LANGUAGES = [
 ];
 
 export interface IInterest {
-    name: string;
+    name: InterestType;
     i18n: { [key in (typeof LANGUAGES)[number]]: string };
 }
 
 export const INTERESTS: Array<IInterest> = [
     {
-        name: "supermarket",
+        name: InterestType.Supermarket,
         i18n: {
             es: "supermercado",
             de: "Supermarkt",
@@ -87,7 +87,7 @@ export const INTERESTS: Array<IInterest> = [
         },
     },
     {
-        name: "gym",
+        name: InterestType.Gym,
         i18n: {
             es: "gimnasio",
             de: "fitnessstudio",
@@ -125,7 +125,7 @@ export const INTERESTS: Array<IInterest> = [
         },
     },
     {
-        name: "laundromat",
+        name: InterestType.Laundromat,
         i18n: {
             es: "lavandería",
             de: "Waschsalon",
@@ -163,7 +163,7 @@ export const INTERESTS: Array<IInterest> = [
         },
     },
     {
-        name: "cafe",
+        name: InterestType.Cafe,
         i18n: {
             es: "café",
             de: "Café",
@@ -201,7 +201,7 @@ export const INTERESTS: Array<IInterest> = [
         },
     },
     {
-        name: "coworking space",
+        name: InterestType.CoworkingSpace,
         i18n: {
             es: "espacio de coworking",
             de: "Coworking-Space",
