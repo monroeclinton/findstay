@@ -8,6 +8,7 @@ import {
     NumberInput,
     Select,
     type SelectProps,
+    TagsInput,
     Text,
     TextInput,
 } from "@mantine/core";
@@ -23,6 +24,7 @@ import { useRef } from "react";
 import useGeoAutocomplete, {
     type GeoAutocompleteOptions,
 } from "~/hooks/useGeoAutocomplete";
+import { InterestType } from "~/types/interests";
 
 export const FILTER_BAR_HEIGHT = "75px";
 
@@ -144,6 +146,17 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                     <Text fw={700}>Interests</Text>
 
                     <Divider />
+
+                    <TagsInput
+                        mt="md"
+                        defaultValue={[
+                            InterestType.Supermarket.charAt(0).toUpperCase() +
+                                InterestType.Supermarket.slice(1),
+                        ]}
+                        data={Object.keys(InterestType).map(
+                            (i) => i.charAt(0).toUpperCase() + i.slice(1)
+                        )}
+                    />
 
                     <NumberInput
                         mt="md"
