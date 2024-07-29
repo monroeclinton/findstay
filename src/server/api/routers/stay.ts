@@ -1,9 +1,10 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { InterestType } from "~/types/interests";
 import { syncAirbnbPage } from "~/utils/airbnb";
 import { getMidPoint } from "~/utils/geometry";
-import { syncSuperMarkets } from "~/utils/gmm";
+import { syncInterest } from "~/utils/gmm";
 import { addComputedFields, getPointsOfInterest } from "~/utils/home";
 import { createSync, getSyncById } from "~/utils/sync";
 
@@ -17,6 +18,7 @@ export const stayRouter = createTRPCRouter({
                         maxPrice: z.number().int().nullable(),
                     }),
                     poi: z.object({
+                        interests: z.array(z.nativeEnum(InterestType)),
                         minRating: z.number().nullable(),
                         minReviews: z.number().nullable(),
                     }),
@@ -51,7 +53,9 @@ export const stayRouter = createTRPCRouter({
                 sync.params.swLongitude.toNumber()
             );
 
-            await syncSuperMarkets([midpoint]);
+            for (const interest of input.params.poi.interests) {
+                await syncInterest(interest, [midpoint]);
+            }
 
             const poi = await getPointsOfInterest(sync.params);
 
@@ -112,7 +116,7 @@ export const stayRouter = createTRPCRouter({
                 });
             }
 
-            await syncSuperMarkets(coordinates);
+            await syncInterest(coordinates);
 
             return {
                 midpoint,

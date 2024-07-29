@@ -4,6 +4,9 @@ import axios, { type AxiosResponse } from "axios";
 import sql, { bulk } from "sql-template-tag";
 
 import { prisma } from "~/server/db";
+import { type InterestType } from "~/types/interests";
+
+import { getInterestTranslation } from "./translation";
 
 const headers = {
     "User-Agent":
@@ -59,7 +62,11 @@ const getApiLink = (query: string, latitude: number, longitude: number) => {
     return `${baseUrl}&pb=${pb}&q=${query}&oq=${query}&tch=1`;
 };
 
-const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
+const scrapeInterest = async (
+    query: (typeof INTEREST_TYPES)[number],
+    latitude: number,
+    longitude: number
+) => {
     const isSynced = (
         await prisma.$queryRaw<[{ count: number }]>(
             Prisma.sql`
@@ -79,7 +86,7 @@ const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
     if (!isSynced || isSynced.count > 0) return null;
 
     const res: AxiosResponse<string> = await axios.get(
-        getApiLink("supermarkets", latitude, longitude),
+        getApiLink(query, latitude, longitude),
         {
             headers,
         }
@@ -208,9 +215,19 @@ const scrapeSuperMarkets = async (latitude: number, longitude: number) => {
     });
 };
 
-export const syncSuperMarkets = async (
+export const syncInterest = async (
+    query: InterestType,
     coordinates: Array<{ latitude: number; longitude: number }>
 ) => {
+    const first = coordinates.at(0);
+    if (!first) return;
+
+    const translation = await getInterestTranslation(
+        query,
+        first.latitude,
+        first.longitude
+    );
+
     const notSynced = await prisma.$queryRaw<
         [{ latitude: number; longitude: number }]
     >(
@@ -230,10 +247,11 @@ export const syncSuperMarkets = async (
                 ST_MakePoint(c.longitude, c.latitude)
             ) <= 400
             WHERE gms.id IS NULL
+            AND gms.query = ${translation}
         `
     );
 
     for (const { latitude, longitude } of notSynced) {
-        await scrapeSuperMarkets(latitude, longitude);
+        await scrapeInterest(translation, latitude, longitude);
     }
 };
