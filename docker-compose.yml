@@ -29,6 +29,12 @@ services:
             - DATABASE_URL=postgres://${POSTGRES_USER:-findstay}:${POSTGRES_PASSWORD:-password}@findstay-database/${POSTGRES_DB:-findstay}
         depends_on:
             - database
+            - ollama
+    ollama:
+        container_name: findstay-ollama
+        build:
+            context: ./
+            dockerfile: ./docker/ollama/Dockerfile
 
 volumes:
     # postgres data
