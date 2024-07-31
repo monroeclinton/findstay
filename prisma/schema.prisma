@@ -163,7 +163,7 @@ model GoogleMapsLocation {
 
 model GoogleMapsSync {
     id         String   @id @default(cuid())
-    search     String
+    query      String
     coordinate Unsupported("geometry(Point, 4326)")
     latitude   Decimal
     longitude  Decimal

@@ -79,6 +79,8 @@ const scrapeInterest = async (
                         coordinate,
                         ST_MakePoint(${longitude}, ${latitude})
                     ) <= 1000
+                AND
+                    query = ${query}
             `
         )
     ).at(0);
@@ -106,7 +108,7 @@ const scrapeInterest = async (
                 Prisma.sql`
                 INSERT INTO google_maps_sync (
                     id,
-                    search,
+                    query,
                     coordinate,
                     latitude,
                     longitude,
