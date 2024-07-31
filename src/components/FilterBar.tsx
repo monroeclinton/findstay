@@ -38,6 +38,7 @@ export interface GeoStringFilters {
 export interface SearchFilters {
     location: string;
     maxPrice: string | null;
+    poiInterests: Array<InterestType>;
     poiMinRating: string | null;
     poiMinReviews: string | null;
 }
@@ -156,6 +157,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                         data={Object.keys(InterestType).map(
                             (i) => i.charAt(0).toUpperCase() + i.slice(1)
                         )}
+                        {...form.getInputProps("poiInterests")}
                     />
 
                     <NumberInput

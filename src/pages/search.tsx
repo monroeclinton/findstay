@@ -52,6 +52,7 @@ const Search: FindStayPage = () => {
     const [filters, setFilters] = useState<SearchFilters>({
         location: "",
         maxPrice: null,
+        poiInterests: [],
         poiMinRating: null,
         poiMinReviews: null,
     });
@@ -80,6 +81,7 @@ const Search: FindStayPage = () => {
                         : null,
                 },
                 poi: {
+                    interests: filters.poiInterests,
                     minRating: filters.poiMinRating
                         ? parseFloat(filters.poiMinRating)
                         : null,
