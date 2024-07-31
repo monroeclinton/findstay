@@ -63,7 +63,7 @@ const getApiLink = (query: string, latitude: number, longitude: number) => {
 };
 
 const scrapeInterest = async (
-    query: (typeof INTEREST_TYPES)[number],
+    query: InterestType,
     latitude: number,
     longitude: number
 ) => {
