@@ -150,13 +150,12 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
 
                     <TagsInput
                         mt="md"
-                        defaultValue={[
-                            InterestType.Supermarket.charAt(0).toUpperCase() +
-                                InterestType.Supermarket.slice(1),
-                        ]}
-                        data={Object.keys(InterestType).map(
-                            (i) => i.charAt(0).toUpperCase() + i.slice(1)
+                        renderOption={({ option }) => (
+                            <span style={{ textTransform: "capitalize" }}>
+                                {option.value}
+                            </span>
                         )}
+                        data={Object.values(InterestType)}
                         {...form.getInputProps("poiInterests")}
                     />
 
