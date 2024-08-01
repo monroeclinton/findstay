@@ -22,6 +22,7 @@ import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { SIDE_BREAKPOINT } from "~/components/Side";
 import { useQueryParams } from "~/hooks/useQueryParams";
+import { InterestType } from "~/types/interests";
 import { type FindStayPage } from "~/types/next";
 import { api } from "~/utils/api";
 import { type BoundingBox } from "~/utils/geometry";
@@ -52,7 +53,7 @@ const Search: FindStayPage = () => {
     const [filters, setFilters] = useState<SearchFilters>({
         location: "",
         maxPrice: null,
-        poiInterests: [],
+        poiInterests: [InterestType.Supermarket],
         poiMinRating: null,
         poiMinReviews: null,
     });
