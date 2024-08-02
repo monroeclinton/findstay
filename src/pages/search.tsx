@@ -195,9 +195,10 @@ const Search: FindStayPage = () => {
                     <>
                         <FilterBar onChange={handleSearch} values={filters} />
 
-                        {filterPills.length > 0 && (
-                            <PillGroup mb="md">{filterPills}</PillGroup>
-                        )}
+                        {filters.location.length > 0 &&
+                            filterPills.length > 0 && (
+                                <PillGroup mb="md">{filterPills}</PillGroup>
+                            )}
 
                         {sync.data && (
                             <SegmentedControl
@@ -288,9 +289,11 @@ const Search: FindStayPage = () => {
                             flexBasis: isMobile ? "100%" : "60%",
                         }}
                     >
-                        {!isMobile && filterPills.length > 0 && (
-                            <PillGroup>{filterPills}</PillGroup>
-                        )}
+                        {!isMobile &&
+                            filters.location.length > 0 &&
+                            filterPills.length > 0 && (
+                                <PillGroup>{filterPills}</PillGroup>
+                            )}
                         {!homes.isInitialLoading &&
                             homes.data?.stays.length === 0 && (
                                 <Center
