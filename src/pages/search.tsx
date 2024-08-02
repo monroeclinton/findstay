@@ -62,7 +62,8 @@ const Search: FindStayPage = () => {
         .filter(([_, value]) => value !== null && value !== "")
         .map(([key, value]) => (
             <Pill style={{ textTransform: "capitalize" }} key={key}>
-                {key.replace(/([A-Z])/g, " $1").trim()}: {value}
+                {key.replace(/([A-Z])/g, " $1").trim()}:{" "}
+                {Array.isArray(value) ? value.join(", ") : value}
             </Pill>
         ));
 
