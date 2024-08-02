@@ -116,8 +116,8 @@ export const stayRouter = createTRPCRouter({
                 });
             }
 
-            for (const query of sync.params.poiInterests) {
-                await syncInterest(query, coordinates);
+            for (const interest of sync.params.poiInterests as InterestType[]) {
+                await syncInterest(interest, coordinates);
             }
 
             return {
