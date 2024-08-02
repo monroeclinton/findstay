@@ -31,7 +31,7 @@ model StaySyncParams {
     id            String   @id @default(cuid())
     location      String
     stayMaxPrice  String?
-    poiInterests  String[]
+    poiInterests  String[] @default([])
     poiMinRating  String?
     poiMinReviews String?
     neBBox        Unsupported("geometry(Point, 4326)")
