@@ -1,10 +1,11 @@
-import ollama from "ollama";
+import { Ollama } from "ollama";
 
 import { INTERESTS, type InterestType } from "~/types/interests";
 
 const getLanguageCode = async (latitude: number, longitude: number) => {
+    const ollama = new Ollama({ host: "http://findstay-ollama:11434" });
     const response = await ollama.chat({
-        model: "llama2:instruct",
+        model: "llama3:instruct",
         messages: [
             {
                 role: "user",
