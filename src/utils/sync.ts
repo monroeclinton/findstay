@@ -7,6 +7,7 @@ import {
 import { TRPCError } from "@trpc/server";
 
 import { prisma } from "~/server/db";
+import { type InterestType } from "~/types/interests";
 
 import { createAirbnbSync } from "./airbnb";
 import { type BoundingBox } from "./geometry";
@@ -66,6 +67,7 @@ export const createSync = async (
             maxPrice: number | null;
         };
         poi: {
+            interests: InterestType[];
             minRating: number | null;
             minReviews: number | null;
         };
@@ -110,6 +112,7 @@ export const createSync = async (
                     id,
                     location,
                     "stayMaxPrice",
+                    "poiInterests",
                     "poiMinRating",
                     "poiMinReviews",
                     "neBBox",
@@ -124,6 +127,7 @@ export const createSync = async (
                     ${createId()},
                     ${params.location},
                     ${params.stay.maxPrice},
+                    ${params.poi.interests},
                     ${params.poi.minRating},
                     ${params.poi.minReviews},
                     ST_POINT(
