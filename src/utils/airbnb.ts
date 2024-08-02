@@ -1,7 +1,6 @@
 import { createId } from "@paralleldrive/cuid2";
 import {
     type AirbnbLocationSync,
-    type AirbnbLocationSyncPage,
     Prisma,
     type Prisma as PrismaType,
 } from "@prisma/client";
