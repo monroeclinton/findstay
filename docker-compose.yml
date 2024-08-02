@@ -35,6 +35,8 @@ services:
         build:
             context: ./
             dockerfile: ./docker/ollama/Dockerfile
+        ports:
+            - "11434:11434"
 
 volumes:
     # postgres data
