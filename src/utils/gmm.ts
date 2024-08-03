@@ -252,8 +252,8 @@ export const syncInterest = async (
                 coordinate,
                 ST_MakePoint(c.longitude, c.latitude)
             ) <= 400
-            WHERE gms.id IS NULL
             AND gms.query = ${translation}
+            WHERE gms.id IS NULL
         `
     );
 
