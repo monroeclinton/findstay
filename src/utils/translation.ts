@@ -94,6 +94,10 @@ export const getInterestTranslation = async (
 ): Promise<string> => {
     const code = await getLanguageCode(latitude, longitude);
 
+    if (!code) {
+        return query;
+    }
+
     const interest = INTERESTS.find((i) => i.name === query);
 
     const translation = interest?.i18n[code];
