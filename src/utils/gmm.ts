@@ -118,7 +118,7 @@ const scrapeInterest = async (
                 )
                 VALUES (
                     ${createId()},
-                    'supermarkets',
+                    ${query},
                     ST_POINT(
                         ${longitude},
                         ${latitude}
