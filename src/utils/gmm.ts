@@ -6,6 +6,7 @@ import sql, { bulk } from "sql-template-tag";
 import { prisma } from "~/server/db";
 import { type InterestType } from "~/types/interests";
 
+import { getDistanceFromLatLonInKm } from "./geometry";
 import { getInterestTranslation } from "./translation";
 
 const headers = {
@@ -253,7 +254,22 @@ export const syncInterest = async (
         `
     );
 
-    for (const { latitude, longitude } of notSynced) {
+    const synced = [];
+    sync: for (const { latitude, longitude } of notSynced) {
+        for (const sync of synced) {
+            if (
+                getDistanceFromLatLonInKm(
+                    latitude,
+                    longitude,
+                    sync.latitude,
+                    sync.longitude
+                ) <= 1
+            ) {
+                continue sync;
+            }
+        }
+
         await scrapeInterest(translation, latitude, longitude);
+        synced.push({ latitude, longitude });
     }
 };
