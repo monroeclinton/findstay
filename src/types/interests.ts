@@ -52,7 +52,7 @@ export const INTERESTS: Array<IInterest> = [
         name: InterestType.Supermarket,
         i18n: {
             es: "supermercado",
-            de: "Supermarkt",
+            de: "supermarkt",
             fr: "supérette",
             pt: "supermercado",
             it: "supermercato",
