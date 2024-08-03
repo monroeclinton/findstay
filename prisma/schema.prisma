@@ -176,11 +176,14 @@ model GoogleMapsSync {
 }
 
 model GeoLanguageCode {
-    id          String   @id @default(cuid())
-    code        String
-    coordinate  Unsupported("geometry(Point, 4326)")
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id           String   @id @default(cuid())
+    languageCode String
+    countryCode  String
+    coordinate   Unsupported("geometry(Point, 4326)")
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+
+    @@map("geo_language_code")
 }
 
 model NominatimSearch {
