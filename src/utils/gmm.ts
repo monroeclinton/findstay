@@ -135,6 +135,7 @@ const scrapeInterest = async (
 
         if (!sync) return;
 
+        const locations = [];
         for (const store of locationResults) {
             const name = getArray(store, [14, 11]);
             const type = getArray(store, [14, 88, 1]);
@@ -174,8 +175,29 @@ const scrapeInterest = async (
                 longitude: new Prisma.Decimal(longitude as number),
             };
 
-            await tx.$queryRaw<[{ id: string }]>(
-                Prisma.sql`
+            locations.push(Prisma.sql`(
+                ${createId()},
+                ${sync.id},
+                ${location.name},
+                ${location.type},
+                ${location.reviews},
+                ${location.stars},
+                ${location.hex},
+                ${location.uri},
+                ${location.link},
+                ST_POINT(
+                    ${location.longitude},
+                    ${location.latitude}
+                ),
+                ${location.latitude},
+                ${location.longitude},
+                NOW(),
+                NOW()
+            )`);
+        }
+
+        await tx.$queryRaw<[{ id: string }]>(
+            Prisma.sql`
                 INSERT INTO google_maps_location (
                     id,
                     "syncId",
@@ -192,29 +214,10 @@ const scrapeInterest = async (
                     "updatedAt",
                     "createdAt"
                 )
-                VALUES (
-                    ${createId()},
-                    ${sync.id},
-                    ${location.name},
-                    ${location.type},
-                    ${location.reviews},
-                    ${location.stars},
-                    ${location.hex},
-                    ${location.uri},
-                    ${location.link},
-                    ST_POINT(
-                        ${location.longitude},
-                        ${location.latitude}
-                    ),
-                    ${location.latitude},
-                    ${location.longitude},
-                    NOW(),
-                    NOW()
-                )
+                VALUES ${Prisma.join(locations)}
                 ON CONFLICT (hex) DO NOTHING
             `
-            );
-        }
+        );
     });
 };
 
