@@ -16,7 +16,7 @@ export type Location = {
     ratingLocalized: string;
     longitude: number;
     latitude: number;
-    supermarket: number;
+    interests: Array<{ interest: string; distance: number }>;
     images: string[];
     link: string;
     isFavorited: boolean;
@@ -74,14 +74,20 @@ export const addComputedFields = async (
 
     const favoriteIds = favorites.map((favorite) => favorite.locationId);
 
-    const supermarkets = await prisma.$queryRaw<
-        Array<{ airbnbId: string; supermarketId: string; distance: number }>
+    const interests = await prisma.$queryRaw<
+        Array<{
+            airbnbId: string;
+            locationId: string;
+            interest: string;
+            distance: number;
+        }>
     >(
         Prisma.sql`
             SELECT
                 airbnb.id as "airbnbId",
-                supermarket.id as "supermarketId",
-                supermarket.distance::int as distance
+                interest.id as "supermarketId",
+                interest.type as interest
+                interest.distance::int as distance
             FROM
                 airbnb_location
             AS
@@ -94,8 +100,11 @@ export const addComputedFields = async (
                     WHERE google_maps_location.stars >= (${
                         params.poiMinRating || 0
                     })::numeric
+                    AND google_maps_location.type IN (${Prisma.join(
+                        params.poiInterests
+                    )})
                     ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
-                LIMIT 1) AS supermarket
+                LIMIT 1) AS interest
             WHERE
                 supermarket.distance < 5000 AND
                 airbnb.id IN (${Prisma.join(
@@ -115,9 +124,9 @@ export const addComputedFields = async (
             ratingLocalized: location.ratingLocalized,
             longitude: location.longitude.toNumber(),
             latitude: location.latitude.toNumber(),
-            supermarket: supermarkets.find(
-                (supermarket) => supermarket.airbnbId === location.id
-            )?.distance as number,
+            interests: interests.filter(
+                (interest) => interest.airbnbId === location.id
+            ),
             images: location.images,
             link: "https://airbnb.com/rooms/" + location.airbnbId,
             isFavorited: favoriteIds.includes(location.id),

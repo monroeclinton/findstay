@@ -223,14 +223,14 @@ const scrapeInterest = async (
 };
 
 export const syncInterest = async (
-    query: InterestType,
+    interest: InterestType,
     coordinates: Array<{ latitude: number; longitude: number }>
 ) => {
     const first = coordinates.at(0);
     if (!first) return;
 
-    const translation = await getInterestTranslation(
-        query,
+    const translation = getInterestTranslation(
+        interest,
         first.latitude,
         first.longitude
     );
@@ -273,7 +273,7 @@ export const syncInterest = async (
             }
         }
 
-        await scrapeInterest(translation, latitude, longitude);
+        await scrapeInterest(interest, translation, latitude, longitude);
         synced.push({ latitude, longitude });
     }
 };
