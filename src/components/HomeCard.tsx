@@ -33,7 +33,7 @@ import classes from "./HomeCard.module.css";
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
 interface IHomeCardProps extends CardProps {
-    home: RouterOutput["home"]["getPage"]["stays"][0];
+    home: RouterOutput["stay"]["getPage"]["stays"][0];
 }
 
 const FolderSelect = ({ onChange }: { onChange: (_: string) => void }) => {
