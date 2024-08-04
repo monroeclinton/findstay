@@ -64,6 +64,7 @@ const getApiLink = (query: string, latitude: number, longitude: number) => {
 };
 
 const scrapeInterest = async (
+    interest: InterestType,
     query: string,
     latitude: number,
     longitude: number
@@ -179,7 +180,7 @@ const scrapeInterest = async (
                 ${createId()},
                 ${sync.id},
                 ${location.name},
-                ${location.type},
+                ${interest},
                 ${location.reviews},
                 ${location.stars},
                 ${location.hex},
