@@ -213,12 +213,19 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
                 </Group>
             </Card.Section>
             <Card.Section inheritPadding mt="md">
-                <Text c="dimmed" size="xs" tt="uppercase" fw={700}>
-                    Supermarket
-                </Text>
-                <Text fw={400} size="xl">
-                    {home.supermarket} {home.supermarket ? "meters" : "None"}
-                </Text>
+                <Flex gap="sm">
+                    {home.interests.map((interest) => (
+                        <div key={interest.interest}>
+                            <Text c="dimmed" size="xs" tt="uppercase" fw={700}>
+                                {interest.interest}
+                            </Text>
+                            <Text fw={400} size="xl">
+                                {interest.distance}{" "}
+                                {interest.distance ? "meters" : "None"}
+                            </Text>
+                        </div>
+                    ))}
+                </Flex>
             </Card.Section>
         </Card>
     );
