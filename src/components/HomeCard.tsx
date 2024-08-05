@@ -104,13 +104,14 @@ const HomeCard = ({ home, ...props }: IHomeCardProps) => {
 
     const deleteFavorite = api.favorite.delete.useMutation({
         onSuccess: async () => {
-            await utils.home.getPage.invalidate();
+            await utils.favorite.getAll.invalidate();
+            await utils.stay.getPage.invalidate();
         },
     });
 
     const createFavorite = api.favorite.create.useMutation({
         onSuccess: async () => {
-            await utils.home.getPage.invalidate();
+            await utils.stay.getPage.invalidate();
             folderRef.current = undefined;
         },
     });
