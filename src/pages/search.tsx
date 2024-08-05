@@ -125,7 +125,6 @@ const Search: FindStayPage = () => {
     };
 
     const handleSearch = (filters: SearchFilters) => {
-        console.log(filters);
         setBoundingBox(null);
         setQueryParams(filters);
         setFilters(filters);
