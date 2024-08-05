@@ -85,33 +85,39 @@ export const addComputedFields = async (
     >(
         Prisma.sql`
             SELECT
+            DISTINCT ON (interest.type, airbnb.id)
                 airbnb.id as "airbnbId",
-                interest.id as "supermarketId",
-                interest.type as interest,
-                interest.distance::int as distance
+                airbnb.distance,
+                interest.type as interest
             FROM
-                airbnb_location
-            AS
-                airbnb
-            CROSS JOIN LATERAL
-                (SELECT
+                google_maps_location interest
+            CROSS JOIN LATERAL (
+                SELECT
                     id,
-                    type,
-                    ST_Distance(ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography) as distance
-                    FROM google_maps_location
-                    WHERE google_maps_location.stars >= (${
-                        params.poiMinRating || 0
-                    })::numeric
-                    AND google_maps_location.type IN (${Prisma.join(
-                        params.poiInterests
+                    ST_Distance(ST_MakePoint(interest.longitude, interest.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography)::int as distance
+                FROM
+                    airbnb_location airbnb
+                WHERE
+                    airbnb.id IN (${Prisma.join(
+                        airbnbLocations.map((location) => location.id)
                     )})
-                    ORDER BY ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude) <-> ST_MakePoint(airbnb.longitude, airbnb.latitude)
-                LIMIT 1) AS interest
+            ) AS airbnb
             WHERE
-                interest.distance < 5000 AND
-                airbnb.id IN (${Prisma.join(
-                    airbnbLocations.map((location) => location.id)
-                )})
+            ${
+                params
+                    ? Prisma.sql`
+                    interest.stars >= (${params.poiMinRating || 0})::numeric
+                    AND
+                        interest.type IN (${Prisma.join(params.poiInterests)})
+                    AND
+            `
+                    : Prisma.sql`0 != 0 AND`
+            }
+                airbnb.distance < 5000
+            ORDER BY
+                interest.type,
+                airbnb.id,
+                airbnb.distance
         `
     );
 
