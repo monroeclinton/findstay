@@ -62,7 +62,7 @@ export const getPointsOfInterest = async (
 
 export const addComputedFields = async (
     airbnbLocations: AirbnbLocation[],
-    params: StaySyncParams,
+    params: StaySyncParams | null,
     userId: string
 ): Promise<Location[]> => {
     if (airbnbLocations.length === 0) return [];

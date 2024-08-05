@@ -70,7 +70,7 @@ export const favoriteRouter = createTRPCRouter({
                 },
             });
 
-            return addComputedFields(locations, session.user.id);
+            return addComputedFields(locations, null, session.user.id);
         }),
     createFolder: protectedProcedure
         .input(
