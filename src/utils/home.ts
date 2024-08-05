@@ -96,6 +96,7 @@ export const addComputedFields = async (
             CROSS JOIN LATERAL
                 (SELECT
                     id,
+                    type,
                     ST_Distance(ST_MakePoint(google_maps_location.longitude, google_maps_location.latitude), ST_MakePoint(airbnb.longitude, airbnb.latitude)::geography) as distance
                     FROM google_maps_location
                     WHERE google_maps_location.stars >= (${
