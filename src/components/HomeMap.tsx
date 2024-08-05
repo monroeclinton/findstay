@@ -35,13 +35,14 @@ import round from "~/utils/round";
 
 import classes from "./HomeMap.module.css";
 import { MapContext, MapContextProvider } from "./Map";
+import { InterestType } from "~/types/interests";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
 interface IMapProps {
     isLoading: boolean;
-    data: RouterOutput["home"]["getPage"] | undefined;
-    sync: RouterOutput["home"]["createSync"];
+    data: RouterOutput["stay"]["getPage"] | undefined;
+    sync: RouterOutput["stay"]["createSync"];
     dimensions: {
         width: number;
         height: number;
@@ -54,7 +55,7 @@ const StayCard = ({
     record,
     selected,
 }: {
-    record: RouterOutput["home"]["getPage"]["stays"][0];
+    record: RouterOutput["stay"]["getPage"]["stays"][0];
     selected: string | null;
     viewed: string[];
 }) => {
@@ -144,7 +145,7 @@ const POICard = ({
     record,
     selected,
 }: {
-    record: RouterOutput["home"]["createSync"]["poi"][0];
+    record: RouterOutput["stay"]["createSync"]["poi"][0];
     selected: string | null;
     viewed: string[];
 }) => {
@@ -268,7 +269,7 @@ const Map = ({
     const POIBadge = ({
         record,
     }: {
-        record: RouterOutput["home"]["createSync"]["poi"][0];
+        record: RouterOutput["stay"]["createSync"]["poi"][0];
     }) => {
         const { map } = useContext(MapContext);
         const badgeRef = useRef<HTMLDivElement>(null);
