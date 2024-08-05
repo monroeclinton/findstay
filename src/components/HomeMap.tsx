@@ -311,7 +311,8 @@ const Map = ({
                         setViewed([record.id, ...viewed]);
                     }}
                 >
-                    🛒
+                    {record.type === InterestType.Supermarket && "🛒"}
+                    {record.type === InterestType.Gym && "🏋️"}
                 </Badge>
             </div>
         );
