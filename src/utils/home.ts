@@ -87,7 +87,7 @@ export const addComputedFields = async (
             SELECT
                 airbnb.id as "airbnbId",
                 interest.id as "supermarketId",
-                interest.type as interest
+                interest.type as interest,
                 interest.distance::int as distance
             FROM
                 airbnb_location
