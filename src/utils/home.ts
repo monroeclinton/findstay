@@ -55,6 +55,7 @@ export const getPointsOfInterest = async (
                 )
                 AND stars >= (${params.poiMinRating || 0})::numeric
                 AND reviews >= (${params.poiMinReviews || 0})::numeric
+                AND type IN (${Prisma.join(params.poiInterests)})
         `
     );
 };
