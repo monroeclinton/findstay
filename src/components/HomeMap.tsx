@@ -26,6 +26,7 @@ import {
 } from "react";
 
 import { type AppRouter } from "~/server/api/root";
+import { InterestType } from "~/types/interests";
 import {
     type BoundingBox,
     boundingBoxEqual,
@@ -35,7 +36,6 @@ import round from "~/utils/round";
 
 import classes from "./HomeMap.module.css";
 import { MapContext, MapContextProvider } from "./Map";
-import { InterestType } from "~/types/interests";
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
@@ -313,6 +313,9 @@ const Map = ({
                 >
                     {record.type === InterestType.Supermarket && "🛒"}
                     {record.type === InterestType.Gym && "🏋️"}
+                    {record.type === InterestType.Laundromat && "🧼"}
+                    {record.type === InterestType.Cafe && "☕"}
+                    {record.type === InterestType.CoworkingSpace && "💻"}
                 </Badge>
             </div>
         );
