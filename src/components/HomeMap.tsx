@@ -324,7 +324,7 @@ const Map = ({
     const StayBadge = ({
         record,
     }: {
-        record: RouterOutput["home"]["getPage"]["stays"][0];
+        record: RouterOutput["stay"]["getPage"]["stays"][0];
     }) => {
         const { map } = useContext(MapContext);
         const badgeRef = useRef<HTMLDivElement>(null);
