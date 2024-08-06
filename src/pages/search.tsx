@@ -41,6 +41,14 @@ const CONTROL = {
     MAP: "MAP",
 };
 
+const DEFAULT_FILTERS = {
+    location: "",
+    maxPrice: null,
+    poiInterests: [InterestType.Supermarket],
+    poiMinRating: null,
+    poiMinReviews: null,
+};
+
 const Search: FindStayPage = () => {
     const utils = api.useContext();
 
@@ -50,13 +58,7 @@ const Search: FindStayPage = () => {
 
     const [searchParams, setQueryParams] = useQueryParams();
     const [initialized, setInitialized] = useState(false);
-    const [filters, setFilters] = useState<SearchFilters>({
-        location: "",
-        maxPrice: null,
-        poiInterests: [InterestType.Supermarket],
-        poiMinRating: null,
-        poiMinReviews: null,
-    });
+    const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
 
     const filterPills = Object.entries(filters)
         .filter(([_, value]) => value !== null && value !== "")
@@ -146,6 +148,12 @@ const Search: FindStayPage = () => {
             onConfirm: () => document.getElementById("filter-bar")?.click(),
         });
     }, [sync.data, sync.error]);
+
+    useEffect(() => {
+        if (!searchParams.has("location") && filters.location.length !== 0) {
+            setFilters(DEFAULT_FILTERS);
+        }
+    }, [searchParams, filters]);
 
     useEffect(() => {
         const isReady = Object.keys(filters).some((key) =>
