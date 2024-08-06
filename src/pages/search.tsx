@@ -154,16 +154,15 @@ const Search: FindStayPage = () => {
 
         if (initialized || !isReady) return;
 
-        const queryFilters: SearchFilters = Object.keys(filters)
-            .filter(
-                (key) =>
-                    !filters[key as keyof SearchFilters] &&
-                    searchParams.get(key)?.length
-            )
-            .reduce(
-                (o, key) => Object.assign(o, { [key]: searchParams.get(key) }),
-                structuredClone(filters)
-            );
+        const queryFilters: SearchFilters = Object.keys(filters).reduce(
+            (o, key) =>
+                Object.assign(o, {
+                    [key]: ["poiInterests"].includes(key)
+                        ? searchParams.get(key)?.split(",")
+                        : searchParams.get(key),
+                }),
+            structuredClone(filters)
+        );
 
         setFilters(queryFilters);
         setInitialized(true);
