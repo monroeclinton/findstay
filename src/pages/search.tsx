@@ -94,6 +94,10 @@ const Search: FindStayPage = () => {
         {
             params: {
                 location: filters.location,
+                dates: {
+                    checkin: filters.dates.at(0) || null,
+                    checkout: filters.dates.at(1) || null,
+                },
                 stay: {
                     maxPrice: filters.maxPrice
                         ? parseInt(filters.maxPrice)
