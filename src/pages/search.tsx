@@ -186,6 +186,11 @@ const Search: FindStayPage = () => {
                 Object.assign(o, {
                     [key]: ["poiInterests"].includes(key)
                         ? searchParams.get(key)?.split(",")
+                        : ["dates"].includes(key)
+                        ? searchParams
+                              .get(key)
+                              ?.split(",")
+                              .map((date) => new Date(date))
                         : searchParams.get(key),
                 }),
             structuredClone(filters)
