@@ -67,7 +67,20 @@ const Search: FindStayPage = () => {
         .map(([key, value]) => (
             <Pill style={{ textTransform: "capitalize" }} key={key}>
                 {key.replace(/([A-Z])/g, " $1").trim()}:{" "}
-                {Array.isArray(value) ? value.join(", ") : value}
+                {Array.isArray(value) && key === "poiInterests"
+                    ? value.join(", ")
+                    : Array.isArray(value) && key === "dates"
+                    ? value
+                          .map((date: Date | null) =>
+                              date?.toLocaleDateString("en", {
+                                  weekday: "short",
+                                  year: "numeric",
+                                  month: "2-digit",
+                                  day: "numeric",
+                              })
+                          )
+                          .join(", ")
+                    : value}
             </Pill>
         ));
 
