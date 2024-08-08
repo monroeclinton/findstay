@@ -30,6 +30,9 @@ model StaySync {
 model StaySyncParams {
     id            String   @id @default(cuid())
     location      String
+    flexibleDate  Int?
+    checkin       DateTime?
+    checkout      DateTime?
     stayMaxPrice  String?
     poiInterests  String[] @default([])
     poiMinRating  String?
@@ -76,21 +79,24 @@ model AirbnbApi {
 }
 
 model AirbnbLocationSync {
-    id          String                               @id @default(cuid())
-    search      String
-    priceMax    Int?
-    apiKey      String
-    cursors     String[]
-    pages       AirbnbLocationSyncPage[]
-    neBBox      Unsupported("geometry(Point, 4326)")
-    neLatitude  Decimal
-    neLongitude Decimal
-    swBBox      Unsupported("geometry(Point, 4326)")
-    swLatitude  Decimal
-    swLongitude Decimal
-    syncs       StaySync[]
-    createdAt   DateTime                             @default(now())
-    updatedAt   DateTime                             @updatedAt
+    id           String                               @id @default(cuid())
+    search       String
+    flexibleDate Int?
+    checkin      DateTime?
+    checkout     DateTime?
+    priceMax     Int?
+    apiKey       String
+    cursors      String[]
+    pages        AirbnbLocationSyncPage[]
+    neBBox       Unsupported("geometry(Point, 4326)")
+    neLatitude   Decimal
+    neLongitude  Decimal
+    swBBox       Unsupported("geometry(Point, 4326)")
+    swLatitude   Decimal
+    swLongitude  Decimal
+    syncs        StaySync[]
+    createdAt    DateTime                             @default(now())
+    updatedAt    DateTime                             @updatedAt
 
     @@map("airbnb_location_sync")
     @@index([neBBox], type: Gist)
