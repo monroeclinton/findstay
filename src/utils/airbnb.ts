@@ -90,6 +90,8 @@ const headers = {
 const fetchAirbnbApi = async (
     apiKey: string,
     search: string,
+    checkin: Date | null,
+    checkout: Date | null,
     priceMax: number | undefined | null,
     neLatitude: number,
     neLongitude: number,
@@ -152,6 +154,22 @@ const fetchAirbnbApi = async (
                             filterName: "query",
                             filterValues: [search],
                         },
+                        checkin
+                            ? {
+                                  filterName: "checkin",
+                                  filterValues: [
+                                      checkin.toISOString().split("T")[0],
+                                  ],
+                              }
+                            : {},
+                        checkout
+                            ? {
+                                  filterName: "checkout",
+                                  filterValues: [
+                                      checkout.toISOString().split("T")[0],
+                                  ],
+                              }
+                            : {},
                         priceMax
                             ? {
                                   filterName: "priceMax",
@@ -239,6 +257,22 @@ const fetchAirbnbApi = async (
                             filterName: "query",
                             filterValues: [search],
                         },
+                        checkin
+                            ? {
+                                  filterName: "checkin",
+                                  filterValues: [
+                                      checkin.toISOString().split("T")[0],
+                                  ],
+                              }
+                            : {},
+                        checkout
+                            ? {
+                                  filterName: "checkout",
+                                  filterValues: [
+                                      checkout.toISOString().split("T")[0],
+                                  ],
+                              }
+                            : {},
                         priceMax
                             ? {
                                   filterName: "priceMax",
@@ -319,6 +353,8 @@ const scrapeAirbnbLocations = async (
     const scrape = await fetchAirbnbApi(
         sync.apiKey,
         sync.search,
+        sync.checkin,
+        sync.checkout,
         sync.priceMax,
         sync.neLatitude.toNumber(),
         sync.neLongitude.toNumber(),
@@ -455,6 +491,7 @@ const createAirbnbPage = async (
 export const createAirbnbSync = async (
     search: string,
     priceMax: number | undefined | null,
+    dates: { checkin: Date | null; checkout: Date | null },
     dimensions: { width: number; height: number },
     boundingBox: BoundingBox
 ): Promise<AirbnbLocationSync | null> => {
@@ -522,6 +559,8 @@ export const createAirbnbSync = async (
     const locationResults = await fetchAirbnbApi(
         apiKey,
         search,
+        dates.checkin,
+        dates.checkout,
         priceMax,
         boundingBox.neLat,
         boundingBox.neLng,
@@ -540,6 +579,8 @@ export const createAirbnbSync = async (
                     id,
                     search,
                     "priceMax",
+                    "checkin",
+                    "checkout",
                     "apiKey",
                     cursors,
                     "neBBox",
@@ -554,6 +595,8 @@ export const createAirbnbSync = async (
                     ${createId()},
                     ${search},
                     ${priceMax},
+                    ${dates.checkin},
+                    ${dates.checkout},
                     ${apiKey},
                     ${cursors},
                     ST_POINT(

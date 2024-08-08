@@ -17,6 +17,10 @@ export const stayRouter = createTRPCRouter({
                     stay: z.object({
                         maxPrice: z.number().int().nullable(),
                     }),
+                    dates: z.object({
+                        checkin: z.coerce.date().nullable(),
+                        checkout: z.coerce.date().nullable(),
+                    }),
                     poi: z.object({
                         interests: z.array(z.nativeEnum(InterestType)),
                         minRating: z.number().nullable(),

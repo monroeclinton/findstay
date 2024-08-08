@@ -63,6 +63,10 @@ export const createSync = async (
     clientBoundingBox: BoundingBox | undefined | null,
     params: {
         location: string;
+        dates: {
+            checkin: Date | null;
+            checkout: Date | null;
+        };
         stay: {
             maxPrice: number | null;
         };
@@ -94,6 +98,7 @@ export const createSync = async (
     const airbnbSync = await createAirbnbSync(
         params.location,
         params.stay.maxPrice,
+        params.dates,
         dimensions,
         boundingBox
     );
@@ -111,6 +116,8 @@ export const createSync = async (
                 INSERT INTO stay_sync_params (
                     id,
                     location,
+                    "checkin",
+                    "checkout",
                     "stayMaxPrice",
                     "poiInterests",
                     "poiMinRating",
@@ -126,6 +133,8 @@ export const createSync = async (
                 VALUES (
                     ${createId()},
                     ${params.location},
+                    ${params.dates.checkin},
+                    ${params.dates.checkout},
                     ${params.stay.maxPrice},
                     ${params.poi.interests},
                     ${params.poi.minRating},
