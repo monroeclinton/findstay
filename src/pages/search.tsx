@@ -44,6 +44,8 @@ const CONTROL = {
 const DEFAULT_FILTERS = {
     location: "",
     maxPrice: null,
+    dates: [null, null] as [null, null],
+    flexibleDate: null,
     poiInterests: [InterestType.Supermarket],
     poiMinRating: null,
     poiMinReviews: null,

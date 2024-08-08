@@ -1,6 +1,7 @@
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/carousel/styles.css";
+import "@mantine/dates/styles.css";
 import "ol/ol.css";
 
 import { MantineProvider } from "@mantine/core";

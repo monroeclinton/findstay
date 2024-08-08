@@ -12,6 +12,7 @@ import {
     Text,
     TextInput,
 } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -38,6 +39,8 @@ export interface GeoStringFilters {
 export interface SearchFilters {
     location: string;
     maxPrice: string | null;
+    flexibleDate: number | null;
+    dates: [Date | null, Date | null];
     poiInterests: Array<InterestType>;
     poiMinRating: string | null;
     poiMinReviews: string | null;
@@ -141,6 +144,27 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                         min={0}
                         fixedDecimalScale
                         {...form.getInputProps("maxPrice")}
+                    />
+
+                    <DatePickerInput
+                        mt="md"
+                        label="Dates"
+                        type="range"
+                        {...form.getInputProps("dates")}
+                    />
+
+                    <Select
+                        mt="md"
+                        label="Flexibile Dates"
+                        data={[
+                            { value: "0", label: "± 1 day" },
+                            { value: "3", label: "± 2 days" },
+                            { value: "1", label: "± 3 days" },
+                            { value: "2", label: "± 7 days" },
+                            { value: "6", label: "± 14 days" },
+                        ]}
+                        clearable
+                        {...form.getInputProps("flexibleDate")}
                     />
                 </Flex>
                 <Flex direction="column" flex={1}>
