@@ -30,7 +30,7 @@ model StaySync {
 model StaySyncParams {
     id            String   @id @default(cuid())
     location      String
-    flexibleDate  Int?
+    flexibleDate  String?
     checkin       DateTime?
     checkout      DateTime?
     stayMaxPrice  String?
@@ -81,7 +81,7 @@ model AirbnbApi {
 model AirbnbLocationSync {
     id           String                               @id @default(cuid())
     search       String
-    flexibleDate Int?
+    flexibleDate String?
     checkin      DateTime?
     checkout     DateTime?
     priceMax     Int?
