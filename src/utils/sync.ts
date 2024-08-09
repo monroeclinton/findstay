@@ -66,6 +66,7 @@ export const createSync = async (
         dates: {
             checkin: Date | null;
             checkout: Date | null;
+            flexible: string | null;
         };
         stay: {
             maxPrice: number | null;
@@ -118,6 +119,7 @@ export const createSync = async (
                     location,
                     "checkin",
                     "checkout",
+                    "flexibleDate",
                     "stayMaxPrice",
                     "poiInterests",
                     "poiMinRating",
@@ -135,6 +137,7 @@ export const createSync = async (
                     ${params.location},
                     ${params.dates.checkin},
                     ${params.dates.checkout},
+                    ${params.dates.flexible},
                     ${params.stay.maxPrice},
                     ${params.poi.interests},
                     ${params.poi.minRating},

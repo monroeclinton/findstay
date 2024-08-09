@@ -92,6 +92,7 @@ const fetchAirbnbApi = async (
     search: string,
     checkin: Date | null,
     checkout: Date | null,
+    flexibleDate: string | null,
     priceMax: number | undefined | null,
     neLatitude: number,
     neLongitude: number,
@@ -176,6 +177,12 @@ const fetchAirbnbApi = async (
                                   filterValues: [priceMax.toString()],
                               }
                             : {},
+                        flexibleDate
+                            ? {
+                                  filterName: "flexibleDateSearchFilterType",
+                                  filterValues: [flexibleDate],
+                              }
+                            : {},
                         {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
@@ -230,28 +237,12 @@ const fetchAirbnbApi = async (
                             filterValues: ["18"],
                         },
                         {
-                            filterName: "monthlyLength",
-                            filterValues: ["3"],
-                        },
-                        {
-                            filterName: "monthlyStartDate",
-                            filterValues: ["2023-11-01"],
-                        },
-                        {
                             filterName: "neLat",
                             filterValues: [neLatitude.toString()],
                         },
                         {
                             filterName: "neLng",
                             filterValues: [neLongitude.toString()],
-                        },
-                        {
-                            filterName: "priceFilterInputType",
-                            filterValues: ["0"],
-                        },
-                        {
-                            filterName: "priceFilterNumNights",
-                            filterValues: ["5"],
                         },
                         {
                             filterName: "query",
@@ -277,6 +268,12 @@ const fetchAirbnbApi = async (
                             ? {
                                   filterName: "priceMax",
                                   filterValues: [priceMax.toString()],
+                              }
+                            : {},
+                        flexibleDate
+                            ? {
+                                  filterName: "flexibleDateSearchFilterType",
+                                  filterValues: [flexibleDate],
                               }
                             : {},
                         {
@@ -355,6 +352,7 @@ const scrapeAirbnbLocations = async (
         sync.search,
         sync.checkin,
         sync.checkout,
+        sync.flexibleDate,
         sync.priceMax,
         sync.neLatitude.toNumber(),
         sync.neLongitude.toNumber(),
@@ -491,7 +489,11 @@ const createAirbnbPage = async (
 export const createAirbnbSync = async (
     search: string,
     priceMax: number | undefined | null,
-    dates: { checkin: Date | null; checkout: Date | null },
+    dates: {
+        checkin: Date | null;
+        checkout: Date | null;
+        flexible: string | null;
+    },
     dimensions: { width: number; height: number },
     boundingBox: BoundingBox
 ): Promise<AirbnbLocationSync | null> => {
@@ -500,6 +502,11 @@ export const createAirbnbSync = async (
             AND: [
                 { search: search },
                 { priceMax: priceMax },
+                {
+                    checkin: dates.checkin,
+                    checkout: dates.checkout,
+                    flexibleDate: dates.flexible,
+                },
                 {
                     createdAt: {
                         gte: new Date(Date.now() - 1000 * 60).toISOString(),
@@ -510,6 +517,11 @@ export const createAirbnbSync = async (
                     neLongitude: boundingBox.neLng,
                     swLatitude: boundingBox.swLat,
                     swLongitude: boundingBox.swLng,
+                },
+                {
+                    cursors: {
+                        isEmpty: false,
+                    },
                 },
             ],
         },
@@ -561,6 +573,7 @@ export const createAirbnbSync = async (
         search,
         dates.checkin,
         dates.checkout,
+        dates.flexible,
         priceMax,
         boundingBox.neLat,
         boundingBox.neLng,
@@ -579,8 +592,9 @@ export const createAirbnbSync = async (
                     id,
                     search,
                     "priceMax",
-                    "checkin",
-                    "checkout",
+                    checkin,
+                    checkout,
+                    "flexibleDate",
                     "apiKey",
                     cursors,
                     "neBBox",
@@ -597,6 +611,7 @@ export const createAirbnbSync = async (
                     ${priceMax},
                     ${dates.checkin},
                     ${dates.checkout},
+                    ${dates.flexible},
                     ${apiKey},
                     ${cursors},
                     ST_POINT(

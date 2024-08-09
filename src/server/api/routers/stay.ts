@@ -20,6 +20,7 @@ export const stayRouter = createTRPCRouter({
                     dates: z.object({
                         checkin: z.coerce.date().nullable(),
                         checkout: z.coerce.date().nullable(),
+                        flexible: z.string().nullable(),
                     }),
                     poi: z.object({
                         interests: z.array(z.nativeEnum(InterestType)),
