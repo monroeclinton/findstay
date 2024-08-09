@@ -39,12 +39,20 @@ export interface GeoStringFilters {
 export interface SearchFilters {
     location: string;
     maxPrice: string | null;
-    flexibleDate: number | null;
+    flexibleDate: string | null;
     dates: [Date | null, Date | null];
     poiInterests: Array<InterestType>;
     poiMinRating: string | null;
     poiMinReviews: string | null;
 }
+
+export const FLEXIBLE_DATES = [
+    { value: "0", label: "± 1 day" },
+    { value: "3", label: "± 2 days" },
+    { value: "1", label: "± 3 days" },
+    { value: "2", label: "± 7 days" },
+    { value: "6", label: "± 14 days" },
+];
 
 export const filtersToGeoString = (filters: GeoStringFilters): string =>
     [filters.neighborhood, filters.city, filters.country]
@@ -156,13 +164,7 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                     <Select
                         mt="md"
                         label="Flexibile Dates"
-                        data={[
-                            { value: "0", label: "± 1 day" },
-                            { value: "3", label: "± 2 days" },
-                            { value: "1", label: "± 3 days" },
-                            { value: "2", label: "± 7 days" },
-                            { value: "6", label: "± 14 days" },
-                        ]}
+                        data={FLEXIBLE_DATES}
                         clearable
                         {...form.getInputProps("flexibleDate")}
                     />

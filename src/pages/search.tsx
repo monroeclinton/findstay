@@ -12,12 +12,19 @@ import {
 } from "@mantine/core";
 import { useDebouncedState, useMediaQuery } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
-import { IconDatabaseOff, IconInfoCircle } from "@tabler/icons-react";
+import {
+    IconDatabaseOff,
+    IconExclamationCircle,
+    IconInfoCircle,
+} from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import { useEffect, useRef, useState } from "react";
 
-import FilterBar, { type SearchFilters } from "~/components/FilterBar";
+import FilterBar, {
+    FLEXIBLE_DATES,
+    type SearchFilters,
+} from "~/components/FilterBar";
 import HomeCard from "~/components/HomeCard";
 import Layout from "~/components/Layout";
 import { SIDE_BREAKPOINT } from "~/components/Side";
@@ -80,6 +87,8 @@ const Search: FindStayPage = () => {
                               })
                           )
                           .join(", ")
+                    : key === "flexibleDate"
+                    ? FLEXIBLE_DATES.find((d) => d.value === value)?.label
                     : value}
             </Pill>
         ));
@@ -97,6 +106,7 @@ const Search: FindStayPage = () => {
                 dates: {
                     checkin: filters.dates.at(0) || null,
                     checkout: filters.dates.at(1) || null,
+                    flexible: filters.flexibleDate || null,
                 },
                 stay: {
                     maxPrice: filters.maxPrice
