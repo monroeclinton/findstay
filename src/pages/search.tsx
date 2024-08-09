@@ -1,7 +1,9 @@
 import {
     Alert,
     Center,
+    Divider,
     Flex,
+    Group,
     Loader,
     Pagination,
     Pill,
@@ -334,6 +336,27 @@ const Search: FindStayPage = () => {
                             filterPills.length > 0 && (
                                 <PillGroup>{filterPills}</PillGroup>
                             )}
+                        {(sync.isError || homes.isError) && (
+                            <Center
+                                style={{
+                                    flex: 1,
+                                    width: "100%",
+                                    flexDirection: "column",
+                                }}
+                            >
+                                <Alert
+                                    variant="light"
+                                    color="red"
+                                    title="Error :("
+                                    icon={<IconExclamationCircle />}
+                                >
+                                    There was an error. Try refreshing or
+                                    contact support.
+                                    <Divider my="md" />
+                                    help@findstay.io
+                                </Alert>
+                            </Center>
+                        )}
                         {!homes.isInitialLoading &&
                             homes.data?.stays.length === 0 && (
                                 <Center
