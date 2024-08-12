@@ -31,8 +31,8 @@ model StaySyncParams {
     id            String   @id @default(cuid())
     location      String
     flexibleDate  String?
-    checkin       DateTime?
-    checkout      DateTime?
+    checkin       DateTime
+    checkout      DateTime
     stayMaxPrice  String?
     poiInterests  String[] @default([])
     poiMinRating  String?
@@ -82,8 +82,8 @@ model AirbnbLocationSync {
     id           String                               @id @default(cuid())
     search       String
     flexibleDate String?
-    checkin      DateTime?
-    checkout     DateTime?
+    checkin      DateTime
+    checkout     DateTime
     priceMax     Int?
     apiKey       String
     cursors      String[]
