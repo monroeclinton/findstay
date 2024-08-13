@@ -54,19 +54,34 @@ model AirbnbLocation {
     id              String                   @id @default(cuid())
     airbnbId        String                   @unique
     name            String
-    price           Int
     images          String[]
     rating          Decimal?
     ratingCount     Decimal?
     ratingLocalized String
     latitude        Decimal
     longitude       Decimal
+    prices          AirbnbLocationPrice[]
     pages           AirbnbLocationsOnPages[]
     airbnbFavorites AirbnbLocationFavorite[]
     createdAt       DateTime                 @default(now())
     updatedAt       DateTime                 @updatedAt
 
     @@map("airbnb_location")
+}
+
+model AirbnbLocationPrice {
+    id         String                   @id @default(cuid())
+    location   AirbnbLocation           @relation(fields: [locationId], references: [id])
+    locationId String
+    price      Int
+    qualifier  String
+    checkin    DateTime
+    checkout   DateTime
+    createdAt  DateTime                 @default(now())
+    updatedAt  DateTime                 @updatedAt
+
+    @@unique([locationId, checkin, checkout])
+    @@map("airbnb_location_price")
 }
 
 model AirbnbApi {
