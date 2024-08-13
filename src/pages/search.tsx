@@ -203,7 +203,7 @@ const Search: FindStayPage = () => {
 
         if (initialized || !isReady) return;
 
-        const queryFilters: SearchFilters = Object.keys(filters).reduce(
+        const queryFilters: SearchFilters = [...searchParams.keys()].reduce(
             (o, key) =>
                 Object.assign(o, {
                     [key]: ["poiInterests"].includes(key)
