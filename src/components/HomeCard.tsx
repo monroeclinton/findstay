@@ -269,7 +269,11 @@ const HomeCard = ({ home, interests, ...props }: IHomeCardProps) => {
                             </Text>
                         </Flex>
                         <Text fw={600} c="green" mt="xs">
-                            ${home.price} / night
+                            {home.price
+                                ? `$${home.price.price.toLocaleString()} / ${
+                                      home.price.qualifier
+                                  }`
+                                : null}
                         </Text>
                     </Flex>
                     <Text fw={500}>{home.name}</Text>

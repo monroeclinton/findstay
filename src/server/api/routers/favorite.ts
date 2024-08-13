@@ -68,6 +68,9 @@ export const favoriteRouter = createTRPCRouter({
                         in: favorites.map((favorite) => favorite.locationId),
                     },
                 },
+                include: {
+                    prices: true,
+                },
             });
 
             return addComputedFields(locations, null, session.user.id);

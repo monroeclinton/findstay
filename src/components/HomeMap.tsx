@@ -129,7 +129,10 @@ const StayCard = ({
                                         </Text>
                                     </Flex>
                                     <Text fw={600} c="green" mt="xs">
-                                        ${record.price} / night
+                                        {record.price &&
+                                            `$${record.price.price.toLocaleString()} / ${
+                                                record.price.qualifier
+                                            }`}
                                     </Text>
                                 </Flex>
                             </Card>
@@ -371,7 +374,7 @@ const Map = ({
                         setViewed([record.id, ...viewed]);
                     }}
                 >
-                    ${record.price}
+                    ${record.price?.price.toLocaleString()}
                 </Badge>
             </div>
         );

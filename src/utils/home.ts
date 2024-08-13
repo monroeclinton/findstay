@@ -1,5 +1,5 @@
 import {
-    type AirbnbLocation,
+    type AirbnbLocationPrice,
     type GoogleMapsLocation,
     Prisma,
     type StaySyncParams,
@@ -7,10 +7,12 @@ import {
 
 import { prisma } from "~/server/db";
 
+import { type AirbnbLocationWithPrices } from "./airbnb";
+
 export type Location = {
     id: string;
     name: string;
-    price: number;
+    price?: AirbnbLocationPrice;
     rating?: number;
     ratingCount?: number;
     ratingLocalized: string;
@@ -61,7 +63,7 @@ export const getPointsOfInterest = async (
 };
 
 export const addComputedFields = async (
-    airbnbLocations: AirbnbLocation[],
+    airbnbLocations: AirbnbLocationWithPrices[],
     params: StaySyncParams | null,
     userId: string
 ): Promise<Location[]> => {
@@ -126,8 +128,13 @@ export const addComputedFields = async (
         locations.push({
             id: location.id,
             name: location.name,
-            price: location.price,
-            rating: location.rating?.toNumber(),
+            price: params
+                ? location.prices.find(
+                      (l) =>
+                          l.checkin.getTime() === params.checkin.getTime() &&
+                          l.checkout.getTime() === params.checkout.getTime()
+                  )
+                : undefined,
             ratingCount: location.ratingCount?.toNumber(),
             ratingLocalized: location.ratingLocalized,
             longitude: location.longitude.toNumber(),

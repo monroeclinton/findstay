@@ -46,8 +46,24 @@ interface MapSearchResponse {
                             }>;
                         };
                         pricingQuote: {
-                            rate: {
-                                amount: number;
+                            structuredStayDisplayPrice: {
+                                primaryLine:
+                                    | {
+                                          displayComponentType: "DISCOUNTED_DISPLAY_PRICE_LINE";
+                                          discountedPrice: string;
+                                          originalPrice: string;
+                                          qualifier: string;
+                                      }
+                                    | {
+                                          displayComponentType: "BASIC_DISPLAY_PRICE_LINE";
+                                          price: string;
+                                          qualifier: string;
+                                      }
+                                    | {
+                                          displayComponentType: "QUALIFIED_DISPLAY_PRICE_LINE";
+                                          price: string;
+                                          qualifier: string;
+                                      };
                             };
                         };
                     }>;
@@ -57,12 +73,22 @@ interface MapSearchResponse {
     };
 }
 
+export type AirbnbLocationWithPrices = PrismaType.AirbnbLocationGetPayload<{
+    include: {
+        prices: true;
+    };
+}>;
+
 type AirbnbLocationSyncPageWithLocations =
     PrismaType.AirbnbLocationSyncPageGetPayload<{
         include: {
             locations: {
                 include: {
-                    location: true;
+                    location: {
+                        include: {
+                            prices: true;
+                        };
+                    };
                 };
             };
         };
@@ -74,7 +100,11 @@ type AirbnbLocationSyncWithPages = PrismaType.AirbnbLocationSyncGetPayload<{
             include: {
                 locations: {
                     include: {
-                        location: true;
+                        location: {
+                            include: {
+                                prices: true;
+                            };
+                        };
                     };
                 };
             };
@@ -428,6 +458,31 @@ const createAirbnbPage = async (
         return null;
     };
 
+    const parsePrice = (
+        result: MapSearchResponse["data"]["presentation"]["staysSearch"]["results"]["searchResults"][0]
+    ): number | null => {
+        if (
+            result.pricingQuote.structuredStayDisplayPrice.primaryLine
+                .displayComponentType === "DISCOUNTED_DISPLAY_PRICE_LINE"
+        ) {
+            return parseInt(
+                result.pricingQuote.structuredStayDisplayPrice.primaryLine.discountedPrice
+                    .replace("$", "")
+                    .replace(",", "")
+            );
+        }
+
+        if (result.pricingQuote.structuredStayDisplayPrice.primaryLine.price) {
+            return parseInt(
+                result.pricingQuote.structuredStayDisplayPrice.primaryLine.price
+                    .replace("$", "")
+                    .replace(",", "")
+            );
+        }
+
+        return null;
+    };
+
     await prisma.$transaction(async (tx) => {
         const locations = [];
         for (const location of locationResults.filter(
@@ -440,7 +495,6 @@ const createAirbnbPage = async (
                 },
                 update: {
                     name: location.listing.name,
-                    price: location.pricingQuote.rate.amount,
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
@@ -454,7 +508,6 @@ const createAirbnbPage = async (
                 create: {
                     airbnbId: location.listing.id,
                     name: location.listing.name,
-                    price: location.pricingQuote.rate.amount,
                     images: location.listing.contextualPictures.map(
                         (ctx) => ctx.picture
                     ),
@@ -466,6 +519,38 @@ const createAirbnbPage = async (
                     longitude: location.listing.coordinate.longitude,
                 },
             });
+
+            const price = parsePrice(location);
+            console.log(
+                price,
+                location.pricingQuote.structuredStayDisplayPrice.primaryLine
+            );
+            if (price) {
+                await tx.airbnbLocationPrice.upsert({
+                    where: {
+                        locationId_checkin_checkout: {
+                            locationId: record.id,
+                            checkin: sync.checkin,
+                            checkout: sync.checkout,
+                        },
+                    },
+                    update: {
+                        price,
+                        qualifier:
+                            location.pricingQuote.structuredStayDisplayPrice
+                                .primaryLine.qualifier,
+                    },
+                    create: {
+                        locationId: record.id,
+                        checkin: sync.checkin,
+                        checkout: sync.checkout,
+                        price,
+                        qualifier:
+                            location.pricingQuote.structuredStayDisplayPrice
+                                .primaryLine.qualifier,
+                    },
+                });
+            }
 
             locations.push(record);
         }
@@ -682,7 +767,16 @@ export const syncAirbnbPage = async (
         include: {
             locations: {
                 include: {
-                    location: true,
+                    location: {
+                        include: {
+                            prices: {
+                                where: {
+                                    checkin: sync.checkin,
+                                    checkout: sync.checkout,
+                                },
+                            },
+                        },
+                    },
                 },
             },
         },
