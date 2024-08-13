@@ -490,8 +490,8 @@ export const createAirbnbSync = async (
     search: string,
     priceMax: number | undefined | null,
     dates: {
-        checkin: Date | null;
-        checkout: Date | null;
+        checkin: Date;
+        checkout: Date;
         flexible: string | null;
     },
     dimensions: { width: number; height: number },

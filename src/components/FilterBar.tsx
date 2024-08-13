@@ -151,25 +151,17 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                     <GeoAutocomplete
                         mt="md"
                         key="location"
+                        withAsterisk
                         label="Location"
                         placeholder="Mission District, San Francisco, United States"
                         handleAutocomplete={handleAutocomplete}
                         {...form.getInputProps("location")}
                     />
 
-                    <NumberInput
-                        mt="md"
-                        label="Max Price"
-                        placeholder="100"
-                        leftSection={<IconCurrencyDollar />}
-                        decimalScale={0}
-                        min={0}
-                        fixedDecimalScale
-                        {...form.getInputProps("maxPrice")}
-                    />
-
                     <DatePickerInput
                         mt="md"
+                        withAsterisk
+                        minDate={new Date()}
                         label="Dates"
                         type="range"
                         {...form.getInputProps("dates")}
@@ -181,6 +173,17 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
                         data={FLEXIBLE_DATES}
                         clearable
                         {...form.getInputProps("flexibleDate")}
+                    />
+
+                    <NumberInput
+                        mt="md"
+                        label="Max Price"
+                        placeholder="100"
+                        leftSection={<IconCurrencyDollar />}
+                        decimalScale={0}
+                        min={0}
+                        fixedDecimalScale
+                        {...form.getInputProps("maxPrice")}
                     />
                 </Flex>
                 <Flex direction="column" flex={1}>

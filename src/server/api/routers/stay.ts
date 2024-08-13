@@ -18,8 +18,8 @@ export const stayRouter = createTRPCRouter({
                         maxPrice: z.number().int().nullable(),
                     }),
                     dates: z.object({
-                        checkin: z.coerce.date().nullable(),
-                        checkout: z.coerce.date().nullable(),
+                        checkin: z.coerce.date(),
+                        checkout: z.coerce.date(),
                         flexible: z.string().nullable(),
                     }),
                     poi: z.object({

@@ -106,8 +106,8 @@ const Search: FindStayPage = () => {
             params: {
                 location: filters.location,
                 dates: {
-                    checkin: filters.dates.at(0) || null,
-                    checkout: filters.dates.at(1) || null,
+                    checkin: filters.dates.at(0) as Date,
+                    checkout: filters.dates.at(1) as Date,
                     flexible: filters.flexibleDate || null,
                 },
                 stay: {
@@ -132,7 +132,11 @@ const Search: FindStayPage = () => {
             boundingBox,
         },
         {
-            enabled: filters.location.length > 3 && !!mapContainerRef.current,
+            enabled:
+                filters.location.length > 3 &&
+                !!mapContainerRef.current &&
+                filters.dates.at(0) instanceof Date &&
+                filters.dates.at(1) instanceof Date,
             refetchOnWindowFocus: false,
             keepPreviousData: filters.location.length > 3,
         }
@@ -144,7 +148,8 @@ const Search: FindStayPage = () => {
             page: activePage,
         },
         {
-            enabled: sync.data?.id !== undefined,
+            enabled:
+                sync.data?.id !== undefined && sync.data.cursors.length > 0,
             refetchOnWindowFocus: false,
             keepPreviousData:
                 filters.location.length > 3 && boundingBox !== null,

@@ -64,8 +64,8 @@ export const createSync = async (
     params: {
         location: string;
         dates: {
-            checkin: Date | null;
-            checkout: Date | null;
+            checkin: Date;
+            checkout: Date;
             flexible: string | null;
         };
         stay: {
@@ -117,8 +117,8 @@ export const createSync = async (
                 INSERT INTO stay_sync_params (
                     id,
                     location,
-                    "checkin",
-                    "checkout",
+                    checkin,
+                    checkout,
                     "flexibleDate",
                     "stayMaxPrice",
                     "poiInterests",
