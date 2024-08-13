@@ -3,7 +3,6 @@ import {
     Center,
     Divider,
     Flex,
-    Group,
     Loader,
     Pagination,
     Pill,
