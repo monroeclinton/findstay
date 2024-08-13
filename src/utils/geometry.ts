@@ -8,7 +8,7 @@ export type BoundingBox = {
 };
 
 const EARTH_CIR_METERS = 40075016.686;
-const degreesPerMeter = 360 / EARTH_CIR_METERS;
+const DEGREES_PER_METER = 360 / EARTH_CIR_METERS;
 
 export const boundingBoxEqual = (
     bBox1: BoundingBox,
@@ -63,8 +63,8 @@ export const latLngToBounds = (
     const shiftMetersEW = (width / 2) * metersPerPixelEW;
     const shiftMetersNS = (height / 2) * metersPerPixelNS;
 
-    const shiftDegreesEW = shiftMetersEW * degreesPerMeter;
-    const shiftDegreesNS = shiftMetersNS * degreesPerMeter;
+    const shiftDegreesEW = shiftMetersEW * DEGREES_PER_METER;
+    const shiftDegreesNS = shiftMetersNS * DEGREES_PER_METER;
 
     return {
         swLat: lat - shiftDegreesNS,
