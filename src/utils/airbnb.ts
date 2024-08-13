@@ -131,129 +131,147 @@ const fetchAirbnbApi = async (
     zoom: number,
     cursor: undefined | string = undefined
 ) => {
+    const treatmentFlags = [
+        "feed_map_decouple_m11_treatment",
+        "stays_search_rehydration_treatment_desktop",
+        "stays_search_rehydration_treatment_moweb",
+        "recommended_amenities_2024_treatment_b",
+        "m1_2024_monthly_stays_dial_treatment_flag",
+        "filter_reordering_2024_roomtype_treatment",
+    ];
+
+    const params = [
+        {
+            filterName: "query",
+            filterValues: [search],
+        },
+        {
+            filterName: "neLat",
+            filterValues: [neLatitude.toString()],
+        },
+        {
+            filterName: "neLng",
+            filterValues: [neLongitude.toString()],
+        },
+        {
+            filterName: "swLat",
+            filterValues: [swLatitude.toString()],
+        },
+        {
+            filterName: "swLng",
+            filterValues: [swLongitude.toString()],
+        },
+        {
+            filterName: "zoomLevel",
+            filterValues: [zoom.toString()],
+        },
+    ];
+
+    if (checkin) {
+        const date = checkin.toISOString()?.split("T")[0];
+        if (date) {
+            params.push({
+                filterName: "checkin",
+                filterValues: [date],
+            });
+        }
+    }
+
+    if (checkout) {
+        const date = checkout.toISOString()?.split("T")[0];
+        if (date) {
+            params.push({
+                filterName: "checkout",
+                filterValues: [date],
+            });
+        }
+    }
+
+    if (checkin instanceof Date && checkout instanceof Date) {
+        params.push({
+            filterName: "priceFilterNumNights",
+            filterValues: [
+                Math.round(
+                    Math.abs(checkout.getTime() - checkin.getTime()) / 8.64e7
+                ).toString(),
+            ],
+        });
+    }
+
+    if (priceMax) {
+        params.push({
+            filterName: "priceMax",
+            filterValues: [priceMax.toString()],
+        });
+    }
+
     const res: AxiosResponse<MapSearchResponse> = await axios.post(
         `https://www.airbnb.com/api/v3/StaysSearch?operationName=StaysSearch&locale=en&currency=USD`,
         {
-            operationName: "StaysMapS2Search",
+            operationName: "StaysSearch",
             variables: {
-                decomposeCleanupEnabled: true,
-                feedMapDecoupleEnabled: true,
+                includeMapResults: true,
                 isLeanTreatment: false,
-                staysMapSearchRequestV2: {
+                staysSearchRequest: {
                     ...(cursor ? { cursor } : {}),
                     requestedPageType: "STAYS_SEARCH",
                     metadataOnly: false,
-                    treatmentFlags: [
-                        "decompose_stays_search_m2_treatment",
-                        "flex_destinations_june_2021_launch_web_treatment",
-                        "new_filter_bar_v2_fm_header",
-                        "new_filter_bar_v2_and_fm_treatment",
-                        "flexible_dates_12_month_lead_time",
-                        "lazy_load_flex_search_map_compact",
-                        "lazy_load_flex_search_map_wide",
-                        "im_flexible_may_2022_treatment",
-                        "search_add_category_bar_ui_ranking_web",
-                        "feed_map_decouple_m11_treatment",
-                        "feed_map_decouple_homepage_treatment",
-                        "decompose_filters_treatment",
-                        "flexible_dates_options_extend_one_three_seven_days",
-                        "super_date_flexibility",
-                        "micro_flex_improvements",
-                        "micro_flex_show_by_default",
-                        "search_input_placeholder_phrases",
-                        "pets_fee_treatment",
-                        "upfront_pricing_enabled",
-                    ],
+                    source: "structured_search_input_header",
+                    searchType: "filter_change",
+                    treatmentFlags,
                     rawParams: [
+                        ...params,
+                        { filterName: "cdnCacheSafe", filterValues: ["false"] },
+                        { filterName: "channel", filterValues: ["EXPLORE"] },
                         {
-                            filterName: "cdnCacheSafe",
-                            filterValues: ["false"],
+                            filterName: "datePickerType",
+                            filterValues: ["calendar"],
                         },
                         {
-                            filterName: "itemsPerGrid",
-                            filterValues: ["18"],
+                            filterName: "flexibleTripLengths",
+                            filterValues: ["one_week"],
+                        },
+                        { filterName: "itemsPerGrid", filterValues: ["18"] },
+                        {
+                            filterName: "monthlyEndDate",
+                            filterValues: ["2024-12-01"],
+                        },
+                        { filterName: "monthlyLength", filterValues: ["3"] },
+                        {
+                            filterName: "monthlyStartDate",
+                            filterValues: ["2024-09-01"],
                         },
                         {
-                            filterName: "neLat",
-                            filterValues: [neLatitude.toString()],
+                            filterName: "priceFilterInputType",
+                            filterValues: ["1"],
                         },
-                        {
-                            filterName: "neLng",
-                            filterValues: [neLongitude.toString()],
-                        },
-                        {
-                            filterName: "query",
-                            filterValues: [search],
-                        },
-                        checkin
-                            ? {
-                                  filterName: "checkin",
-                                  filterValues: [
-                                      checkin.toISOString().split("T")[0],
-                                  ],
-                              }
-                            : {},
-                        checkout
-                            ? {
-                                  filterName: "checkout",
-                                  filterValues: [
-                                      checkout.toISOString().split("T")[0],
-                                  ],
-                              }
-                            : {},
-                        priceMax
-                            ? {
-                                  filterName: "priceMax",
-                                  filterValues: [priceMax.toString()],
-                              }
-                            : {},
-                        flexibleDate
-                            ? {
-                                  filterName: "flexibleDateSearchFilterType",
-                                  filterValues: [flexibleDate],
-                              }
-                            : {},
                         {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
                         },
+                        { filterName: "screenSize", filterValues: ["large"] },
+                        { filterName: "searchByMap", filterValues: ["true"] },
                         {
-                            filterName: "screenSize",
-                            filterValues: ["large"],
+                            filterName: "searchMode",
+                            filterValues: ["regular_search"],
                         },
-                        {
-                            filterName: "swLat",
-                            filterValues: [swLatitude.toString()],
-                        },
-                        {
-                            filterName: "swLng",
-                            filterValues: [swLongitude.toString()],
-                        },
-                        {
-                            filterName: "tabId",
-                            filterValues: ["home_tab"],
-                        },
-                        {
-                            filterName: "version",
-                            filterValues: ["1.8.3"],
-                        },
-                        {
-                            filterName: "zoomLevel",
-                            filterValues: [zoom.toString()],
-                        },
+                        { filterName: "tabId", filterValues: ["home_tab"] },
+                        { filterName: "version", filterValues: ["1.8.3"] },
+                        { filterName: "zoomLevel", filterValues: ["12"] },
                     ],
+                    maxMapItems: 9999,
                 },
-                staysSearchRequest: {
+                staysMapSearchRequestV2: {
+                    ...(cursor ? { cursor } : {}),
+                    requestedPageType: "STAYS_SEARCH",
                     metadataOnly: false,
+                    source: "structured_search_input_header",
+                    searchType: "filter_change",
+                    treatmentFlags,
                     rawParams: [
-                        {
-                            filterName: "cdnCacheSafe",
-                            filterValues: ["false"],
-                        },
-                        {
-                            filterName: "channel",
-                            filterValues: ["EXPLORE"],
-                        },
+                        ...params,
+                        { filterName: "cdnCacheSafe", filterValues: ["false"] },
+                        { filterName: "channel", filterValues: ["EXPLORE"] },
                         {
                             filterName: "datePickerType",
                             filterValues: ["calendar"],
@@ -263,88 +281,31 @@ const fetchAirbnbApi = async (
                             filterValues: ["one_week"],
                         },
                         {
-                            filterName: "itemsPerGrid",
-                            filterValues: ["18"],
+                            filterName: "monthlyEndDate",
+                            filterValues: ["2024-12-01"],
+                        },
+                        { filterName: "monthlyLength", filterValues: ["3"] },
+                        {
+                            filterName: "monthlyStartDate",
+                            filterValues: ["2024-09-01"],
                         },
                         {
-                            filterName: "neLat",
-                            filterValues: [neLatitude.toString()],
+                            filterName: "priceFilterInputType",
+                            filterValues: ["1"],
                         },
-                        {
-                            filterName: "neLng",
-                            filterValues: [neLongitude.toString()],
-                        },
-                        {
-                            filterName: "query",
-                            filterValues: [search],
-                        },
-                        checkin
-                            ? {
-                                  filterName: "checkin",
-                                  filterValues: [
-                                      checkin.toISOString().split("T")[0],
-                                  ],
-                              }
-                            : {},
-                        checkout
-                            ? {
-                                  filterName: "checkout",
-                                  filterValues: [
-                                      checkout.toISOString().split("T")[0],
-                                  ],
-                              }
-                            : {},
-                        priceMax
-                            ? {
-                                  filterName: "priceMax",
-                                  filterValues: [priceMax.toString()],
-                              }
-                            : {},
-                        flexibleDate
-                            ? {
-                                  filterName: "flexibleDateSearchFilterType",
-                                  filterValues: [flexibleDate],
-                              }
-                            : {},
                         {
                             filterName: "refinementPaths",
                             filterValues: ["/homes"],
                         },
+                        { filterName: "screenSize", filterValues: ["large"] },
+                        { filterName: "searchByMap", filterValues: ["true"] },
                         {
-                            filterName: "screenSize",
-                            filterValues: ["large"],
+                            filterName: "searchMode",
+                            filterValues: ["regular_search"],
                         },
-                        {
-                            filterName: "searchByMap",
-                            filterValues: ["true"],
-                        },
-                        {
-                            filterName: "swLat",
-                            filterValues: [swLatitude.toString()],
-                        },
-                        {
-                            filterName: "swLng",
-                            filterValues: [swLongitude.toString()],
-                        },
-                        {
-                            filterName: "tabId",
-                            filterValues: ["home_tab"],
-                        },
-                        {
-                            filterName: "version",
-                            filterValues: ["1.8.3"],
-                        },
-                        {
-                            filterName: "zoomLevel",
-                            filterValues: [zoom.toString()],
-                        },
-                    ],
-                    requestedPageType: "STAYS_SEARCH",
-                    searchType: "user_map_move",
-                    source: "structured_search_input_header",
-                    treatmentFlags: [
-                        "new_filter_bar_v2_fm_header",
-                        "feed_map_decouple_m11_treatment",
+                        { filterName: "tabId", filterValues: ["home_tab"] },
+                        { filterName: "version", filterValues: ["1.8.3"] },
+                        { filterName: "zoomLevel", filterValues: ["12"] },
                     ],
                 },
             },
@@ -352,9 +313,8 @@ const fetchAirbnbApi = async (
                 persistedQuery: {
                     version: 1,
                     sha256Hash:
-                        "ec7165512f4a12cc00f169462bbcfffcdb33c231506761deb872b4b18ff23c6c",
+                        "f332ec813d3164b3a3f891048992454338578bf2f5ce7ae90594576daf440859",
                 },
-                operationName: "StaysSearch",
             },
         },
         {
