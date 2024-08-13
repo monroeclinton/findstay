@@ -98,13 +98,13 @@ const GeoAutocomplete = ({
             data={[
                 ...new Set(
                     [
-                        value as string,
                         ...locations.map((location) =>
                             filtersToGeoString(location)
                         ),
                     ].filter(Boolean)
                 ),
             ]}
+            value={value}
             {...formProps}
         />
     );
