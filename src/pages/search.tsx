@@ -346,6 +346,24 @@ const Search: FindStayPage = () => {
                             filterPills.length > 0 && (
                                 <PillGroup>{filterPills}</PillGroup>
                             )}
+                        {sync.data?.cursors.length === 0 && (
+                            <Center
+                                style={{
+                                    flex: 1,
+                                    width: "100%",
+                                    flexDirection: "column",
+                                }}
+                            >
+                                <ThemeIcon
+                                    variant="light"
+                                    color="gray"
+                                    size="xl"
+                                >
+                                    <IconDatabaseOff />
+                                </ThemeIcon>
+                                <Text mt="sm">No listings</Text>
+                            </Center>
+                        )}
                         {(sync.isError || homes.isError) && (
                             <Center
                                 style={{
