@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useHotkeys } from "@mantine/hooks";
 import {
     IconAdjustments,
     IconCurrencyDollar,
@@ -123,6 +123,20 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
         });
     };
 
+    const isDisabled =
+        !form.values.dates.at(0) ||
+        !form.values.dates.at(1) ||
+        !form.values.location.length;
+
+    useHotkeys([
+        [
+            "Enter",
+            () => {
+                if (!isDisabled) onSubmit(form.values);
+            },
+        ],
+    ]);
+
     return (
         <form onSubmit={form.onSubmit(onSubmit)}>
             <Flex
@@ -211,7 +225,9 @@ const SearchForm = ({ onSubmit, values }: ISearchFormProps) => {
             </Flex>
 
             <Group mt="md">
-                <Button type="submit">Search</Button>
+                <Button disabled={isDisabled} type="submit">
+                    Search
+                </Button>
             </Group>
         </form>
     );
