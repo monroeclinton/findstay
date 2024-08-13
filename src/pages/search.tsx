@@ -165,10 +165,22 @@ const Search: FindStayPage = () => {
         setBoundingBox(null);
         setQueryParams(filters);
         setFilters(filters);
+        setPage(0);
 
         void utils.stay.createSync.reset();
         void utils.stay.getPage.reset();
     };
+
+    useEffect(() => {
+        if (!searchParams.has("location") && filters.location.length > 0) {
+            setBoundingBox(null);
+            setFilters(DEFAULT_FILTERS);
+            setPage(0);
+
+            void utils.stay.createSync.reset();
+            void utils.stay.getPage.reset();
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         if (!sync.error) return;
@@ -183,12 +195,6 @@ const Search: FindStayPage = () => {
             onConfirm: () => document.getElementById("filter-bar")?.click(),
         });
     }, [sync.data, sync.error]);
-
-    useEffect(() => {
-        if (!searchParams.has("location") && filters.location.length !== 0) {
-            setFilters(DEFAULT_FILTERS);
-        }
-    }, [searchParams, filters]);
 
     useEffect(() => {
         const isReady = Object.keys(filters).some((key) =>
