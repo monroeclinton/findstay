@@ -382,7 +382,11 @@ const Search: FindStayPage = () => {
                                 </Center>
                             )}
                         {homes.data?.stays.map((record) => (
-                            <HomeCard key={record.id} home={record} />
+                            <HomeCard
+                                key={record.id}
+                                home={record}
+                                interests={homes.data.poi}
+                            />
                         ))}
                         {homes.isInitialLoading && (
                             <Center style={{ flex: 1, width: "100%" }}>

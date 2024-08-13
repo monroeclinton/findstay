@@ -93,7 +93,12 @@ const Favorites: FindStayPage = () => {
                     </Center>
                 )}
                 {homes.data?.map((record) => (
-                    <HomeCard key={record.id} home={record} mb="sm" />
+                    <HomeCard
+                        key={record.id}
+                        home={record}
+                        interests={[]}
+                        mb="sm"
+                    />
                 ))}
                 {homes.isInitialLoading && (
                     <Center style={{ flex: 1 }}>

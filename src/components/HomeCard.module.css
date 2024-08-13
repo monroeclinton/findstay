@@ -3,3 +3,22 @@
     box-shadow: var(--mantine-shadow-sm);
     transition: ease-in-out 100ms;
 }
+
+.interest {
+    padding: var(--mantine-spacing-xs);
+    border-radius: var(--mantine-radius-default);
+}
+
+.interest:hover {
+    background: var(--mantine-color-gray-0);
+}
+
+.cardLink {
+    text-decoration: none;
+}
+
+.interestCard:hover {
+    cursor: pointer;
+    box-shadow: var(--mantine-shadow-sm);
+    transition: ease-in-out 100ms;
+}

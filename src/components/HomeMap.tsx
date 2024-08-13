@@ -145,7 +145,7 @@ const POICard = ({
     record,
     selected,
 }: {
-    record: RouterOutput["stay"]["createSync"]["poi"][0];
+    record: RouterOutput["stay"]["getPage"]["poi"][0];
     selected: string | null;
     viewed: string[];
 }) => {
@@ -269,7 +269,7 @@ const Map = ({
     const POIBadge = ({
         record,
     }: {
-        record: RouterOutput["stay"]["createSync"]["poi"][0];
+        record: RouterOutput["stay"]["getPage"]["poi"][0];
     }) => {
         const { map } = useContext(MapContext);
         const badgeRef = useRef<HTMLDivElement>(null);
@@ -408,13 +408,13 @@ const Map = ({
                             record={record}
                         />
                     ))}
-                    {sync.poi.map((record) => (
+                    {data.poi.map((record) => (
                         <POIBadge
                             key={record.id + "-card-" + page.toString()}
                             record={record}
                         />
                     ))}
-                    {sync.poi.map((record) => (
+                    {data.poi.map((record) => (
                         <POICard
                             key={record.id + "-card-" + page.toString()}
                             record={record}

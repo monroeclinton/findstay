@@ -58,23 +58,11 @@ export const stayRouter = createTRPCRouter({
                 sync.params.swLongitude.toNumber()
             );
 
-            for (const interest of input.params.poi.interests) {
-                await syncInterest(interest, [midpoint]);
-            }
-
-            const poi = await getPointsOfInterest(sync.params);
-
             return {
                 id: sync.id,
                 cursors: sync.airbnbSync.cursors,
                 midpoint,
                 clientBoundingBox: input.boundingBox,
-                poi: poi.map((point) => ({
-                    ...point,
-                    longitude: point.longitude.toNumber(),
-                    latitude: point.latitude.toNumber(),
-                    stars: point.stars.toNumber(),
-                })),
                 boundingBox: {
                     neLat: sync.params.neLatitude.toNumber(),
                     neLng: sync.params.neLongitude.toNumber(),
@@ -125,9 +113,17 @@ export const stayRouter = createTRPCRouter({
                 await syncInterest(interest, coordinates);
             }
 
+            const poi = await getPointsOfInterest(sync.params);
+
             return {
                 midpoint,
                 stays,
+                poi: poi.map((point) => ({
+                    ...point,
+                    longitude: point.longitude.toNumber(),
+                    latitude: point.latitude.toNumber(),
+                    stars: point.stars.toNumber(),
+                })),
             };
         }),
 });
