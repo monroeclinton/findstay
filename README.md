@@ -21,7 +21,7 @@ To create an instance of findstay run the following commands:
 docker compose up
 ```
 
-Then navigate to (localhost:3000)[http://localhost:3000]
+Then navigate to [localhost:3000](http://localhost:3000)
 
 ## Project Organization
 
