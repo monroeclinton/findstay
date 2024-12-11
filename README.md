@@ -2,7 +2,9 @@
 
 Scrapes Airbnb and Google maps to show distance each Airbnb is to a supermarket, gym, cafe, etc.
 
-![Video of findstay](docs/video.mp4)
+##### Click to watch demo:
+
+[![Watch the video](https://img.youtube.com/vi/Jdpgfa5-Yb0/0.jpg)](https://www.youtube.com/watch?v=Jdpgfa5-Yb0)
 
 ## Technology
 
